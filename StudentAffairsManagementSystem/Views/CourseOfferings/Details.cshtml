@@ -1,0 +1,306 @@
+﻿
+@model StudentAffairsManagementSystem.Models.CourseOffering
+
+@{
+    ViewData["Title"] = "تفاصيل المقرر المطروح";
+
+    bool isAdmin = User.IsInRole("Admin");
+
+    string employeeName =
+        $"{Model.Employee.FirstName} {Model.Employee.LastName}";
+}
+
+<div class="container-fluid py-4" dir="rtl">
+
+    <!-- عنوان الصفحة -->
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+
+        <div>
+            <h2 style="color:#142d4e; font-weight:800;">
+                تفاصيل المقرر المطروح
+            </h2>
+
+            <p class="text-muted mb-0">
+                معلومات المقرر والفصل الدراسي والموظف المسؤول
+            </p>
+        </div>
+
+        <a asp-controller="CourseOfferings"
+           asp-action="Index"
+           class="btn btn-outline-secondary px-4">
+            العودة للقائمة
+        </a>
+
+    </div>
+
+    <div class="row g-4">
+
+        <!-- بيانات المقرر -->
+        <div class="col-lg-6">
+
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-header py-3"
+                     style="background:#142d4e; color:white;">
+                    <h5 class="mb-0">
+                        بيانات المقرر الدراسي
+                    </h5>
+                </div>
+
+                <div class="card-body p-4">
+
+                    <div class="mb-4">
+                        <div class="text-muted mb-2">
+                            اسم المقرر
+                        </div>
+
+                        <h4 style="color:#142d4e; font-weight:800;">
+                            @Model.Course.Name
+                        </h4>
+                    </div>
+
+                    <hr />
+
+                    <div class="mb-3">
+                        <div class="text-muted mb-2">
+                            رمز المقرر
+                        </div>
+
+                        <div class="fw-bold">
+                            @Model.Course.Code
+                        </div>
+                    </div>
+
+                    <hr />
+
+                    <div>
+                        <div class="text-muted mb-2">
+                            الساعات المعتمدة
+                        </div>
+
+                        <div class="fw-bold">
+                            @Model.Course.CreditHours ساعة
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <!-- بيانات الفصل -->
+        <div class="col-lg-6">
+
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-header py-3"
+                     style="background:#142d4e; color:white;">
+                    <h5 class="mb-0">
+                        بيانات الفصل الدراسي
+                    </h5>
+                </div>
+
+                <div class="card-body p-4">
+
+                    <div class="mb-3">
+                        <div class="text-muted mb-2">
+                            الفصل الدراسي
+                        </div>
+
+                        <h4 style="color:#142d4e; font-weight:800;">
+                            @Model.Semester.Name
+                        </h4>
+                    </div>
+
+                    <hr />
+
+                    <div class="mb-3">
+                        <div class="text-muted mb-2">
+                            العام الدراسي
+                        </div>
+
+                        <div class="fw-bold">
+                            @Model.Semester.AcademicYear
+                        </div>
+                    </div>
+
+                    <hr />
+
+                    <div class="mb-3">
+                        <div class="text-muted mb-2">
+                            تاريخ بداية الفصل
+                        </div>
+
+                        <div class="fw-bold">
+                            @Model.Semester.StartDate.ToString("yyyy/MM/dd")
+                        </div>
+                    </div>
+
+                    <hr />
+
+                    <div class="mb-3">
+                        <div class="text-muted mb-2">
+                            تاريخ نهاية الفصل
+                        </div>
+
+                        <div class="fw-bold">
+                            @Model.Semester.EndDate.ToString("yyyy/MM/dd")
+                        </div>
+                    </div>
+
+                    <hr />
+
+                    <div>
+                        <div class="text-muted mb-2">
+                            حالة الفصل
+                        </div>
+
+                        @if (Model.Semester.IsActive)
+                        {
+                            <span class="badge bg-success px-3 py-2">
+                                فعال
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary px-3 py-2">
+                                غير فعال
+                            </span>
+                        }
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <!-- بيانات الموظف -->
+        <div class="col-lg-6">
+
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-header py-3"
+                     style="background:#142d4e; color:white;">
+                    <h5 class="mb-0">
+                        الموظف المسؤول
+                    </h5>
+                </div>
+
+                <div class="card-body p-4">
+
+                    <div class="mb-3">
+                        <div class="text-muted mb-2">
+                            اسم الموظف
+                        </div>
+
+                        <h4 style="color:#142d4e; font-weight:800;">
+                            @employeeName
+                        </h4>
+                    </div>
+
+                    <hr />
+
+                    <div class="mb-3">
+                        <div class="text-muted mb-2">
+                            الرقم الوظيفي
+                        </div>
+
+                        <div class="fw-bold">
+                            @Model.Employee.EmployeeNumber
+                        </div>
+                    </div>
+
+                    <hr />
+
+                    <div>
+                        <div class="text-muted mb-2">
+                            حالة الموظف
+                        </div>
+
+                        @if (Model.Employee.IsDeleted)
+                        {
+                            <span class="badge bg-secondary px-3 py-2">
+                                محذوف من النظام
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-success px-3 py-2">
+                                غير محذوف
+                            </span>
+                        }
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <!-- السعة الاستيعابية -->
+        <div class="col-lg-6">
+
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-header py-3"
+                     style="background:#142d4e; color:white;">
+                    <h5 class="mb-0">
+                        معلومات السعة الاستيعابية
+                    </h5>
+                </div>
+
+                <div class="card-body p-4">
+
+                    <div class="text-muted mb-3">
+                        الحد الأقصى لعدد الطلاب
+                    </div>
+
+                    <h1 style="color:#c9a24d; font-weight:800;">
+                        @Model.Capacity
+                    </h1>
+
+                    <p class="text-muted mb-0">
+                        طالب كحد أقصى لهذا المقرر المطروح.
+                    </p>
+
+                    <div class="alert alert-light border mt-4 mb-0">
+                        هذه السعة الكلية للمقرر، وليست عدد المقاعد
+                        المتبقية أو عدد الطلاب المسجلين حاليًا.
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- أزرار الإجراءات -->
+    <div class="d-flex justify-content-end gap-2 flex-wrap mt-4">
+
+        <a asp-controller="CourseOfferings"
+           asp-action="Index"
+           class="btn btn-outline-secondary px-4">
+            العودة للقائمة
+        </a>
+
+        @if (isAdmin)
+        {
+            <a asp-controller="CourseOfferings"
+               asp-action="Edit"
+               asp-route-id="@Model.Id"
+               class="btn px-4"
+               style="background:#c9a24d; color:#142d4e; font-weight:800;">
+                تعديل المقرر المطروح
+            </a>
+
+            <a asp-controller="CourseOfferings"
+               asp-action="Delete"
+               asp-route-id="@Model.Id"
+               class="btn btn-outline-danger px-4">
+                حذف المقرر المطروح
+            </a>
+        }
+
+    </div>
+
+</div>

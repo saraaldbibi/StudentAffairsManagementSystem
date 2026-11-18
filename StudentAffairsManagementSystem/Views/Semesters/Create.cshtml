@@ -1,0 +1,192 @@
+﻿
+@model StudentAffairsManagementSystem.Models.Semester
+
+@{
+    ViewData["Title"] = "إضافة فصل دراسي";
+}
+
+<div class="container-fluid py-4" dir="rtl">
+
+    <!-- عنوان الصفحة -->
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+        <div>
+            <h2 style="color:#142d4e; font-weight:800;">
+                إضافة فصل دراسي جديد
+            </h2>
+
+            <p class="text-muted mb-0">
+                إدخال بيانات الفصل الدراسي والعام الأكاديمي
+            </p>
+        </div>
+
+        <a asp-controller="Semesters"
+           asp-action="Index"
+           class="btn btn-outline-secondary">
+            العودة إلى الفصول الدراسية
+        </a>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+
+        <div class="card-header py-3"
+             style="background:#142d4e; color:white;">
+            <h5 class="mb-0">
+                بيانات الفصل الدراسي
+            </h5>
+        </div>
+
+        <div class="card-body p-4">
+
+            <form asp-controller="Semesters"
+                  asp-action="Create"
+                  method="post">
+
+                @Html.AntiForgeryToken()
+
+                <div asp-validation-summary="ModelOnly"
+                     class="text-danger mb-3"></div>
+
+                <!-- رقم الفصل -->
+                <div class="row g-3 mb-4">
+
+                    <div class="col-md-6">
+                        <label asp-for="SemesterNumber"
+                               class="form-label fw-bold">
+                            رقم الفصل الدراسي
+                        </label>
+
+                        <input asp-for="SemesterNumber"
+                               type="number"
+                               min="1"
+                               class="form-control"
+                               placeholder="أدخل رقم الفصل" />
+
+                        <span asp-validation-for="SemesterNumber"
+                              class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="Name"
+                               class="form-label fw-bold">
+                            اسم الفصل الدراسي
+                        </label>
+
+                        <input asp-for="Name"
+                               class="form-control"
+                               placeholder="مثال: الفصل الأول" />
+
+                        <span asp-validation-for="Name"
+                              class="text-danger"></span>
+                    </div>
+
+                </div>
+
+                <!-- العام الدراسي -->
+                <div class="mb-4">
+                    <label asp-for="AcademicYear"
+                           class="form-label fw-bold">
+                        العام الدراسي
+                    </label>
+
+                    <input asp-for="AcademicYear"
+                           class="form-control"
+                           placeholder="مثال: 2026-2027"
+                           dir="ltr" />
+
+                    <span asp-validation-for="AcademicYear"
+                          class="text-danger"></span>
+                </div>
+
+                <!-- تواريخ الفصل -->
+                <h5 class="mb-3"
+                    style="color:#142d4e; font-weight:700;">
+                    مواعيد الفصل الدراسي
+                </h5>
+
+                <div class="row g-3 mb-4">
+
+                    <div class="col-md-6">
+                        <label asp-for="StartDate"
+                               class="form-label fw-bold">
+                            تاريخ بداية الفصل
+                        </label>
+
+                        <input asp-for="StartDate"
+                               type="date"
+                               asp-format="{0:yyyy-MM-dd}"
+                               class="form-control"
+                               dir="ltr" />
+
+                        <span asp-validation-for="StartDate"
+                              class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="EndDate"
+                               class="form-label fw-bold">
+                            تاريخ نهاية الفصل
+                        </label>
+
+                        <input asp-for="EndDate"
+                               type="date"
+                               asp-format="{0:yyyy-MM-dd}"
+                               class="form-control"
+                               dir="ltr" />
+
+                        <span asp-validation-for="EndDate"
+                              class="text-danger"></span>
+                    </div>
+
+                </div>
+
+                <!-- حالة الفصل -->
+                <div class="card border mb-4">
+                    <div class="card-body">
+
+                        <div class="form-check form-switch">
+                            <input asp-for="IsActive"
+                                   class="form-check-input"
+                                   type="checkbox"
+                                   role="switch" />
+
+                            <label asp-for="IsActive"
+                                   class="form-check-label fw-bold">
+                                الفصل الدراسي فعال
+                            </label>
+                        </div>
+
+                        <small class="text-muted d-block mt-2">
+                            عند تفعيل هذا الخيار، سيتم حفظ الفصل
+                            بحالة فعال في النظام.
+                        </small>
+
+                    </div>
+                </div>
+
+                <!-- أزرار الحفظ والإلغاء -->
+                <div class="d-flex flex-wrap gap-3 mt-4">
+
+                    <button type="submit"
+                            class="btn px-5 py-2"
+                            style="background:#c9a24d; color:#142d4e; font-weight:800;">
+                        حفظ الفصل الدراسي
+                    </button>
+
+                    <a asp-controller="Semesters"
+                       asp-action="Index"
+                       class="btn btn-outline-secondary px-4 py-2">
+                        إلغاء
+                    </a>
+
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

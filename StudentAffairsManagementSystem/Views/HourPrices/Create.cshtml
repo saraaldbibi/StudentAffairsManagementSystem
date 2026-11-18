@@ -1,0 +1,162 @@
+﻿
+@model StudentAffairsManagementSystem.Models.HourPrice
+
+@{
+    ViewData["Title"] = "إضافة سعر ساعة دراسية";
+}
+
+<div class="container-fluid py-4" dir="rtl">
+
+    <!-- عنوان الصفحة -->
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+
+        <div>
+            <h2 style="color:#142d4e; font-weight:800;">
+                إضافة سعر ساعة دراسية
+            </h2>
+
+            <p class="text-muted mb-0">
+                تحديد سعر الساعة الدراسية لقسم ضمن فصل دراسي
+            </p>
+        </div>
+
+        <a asp-controller="HourPrices"
+           asp-action="Index"
+           class="btn btn-outline-secondary">
+            العودة إلى أسعار الساعات
+        </a>
+
+    </div>
+
+    <!-- نموذج الإضافة -->
+    <div class="card border-0 shadow-sm">
+
+        <div class="card-header py-3"
+             style="background:#142d4e; color:white;">
+
+            <h5 class="mb-0">
+                بيانات سعر الساعة
+            </h5>
+
+        </div>
+
+        <div class="card-body p-4">
+
+            <form asp-controller="HourPrices"
+                  asp-action="Create"
+                  method="post">
+
+                @Html.AntiForgeryToken()
+
+                <!-- رسائل الأخطاء -->
+                <div asp-validation-summary="All"
+                     class="text-danger mb-3"></div>
+
+                <!-- اختيار القسم -->
+                <div class="mb-4">
+
+                    <label asp-for="DepartmentId"
+                           class="form-label fw-bold">
+                        القسم الدراسي
+                    </label>
+
+                    <select asp-for="DepartmentId"
+                            asp-items="ViewBag.DepartmentId"
+                            class="form-select">
+
+                        <option value="">
+                            -- اختاروا القسم الدراسي --
+                        </option>
+
+                    </select>
+
+                    <span asp-validation-for="DepartmentId"
+                          class="text-danger"></span>
+
+                </div>
+
+                <!-- اختيار الفصل -->
+                <div class="mb-4">
+
+                    <label asp-for="SemesterId"
+                           class="form-label fw-bold">
+                        الفصل الدراسي
+                    </label>
+
+                    <select asp-for="SemesterId"
+                            asp-items="ViewBag.SemesterId"
+                            class="form-select">
+
+                        <option value="">
+                            -- اختاروا الفصل الدراسي --
+                        </option>
+
+                    </select>
+
+                    <span asp-validation-for="SemesterId"
+                          class="text-danger"></span>
+
+                </div>
+
+                <!-- سعر الساعة -->
+                <div class="mb-4">
+
+                    <label asp-for="PricePerHour"
+                           class="form-label fw-bold">
+                        سعر الساعة الدراسية
+                    </label>
+
+                    <input asp-for="PricePerHour"
+                           type="number"
+                           min="0.01"
+                           step="0.01"
+                           class="form-control"
+                           dir="ltr"
+                           placeholder="أدخلوا سعر الساعة" />
+
+                    <span asp-validation-for="PricePerHour"
+                          class="text-danger"></span>
+
+                    <small class="text-muted d-block mt-2">
+                        أدخلوا قيمة أكبر من صفر.
+                    </small>
+
+                </div>
+
+                <!-- تنبيه -->
+                <div class="alert alert-light border mb-4">
+
+                    <strong>ملاحظة:</strong>
+                    لا يمكن تسجيل أكثر من سعر ساعة واحد
+                    لنفس القسم ضمن نفس الفصل الدراسي.
+
+                </div>
+
+                <!-- أزرار الحفظ والإلغاء -->
+                <div class="d-flex flex-wrap gap-3">
+
+                    <button type="submit"
+                            class="btn px-5 py-2"
+                            style="background:#c9a24d; color:#142d4e; font-weight:800;">
+                        حفظ سعر الساعة
+                    </button>
+
+                    <a asp-controller="HourPrices"
+                       asp-action="Index"
+                       class="btn btn-outline-secondary px-4 py-2">
+                        إلغاء
+                    </a>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

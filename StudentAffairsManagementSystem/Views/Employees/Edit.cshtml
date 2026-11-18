@@ -1,0 +1,183 @@
+﻿
+@model StudentAffairsManagementSystem.Models.Employee
+
+@{
+    ViewData["Title"] = "تعديل بيانات الموظف";
+}
+
+<div class="container-fluid py-4" dir="rtl">
+
+    <!-- عنوان الصفحة -->
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+        <div>
+            <h2 style="color:#142d4e; font-weight:800;">
+                تعديل بيانات الموظف
+            </h2>
+
+            <p class="text-muted mb-0">
+                تحديث المعلومات الشخصية ومعلومات التواصل
+            </p>
+        </div>
+
+        <a asp-controller="Employees"
+           asp-action="Details"
+           asp-route-id="@Model.Id"
+           class="btn btn-outline-secondary">
+            العودة إلى التفاصيل
+        </a>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+
+        <div class="card-header py-3"
+             style="background:#142d4e; color:white;">
+            <h5 class="mb-0">
+                بيانات الموظف
+            </h5>
+        </div>
+
+        <div class="card-body p-4">
+
+            <form asp-controller="Employees"
+                  asp-action="Edit"
+                  asp-route-id="@Model.Id"
+                  method="post">
+
+                @Html.AntiForgeryToken()
+
+                <input type="hidden" asp-for="Id" />
+
+                <div asp-validation-summary="ModelOnly"
+                     class="text-danger mb-3"></div>
+
+                <!-- الرقم الوظيفي للعرض فقط -->
+                <div class="mb-4">
+                    <label class="form-label fw-bold">
+                        الرقم الوظيفي
+                    </label>
+
+                    <input value="@Model.EmployeeNumber"
+                           class="form-control"
+                           readonly
+                           dir="ltr" />
+
+                    <small class="text-muted">
+                        لا يمكن تعديل الرقم الوظيفي من هذه الصفحة.
+                    </small>
+                </div>
+
+                <!-- المعلومات الشخصية -->
+                <h5 class="mb-3"
+                    style="color:#142d4e; font-weight:700;">
+                    المعلومات الشخصية
+                </h5>
+
+                <div class="row g-3 mb-4">
+
+                    <div class="col-md-4">
+                        <label asp-for="FirstName"
+                               class="form-label fw-bold">
+                            الاسم الأول
+                        </label>
+
+                        <input asp-for="FirstName"
+                               class="form-control" />
+
+                        <span asp-validation-for="FirstName"
+                              class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="FatherName"
+                               class="form-label fw-bold">
+                            اسم الأب
+                        </label>
+
+                        <input asp-for="FatherName"
+                               class="form-control" />
+
+                        <span asp-validation-for="FatherName"
+                              class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="LastName"
+                               class="form-label fw-bold">
+                            الكنية
+                        </label>
+
+                        <input asp-for="LastName"
+                               class="form-control" />
+
+                        <span asp-validation-for="LastName"
+                              class="text-danger"></span>
+                    </div>
+
+                </div>
+
+                <!-- معلومات التواصل -->
+                <h5 class="mb-3"
+                    style="color:#142d4e; font-weight:700;">
+                    معلومات التواصل
+                </h5>
+
+                <div class="row g-3 mb-4">
+
+                    <div class="col-md-6">
+                        <label asp-for="Phone"
+                               class="form-label fw-bold">
+                            رقم الهاتف
+                        </label>
+
+                        <input asp-for="Phone"
+                               type="tel"
+                               class="form-control"
+                               dir="ltr" />
+
+                        <span asp-validation-for="Phone"
+                              class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="Address"
+                               class="form-label fw-bold">
+                            العنوان
+                        </label>
+
+                        <input asp-for="Address"
+                               class="form-control" />
+
+                        <span asp-validation-for="Address"
+                              class="text-danger"></span>
+                    </div>
+
+                </div>
+
+                <!-- أزرار الإجراءات -->
+                <div class="d-flex flex-wrap gap-3 mt-4">
+
+                    <button type="submit"
+                            class="btn px-5 py-2"
+                            style="background:#c9a24d; color:#142d4e; font-weight:800;">
+                        حفظ التعديلات
+                    </button>
+
+                    <a asp-controller="Employees"
+                       asp-action="Details"
+                       asp-route-id="@Model.Id"
+                       class="btn btn-outline-secondary px-4 py-2">
+                        إلغاء
+                    </a>
+
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

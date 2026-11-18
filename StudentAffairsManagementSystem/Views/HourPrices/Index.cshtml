@@ -1,0 +1,272 @@
+﻿
+@model IEnumerable<StudentAffairsManagementSystem.Models.HourPrice>
+
+@{
+    ViewData["Title"] = "إدارة أسعار الساعات الدراسية";
+
+    bool isAdmin = User.IsInRole("Admin");
+
+    var hourPrices = Model.ToList();
+
+    int totalPrices = hourPrices.Count;
+
+    int departmentsCount = hourPrices
+        .Select(h => h.DepartmentId)
+        .Distinct()
+        .Count();
+
+    int semestersCount = hourPrices
+        .Select(h => h.SemesterId)
+        .Distinct()
+        .Count();
+}
+
+<div class="container-fluid py-4" dir="rtl">
+
+    <!-- عنوان الصفحة -->
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+
+        <div>
+            <h2 style="color:#142d4e; font-weight:800;">
+                إدارة أسعار الساعات الدراسية
+            </h2>
+
+            <p class="text-muted mb-0">
+                عرض أسعار الساعة الدراسية حسب القسم والفصل الدراسي
+            </p>
+        </div>
+
+        @if (isAdmin)
+        {
+            <a asp-controller="HourPrices"
+               asp-action="Create"
+               class="btn px-4 py-2"
+               style="background:#c9a24d; color:#142d4e; font-weight:800;">
+                + إضافة سعر ساعة
+            </a>
+        }
+
+    </div>
+
+    <!-- رسائل النظام -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["Success"]
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["Error"]
+        </div>
+    }
+
+    <!-- بطاقات الإحصائيات -->
+    <div class="row g-3 mb-4">
+
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+
+                    <div class="text-muted mb-2">
+                        إجمالي أسعار الساعات المسجلة
+                    </div>
+
+                    <h2 class="mb-0"
+                        style="color:#142d4e; font-weight:800;">
+                        @totalPrices
+                    </h2>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+
+                    <div class="text-muted mb-2">
+                        الأقسام التي لديها أسعار مسجلة
+                    </div>
+
+                    <h2 class="mb-0"
+                        style="color:#142d4e; font-weight:800;">
+                        @departmentsCount
+                    </h2>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+
+                    <div class="text-muted mb-2">
+                        الفصول التي لديها أسعار مسجلة
+                    </div>
+
+                    <h2 class="mb-0"
+                        style="color:#142d4e; font-weight:800;">
+                        @semestersCount
+                    </h2>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- جدول أسعار الساعات -->
+    <div class="card border-0 shadow-sm">
+
+        <div class="card-header py-3"
+             style="background:#142d4e; color:white;">
+
+            <h5 class="mb-0">
+                قائمة أسعار الساعات الدراسية
+            </h5>
+
+        </div>
+
+        <div class="card-body p-0">
+
+            <div class="table-responsive">
+
+                <table class="table table-hover align-middle text-center mb-0">
+
+                    <thead style="background:#f5f6f8;">
+                        <tr>
+                            <th>القسم الدراسي</th>
+                            <th>الفصل الدراسي</th>
+                            <th>العام الدراسي</th>
+                            <th>سعر الساعة</th>
+                            <th>حالة الفصل</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        @if (hourPrices.Any())
+                        {
+                            @foreach (var hourPrice in hourPrices)
+                            {
+                                <tr>
+
+                                    <!-- القسم -->
+                                    <td class="fw-bold">
+                                        @hourPrice.Department.Name
+                                    </td>
+
+                                    <!-- الفصل -->
+                                    <td>
+                                        @hourPrice.Semester.Name
+                                    </td>
+
+                                    <!-- العام الدراسي -->
+                                    <td>
+                                        @hourPrice.Semester.AcademicYear
+                                    </td>
+
+                                    <!-- سعر الساعة -->
+                                    <td>
+                                        <span style="color:#142d4e; font-weight:800;">
+                                            @hourPrice.PricePerHour.ToString("N2")
+                                        </span>
+                                    </td>
+
+                                    <!-- حالة الفصل -->
+                                    <td>
+                                        @if (hourPrice.Semester.IsActive)
+                                        {
+                                            <span class="badge bg-success px-3 py-2">
+                                                فعال
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary px-3 py-2">
+                                                غير فعال
+                                            </span>
+                                        }
+                                    </td>
+
+                                    <!-- الإجراءات -->
+                                    <td>
+
+                                        <div class="d-flex justify-content-center gap-2 flex-wrap">
+
+                                            <a asp-controller="HourPrices"
+                                               asp-action="Details"
+                                               asp-route-id="@hourPrice.Id"
+                                               class="btn btn-sm btn-outline-primary">
+                                                التفاصيل
+                                            </a>
+
+                                            @if (isAdmin)
+                                            {
+                                                <a asp-controller="HourPrices"
+                                                   asp-action="Edit"
+                                                   asp-route-id="@hourPrice.Id"
+                                                   class="btn btn-sm btn-outline-warning">
+                                                    تعديل
+                                                </a>
+
+                                                <a asp-controller="HourPrices"
+                                                   asp-action="Delete"
+                                                   asp-route-id="@hourPrice.Id"
+                                                   class="btn btn-sm btn-outline-danger">
+                                                    حذف
+                                                </a>
+                                            }
+
+                                        </div>
+
+                                    </td>
+
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="6"
+                                    class="text-center text-muted py-5">
+
+                                    <div class="mb-3" style="font-size:36px;">
+                                        💰
+                                    </div>
+
+                                    <h5 class="mb-2">
+                                        لا توجد أسعار ساعات مسجلة حاليًا
+                                    </h5>
+
+                                    <p class="mb-0">
+                                        ستظهر الأسعار هنا بعد إضافتها إلى النظام.
+                                    </p>
+
+                                </td>
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- ملاحظة توضيحية -->
+    <div class="alert alert-light border mt-4 mb-0">
+        <strong>ملاحظة:</strong>
+        يتم تحديد سعر الساعة الدراسية لكل قسم ضمن فصل دراسي محدد.
+        وقد يختلف السعر بين الأقسام أو الفصول الدراسية.
+    </div>
+
+</div>

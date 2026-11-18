@@ -1,0 +1,627 @@
+﻿
+@model StudentAffairsManagementSystem.ViewModels.CreateStudentViewModel
+
+@{
+    ViewData["Title"] = "إضافة طالب جديد";
+
+    var departments =
+        ViewBag.Departments as IEnumerable<StudentAffairsManagementSystem.Models.Department>
+        ?? Enumerable.Empty<StudentAffairsManagementSystem.Models.Department>();
+
+    var semesters =
+        ViewBag.Semesters as IEnumerable<StudentAffairsManagementSystem.Models.Semester>
+        ?? Enumerable.Empty<StudentAffairsManagementSystem.Models.Semester>();
+}
+
+<style>
+    .student-create-page {
+        direction: rtl;
+        max-width: 1100px;
+        margin: 25px auto;
+        color: #14263f;
+    }
+
+    .student-create-header {
+        background: #14263f;
+        color: white;
+        padding: 28px 32px;
+        border-radius: 16px 16px 0 0;
+        border-bottom: 4px solid #c9a66b;
+    }
+
+    .student-create-header h2 {
+        font-size: 25px;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+
+    .student-create-header p {
+        color: #d6dce6;
+        margin: 0;
+    }
+
+    .student-create-card {
+        background: white;
+        border: 1px solid #e5eaf0;
+        border-radius: 0 0 16px 16px;
+        padding: 30px;
+        box-shadow: 0 5px 25px rgba(0,0,0,0.05);
+    }
+
+    .student-section {
+        margin-bottom: 30px;
+        padding-bottom: 25px;
+        border-bottom: 1px solid #e9edf3;
+    }
+
+    .student-section:last-of-type {
+        border-bottom: none;
+    }
+
+    .student-section-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: #14263f;
+        margin-bottom: 22px;
+        padding-right: 12px;
+        border-right: 4px solid #c9a66b;
+    }
+
+    .student-form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 20px;
+    }
+
+    .student-form-field {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .student-form-field.full-width {
+        grid-column: 1 / -1;
+    }
+
+    .student-form-label {
+        font-size: 14px;
+        font-weight: 600;
+        color: #14263f;
+    }
+
+    .student-form-input {
+        width: 100%;
+        padding: 12px 14px;
+        border: 1px solid #dce3ed;
+        border-radius: 10px;
+        background: white;
+        color: #14263f;
+        font-size: 14px;
+    }
+
+    .student-form-input:focus {
+        outline: none;
+        border-color: #c9a66b;
+        box-shadow: 0 0 0 3px rgba(201,166,107,0.15);
+    }
+
+    .student-form-error {
+        color: #b42318;
+        font-size: 13px;
+    }
+
+    .student-form-hint {
+        color: #718096;
+        font-size: 12px;
+    }
+
+    .student-form-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 28px;
+    }
+
+    .student-save-btn {
+        background: #c9a66b;
+        color: #14263f;
+        border: none;
+        border-radius: 10px;
+        padding: 13px 25px;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+    .student-save-btn:hover {
+        background: #b99555;
+    }
+
+    .student-cancel-btn {
+        background: #edf1f7;
+        color: #14263f;
+        border-radius: 10px;
+        padding: 13px 25px;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .student-form-note {
+        background: #f7f9fc;
+        border-right: 4px solid #c9a66b;
+        padding: 15px 18px;
+        border-radius: 8px;
+        color: #526174;
+        font-size: 14px;
+        margin-bottom: 25px;
+    }
+
+    @@media (max-width: 700px) {
+        .student-form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .student-create-card {
+            padding: 20px;
+        }
+
+        .student-create-header {
+            padding: 22px;
+        }
+    }
+</style>
+
+<div class="student-create-page">
+
+    <div class="student-create-header">
+        <h2>
+            <i class="bi bi-person-plus-fill"></i>
+            إضافة طالب جديد
+        </h2>
+
+        <p>
+            إدخال بيانات الطالب الأكاديمية والشخصية
+            وإنشاء حسابه في النظام
+        </p>
+    </div>
+
+    <div class="student-create-card">
+
+        <div class="student-form-note">
+            <i class="bi bi-info-circle"></i>
+            سيتم توليد الرقم الجامعي تلقائياً عند حفظ الطالب،
+            بناءً على رمز القسم وتاريخ التسجيل والتسلسل.
+        </div>
+
+        <form asp-controller="Students"
+              asp-action="Create"
+              method="post">
+
+            @Html.AntiForgeryToken()
+
+            <div asp-validation-summary="ModelOnly"
+                 class="student-form-error"></div>
+
+            <!-- البيانات الأساسية -->
+            <div class="student-section">
+
+                <h3 class="student-section-title">
+                    <i class="bi bi-person-vcard"></i>
+                    البيانات الأساسية
+                </h3>
+
+                <div class="student-form-grid">
+
+                    <div class="student-form-field">
+                        <label asp-for="FirstName"
+                               class="student-form-label">
+                            اسم الطالب *
+                        </label>
+
+                        <input asp-for="FirstName"
+                               class="student-form-input" />
+
+                        <span asp-validation-for="FirstName"
+                              class="student-form-error"></span>
+                    </div>
+
+                    <div class="student-form-field">
+                        <label asp-for="FatherName"
+                               class="student-form-label">
+                            اسم الأب *
+                        </label>
+
+                        <input asp-for="FatherName"
+                               class="student-form-input" />
+
+                        <span asp-validation-for="FatherName"
+                              class="student-form-error"></span>
+                    </div>
+
+                    <div class="student-form-field">
+                        <label asp-for="MotherName"
+                               class="student-form-label">
+                            اسم الأم *
+                        </label>
+
+                        <input asp-for="MotherName"
+                               class="student-form-input" />
+
+                        <span asp-validation-for="MotherName"
+                              class="student-form-error"></span>
+                    </div>
+
+                    <div class="student-form-field">
+                        <label asp-for="LastName"
+                               class="student-form-label">
+                            الكنية *
+                        </label>
+
+                        <input asp-for="LastName"
+                               class="student-form-input" />
+
+                        <span asp-validation-for="LastName"
+                              class="student-form-error"></span>
+                    </div>
+
+                    <div class="student-form-field">
+                        <label asp-for="BirthDate"
+                               class="student-form-label">
+                            تاريخ الميلاد
+                        </label>
+
+                        <input asp-for="BirthDate"
+                               type="date"
+                               class="student-form-input" />
+
+                        <span asp-validation-for="BirthDate"
+                              class="student-form-error"></span>
+                    </div>
+
+                    <div class="student-form-field">
+                        <label asp-for="Gender"
+                               class="student-form-label">
+                            الجنس
+                        </label>
+
+                        <select asp-for="Gender"
+                                class="student-form-input">
+                            <option value="">-- اختر الجنس --</option>
+                            <option value="ذكر">ذكر</option>
+                            <option value="أنثى">أنثى</option>
+                        </select>
+
+                        <span asp-validation-for="Gender"
+                              class="student-form-error"></span>
+                    </div>
+
+                    <div class="student-form-field">
+                        <label asp-for="NationalId"
+                               class="student-form-label">
+                            الرقم الوطني
+                        </label>
+
+                        <input asp-for="NationalId"
+                               class="student-form-input" />
+
+                        <span asp-validation-for="NationalId"
+                              class="student-form-error"></span>
+                    </div>
+
+                    <div class="student-form-field">
+                        <label asp-for="Nationality"
+                               class="student-form-label">
+                            الجنسية
+                        </label>
+
+                        <input asp-for="Nationality"
+                               class="student-form-input" />
+
+                        <span asp-validation-for="Nationality"
+                              class="student-form-error"></span>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- البيانات الأكاديمية -->
+            <div class="student-section">
+
+                <h3 class="student-section-title">
+                    <i class="bi bi-mortarboard-fill"></i>
+                    البيانات الأكاديمية
+                </h3>
+
+                <div class="student-form-grid">
+
+                    <div class="student-form-field">
+                        <label asp-for="DepartmentId"
+                               class="student-form-label">
+                            القسم الأكاديمي *
+                        </label>
+
+                        <select asp-for="DepartmentId"
+                                class="student-form-input">
+
+                            <option value="0">
+                                -- اختر القسم --
+                            </option>
+
+                            @foreach (var department in departments)
+                            {
+                                <option value="@department.Id">
+                                    @department.Name
+                                </option>
+                            }
+                        </select>
+
+                        <span asp-validation-for="DepartmentId"
+                              class="student-form-error"></span>
+                    </div>
+
+                    <div class="student-form-field">
+                        <label asp-for="AdmissionSemesterId"
+                               class="student-form-label">
+                            فصل القبول *
+                        </label>
+
+                        <select asp-for="AdmissionSemesterId"
+                                class="student-form-input">
+
+                            <option value="0">
+                                -- اختر فصل القبول --
+                            </option>
+
+                            @foreach (var semester in semesters)
+                            {
+                                <option value="@semester.Id">
+                                    @semester.Name
+                                </option>
+                            }
+                        </select>
+
+                        <span asp-validation-for="AdmissionSemesterId"
+                              class="student-form-error"></span>
+                    </div>
+
+                    <div class="student-form-field">
+                        <label asp-for="GraduationSemesterId"
+                               class="student-form-label">
+                            فصل التخرج (اختياري)
+                        </label>
+
+                        <select asp-for="GraduationSemesterId"
+                                class="student-form-input">
+
+                            <option value="">
+                                -- لم يتخرج بعد --
+                            </option>
+
+                            @foreach (var semester in semesters)
+                            {
+                                <option value="@semester.Id">
+                                    @semester.Name
+                                </option>
+                            }
+                        </select>
+
+                        <span asp-validation-for="GraduationSemesterId"
+                              class="student-form-error"></span>
+                    </div>
+
+                    <div class="student-form-field">
+                        <label asp-for="Status"
+                               class="student-form-label">
+                            الحالة الدراسية
+                        </label>
+
+                        <select asp-for="Status"
+                                class="student-form-input">
+                            <option value="">-- اختر الحالة --</option>
+                            <option value="مستجد">مستجد</option>
+                            <option value="مستمر">مستمر</option>
+                            <option value="متخرج">متخرج</option>
+                            <option value="منقطع">منقطع</option>
+                            <option value="موقوف">موقوف</option>
+                        </select>
+
+                        <span asp-validation-for="Status"
+                              class="student-form-error"></span>
+                    </div>
+
+                    <div class="student-form-field">
+                        <label asp-for="GraduationAverage"
+                               class="student-form-label">
+                            معدل التخرج (إن وجد)
+                        </label>
+
+                        <input asp-for="GraduationAverage"
+                               type="number"
+                               step="0.01"
+                               class="student-form-input" />
+
+                        <span asp-validation-for="GraduationAverage"
+                              class="student-form-error"></span>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- معلومات التواصل -->
+            <div class="student-section">
+
+                <h3 class="student-section-title">
+                    <i class="bi bi-telephone-fill"></i>
+                    معلومات التواصل
+                </h3>
+
+                <div class="student-form-grid">
+
+                    <div class="student-form-field">
+                        <label asp-for="Phone"
+                               class="student-form-label">
+                            رقم الهاتف
+                        </label>
+
+                        <input asp-for="Phone"
+                               type="tel"
+                               class="student-form-input" />
+
+                        <span asp-validation-for="Phone"
+                              class="student-form-error"></span>
+                    </div>
+
+                    <div class="student-form-field">
+                        <label asp-for="Governorate"
+                               class="student-form-label">
+                            المحافظة
+                        </label>
+
+                        <input asp-for="Governorate"
+                               class="student-form-input" />
+
+                        <span asp-validation-for="Governorate"
+                              class="student-form-error"></span>
+                    </div>
+
+                    <div class="student-form-field full-width">
+                        <label asp-for="Address"
+                               class="student-form-label">
+                            العنوان
+                        </label>
+
+                        <textarea asp-for="Address"
+                                  rows="3"
+                                  class="student-form-input"></textarea>
+
+                        <span asp-validation-for="Address"
+                              class="student-form-error"></span>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- الوثائق -->
+            <div class="student-section">
+
+                <h3 class="student-section-title">
+                    <i class="bi bi-folder2-open"></i>
+                    الصور والوثائق
+                </h3>
+
+                <div class="student-form-note">
+                    هذه الحقول مخصصة لمسارات الصور والوثائق
+                    المحفوظة في النظام.
+                    رفع الملفات الفعلي سنضيفه لاحقاً.
+                </div>
+
+                <div class="student-form-grid">
+
+                    <div class="student-form-field">
+                        <label asp-for="PersonalImage"
+                               class="student-form-label">
+                            مسار الصورة الشخصية
+                        </label>
+
+                        <input asp-for="PersonalImage"
+                               class="student-form-input"
+                               placeholder="/uploads/students/photo.jpg" />
+                    </div>
+
+                    <div class="student-form-field">
+                        <label asp-for="NationalIdImage"
+                               class="student-form-label">
+                            مسار صورة الهوية
+                        </label>
+
+                        <input asp-for="NationalIdImage"
+                               class="student-form-input"
+                               placeholder="/uploads/students/id.jpg" />
+                    </div>
+
+                    <div class="student-form-field">
+                        <label asp-for="CertificateImage"
+                               class="student-form-label">
+                            مسار صورة الشهادة
+                        </label>
+
+                        <input asp-for="CertificateImage"
+                               class="student-form-input"
+                               placeholder="/uploads/students/certificate.jpg" />
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- حساب الطالب -->
+            <div class="student-section">
+
+                <h3 class="student-section-title">
+                    <i class="bi bi-shield-lock-fill"></i>
+                    بيانات حساب الطالب
+                </h3>
+
+                <div class="student-form-note">
+                    اسم المستخدم سيكون الرقم الجامعي
+                    الذي ينشئه النظام تلقائياً.
+                </div>
+
+                <div class="student-form-grid">
+
+                    <div class="student-form-field">
+                        <label asp-for="Password"
+                               class="student-form-label">
+                            كلمة المرور *
+                        </label>
+
+                        <input asp-for="Password"
+                               type="password"
+                               autocomplete="new-password"
+                               class="student-form-input" />
+
+                        <span asp-validation-for="Password"
+                              class="student-form-error"></span>
+                    </div>
+
+                    <div class="student-form-field">
+                        <label asp-for="ConfirmPassword"
+                               class="student-form-label">
+                            تأكيد كلمة المرور *
+                        </label>
+
+                        <input asp-for="ConfirmPassword"
+                               type="password"
+                               autocomplete="new-password"
+                               class="student-form-input" />
+
+                        <span asp-validation-for="ConfirmPassword"
+                              class="student-form-error"></span>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="student-form-actions">
+
+                <button type="submit"
+                        class="student-save-btn">
+                    <i class="bi bi-check-circle"></i>
+                    حفظ الطالب وإنشاء الحساب
+                </button>
+
+                <a asp-controller="Students"
+                   asp-action="Index"
+                   class="student-cancel-btn">
+                    <i class="bi bi-arrow-right"></i>
+                    إلغاء والعودة
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

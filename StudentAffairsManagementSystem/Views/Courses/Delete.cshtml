@@ -1,0 +1,250 @@
+﻿
+@model StudentAffairsManagementSystem.Models.Course
+
+@{
+    ViewData["Title"] = "حذف المقرر الدراسي";
+}
+
+<style>
+    .delete-course-page {
+        max-width: 800px;
+        margin: 35px auto;
+        direction: rtl;
+    }
+
+    .delete-course-card {
+        background: white;
+        border-radius: 18px;
+        overflow: hidden;
+        border: 1px solid #e5eaf0;
+        box-shadow: 0 5px 25px rgba(0,0,0,0.06);
+    }
+
+    .delete-course-header {
+        background: #14263f;
+        color: white;
+        padding: 28px 32px;
+        border-bottom: 4px solid #c9a66b;
+    }
+
+    .delete-course-header h2 {
+        font-size: 24px;
+        font-weight: 700;
+        margin: 0 0 8px;
+    }
+
+    .delete-course-header p {
+        margin: 0;
+        color: #d6dce6;
+    }
+
+    .delete-course-body {
+        padding: 30px;
+    }
+
+    .delete-course-warning {
+        display: flex;
+        gap: 14px;
+        align-items: flex-start;
+        background: #fff5f3;
+        border: 1px solid #f4c7c1;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 25px;
+        color: #a52a22;
+    }
+
+    .delete-course-warning i {
+        font-size: 25px;
+    }
+
+    .delete-course-warning strong {
+        display: block;
+        margin-bottom: 7px;
+    }
+
+    .delete-course-warning p {
+        margin: 0;
+        line-height: 1.8;
+    }
+
+    .delete-course-info {
+        background: #f8f9fc;
+        border: 1px solid #edf0f5;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 25px;
+    }
+
+    .delete-course-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 15px;
+        padding: 13px 0;
+        border-bottom: 1px solid #e5eaf0;
+    }
+
+    .delete-course-row:last-child {
+        border-bottom: none;
+    }
+
+    .delete-course-label {
+        color: #718096;
+    }
+
+    .delete-course-value {
+        font-weight: 700;
+        color: #14263f;
+        text-align: left;
+    }
+
+    .delete-course-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .delete-course-confirm {
+        background: #b42318;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        padding: 13px 24px;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+    .delete-course-confirm:hover {
+        background: #912018;
+    }
+
+    .delete-course-cancel {
+        background: #edf1f7;
+        color: #14263f;
+        border-radius: 10px;
+        padding: 13px 24px;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    @@media (max-width: 600px) {
+        .delete-course-body {
+            padding: 20px;
+        }
+
+        .delete-course-row {
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .delete-course-value {
+            text-align: right;
+        }
+    }
+</style>
+
+<div class="delete-course-page">
+
+    <div class="delete-course-card">
+
+        <div class="delete-course-header">
+            <h2>
+                <i class="bi bi-trash3"></i>
+                حذف المقرر الدراسي
+            </h2>
+
+            <p>مراجعة بيانات المقرر قبل تأكيد الحذف</p>
+        </div>
+
+        <div class="delete-course-body">
+
+            <div class="delete-course-warning">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+
+                <div>
+                    <strong>هل أنت متأكد من حذف هذا المقرر؟</strong>
+
+                    <p>
+                        سيتم حذف المقرر من قاعدة البيانات بعد التأكيد.
+                        لا يمكن التراجع عن هذه العملية من هذه الصفحة.
+                        إذا كان المقرر مرتبطًا بطرح دراسي،
+                        سيمنع النظام حذفه.
+                    </p>
+                </div>
+            </div>
+
+            <div class="delete-course-info">
+
+                <div class="delete-course-row">
+                    <span class="delete-course-label">
+                        اسم المقرر
+                    </span>
+
+                    <span class="delete-course-value">
+                        @Model.Name
+                    </span>
+                </div>
+
+                <div class="delete-course-row">
+                    <span class="delete-course-label">
+                        رمز المقرر
+                    </span>
+
+                    <span class="delete-course-value">
+                        @Model.Code
+                    </span>
+                </div>
+
+                <div class="delete-course-row">
+                    <span class="delete-course-label">
+                        الساعات المعتمدة
+                    </span>
+
+                    <span class="delete-course-value">
+                        @Model.CreditHours
+                    </span>
+                </div>
+
+                <div class="delete-course-row">
+                    <span class="delete-course-label">
+                        القسم الأكاديمي
+                    </span>
+
+                    <span class="delete-course-value">
+                        @(Model.Department?.Name ?? "غير محدد")
+                    </span>
+                </div>
+
+            </div>
+
+            <form asp-controller="Courses"
+                  asp-action="Delete"
+                  asp-route-id="@Model.Id"
+                  method="post">
+
+                @Html.AntiForgeryToken()
+
+                <div class="delete-course-actions">
+
+                    <button type="submit"
+                            class="delete-course-confirm">
+                        <i class="bi bi-trash3"></i>
+                        نعم، حذف المقرر
+                    </button>
+
+                    <a asp-controller="Courses"
+                       asp-action="Index"
+                       class="delete-course-cancel">
+                        <i class="bi bi-x-circle"></i>
+                        إلغاء والعودة
+                    </a>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>

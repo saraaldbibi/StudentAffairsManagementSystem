@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using System.Linq;
 using Microsoft.AspNetCore.Identity;
 using StudentAffairsManagementSystem.Models;
@@ -15,8 +16,7 @@ namespace StudentAffairsManagementSystem.Services
                 .GetRequiredService<UserManager<Account>>();
 
             var roleManager = services
-                .GetRequiredService<
-                    RoleManager<IdentityRole<long>>>();
+                .GetRequiredService<RoleManager<IdentityRole<long>>>();
 
             const string adminUserName = "admin";
             const string adminRole = "Admin";
@@ -34,7 +34,7 @@ namespace StudentAffairsManagementSystem.Services
 
             if (admin != null)
             {
-                // التحقق من أدوار Identity الحقيقية
+                // التحقق من تطابق أدوار المدير
                 var roles = await userManager.GetRolesAsync(admin);
 
                 if (roles.Count != 1 ||
@@ -42,21 +42,61 @@ namespace StudentAffairsManagementSystem.Services
                     admin.Role != adminRole)
                 {
                     throw new InvalidOperationException(
-                        "حساب admin موجود، لكن صلاحياته " +
-                        "غير متطابقة مع دور Admin. " +
-                        "يجب مراجعة الحساب يدوياً.");
+                        "حساب admin موجود لكن صلاحياته غير متطابقة.");
                 }
 
-                // لا نعيد إنشاء الحساب ولا نغير كلمة مروره
+                // إعادة تعيين كلمة المرور فقط عند طلب ذلك
+                bool resetRequested =
+                    configuration.GetValue<bool>(
+                        "AdminSeed:ResetPasswordOnce");
+
+                if (resetRequested)
+                {
+                    string? newPassword =
+                        configuration["AdminSeed:Password"];
+
+                    if (string.IsNullOrWhiteSpace(newPassword))
+                    {
+                        throw new InvalidOperationException(
+                            "كلمة المرور الجديدة غير موجودة.");
+                    }
+
+                    // إنشاء رمز إعادة تعيين عبر Identity
+                    string resetToken =
+                        await userManager
+                            .GeneratePasswordResetTokenAsync(admin);
+
+                    // إعادة تعيين كلمة المرور بأمان
+                    var resetResult =
+                        await userManager.ResetPasswordAsync(
+                            admin,
+                            resetToken,
+                            newPassword);
+
+                    if (!resetResult.Succeeded)
+                    {
+                        string errors = string.Join(
+                            "; ",
+                            resetResult.Errors.Select(
+                                e => e.Description));
+
+                        throw new InvalidOperationException(
+                            "تعذر إعادة تعيين كلمة مرور المدير: " +
+                            errors);
+                    }
+
+                    Console.WriteLine(
+                        "تمت إعادة تعيين كلمة مرور المدير بنجاح. " +
+                        "يجب تعطيل ResetPasswordOnce الآن.");
+                }
+
                 return;
             }
 
-            // قراءة كلمة المرور من الإعدادات
-            // يُفضّل تخزينها في User Secrets أثناء التطوير
+            // قراءة كلمة المرور لإنشاء المدير لأول مرة
             string? password =
                 configuration["AdminSeed:Password"];
 
-            // إذا لم توجد كلمة مرور، نتجاوز الإنشاء
             if (string.IsNullOrWhiteSpace(password))
             {
                 return;
@@ -70,7 +110,8 @@ namespace StudentAffairsManagementSystem.Services
             };
 
             var createResult = await userManager.CreateAsync(
-                account, password);
+                account,
+                password);
 
             if (!createResult.Succeeded)
             {
@@ -83,13 +124,13 @@ namespace StudentAffairsManagementSystem.Services
                     "تعذر إنشاء حساب المدير: " + errors);
             }
 
-            // ربط الحساب بدور Admin في Identity
+            // ربط المدير بدور Admin
             var roleResult = await userManager.AddToRoleAsync(
-                account, adminRole);
+                account,
+                adminRole);
 
             if (!roleResult.Succeeded)
             {
-                // محاولة تنظيف الحساب ناقص الإعداد
                 var deleteResult =
                     await userManager.DeleteAsync(account);
 
@@ -108,7 +149,7 @@ namespace StudentAffairsManagementSystem.Services
                     throw new InvalidOperationException(
                         "تعذر ربط المدير بدور Admin: " +
                         errors +
-                        ". وتعذر حذف الحساب ناقص الإعداد: " +
+                        ". وتعذر حذف الحساب: " +
                         deleteErrors);
                 }
 

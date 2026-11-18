@@ -1,0 +1,396 @@
+﻿
+@model StudentAffairsManagementSystem.Models.Registration
+
+@{
+    ViewData["Title"] = "تفاصيل تسجيل الطالب";
+
+    string studentName =
+        $"{Model.Student.FirstName} " +
+        $"{Model.Student.FatherName} " +
+        $"{Model.Student.LastName}";
+
+    bool isRegistered = Model.Status == "Registered";
+    bool isCancelled = Model.Status == "Cancelled";
+
+    bool canReactivate =
+        isCancelled &&
+        Model.CourseOffering.Semester.IsActive &&
+        !Model.Student.IsDeleted;
+}
+
+<div class="container-fluid py-4" dir="rtl">
+
+    <!-- عنوان الصفحة -->
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+
+        <div>
+            <h2 style="color:#142d4e; font-weight:800;">
+                تفاصيل تسجيل الطالب
+            </h2>
+
+            <p class="text-muted mb-0">
+                معلومات الطالب والمقرر الدراسي وحالة التسجيل
+            </p>
+        </div>
+
+        <a asp-controller="Registrations"
+           asp-action="Index"
+           class="btn btn-outline-secondary px-4">
+            العودة للتسجيلات
+        </a>
+
+    </div>
+
+    <!-- حالة التسجيل -->
+    <div class="card border-0 shadow-sm mb-4">
+
+        <div class="card-body p-4">
+
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+
+                <div>
+                    <div class="text-muted mb-2">
+                        حالة تسجيل الطالب
+                    </div>
+
+                    @if (isRegistered)
+                    {
+                        <span class="badge bg-success px-4 py-2">
+                            مسجل
+                        </span>
+                    }
+                    else if (isCancelled)
+                    {
+                        <span class="badge bg-secondary px-4 py-2">
+                            ملغى
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-warning text-dark px-4 py-2">
+                            @Model.Status
+                        </span>
+                    }
+                </div>
+
+                <div class="text-end">
+                    <div class="text-muted mb-2">
+                        رقم سجل التسجيل
+                    </div>
+
+                    <h4 class="mb-0"
+                        style="color:#142d4e; font-weight:800;">
+                        @Model.Id
+                    </h4>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="row g-4">
+
+        <!-- بيانات الطالب -->
+        <div class="col-lg-6">
+
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-header py-3"
+                     style="background:#142d4e; color:white;">
+
+                    <h5 class="mb-0">
+                        بيانات الطالب
+                    </h5>
+
+                </div>
+
+                <div class="card-body p-4">
+
+                    <div class="mb-4">
+                        <div class="text-muted mb-2">
+                            اسم الطالب
+                        </div>
+
+                        <h4 style="color:#142d4e; font-weight:800;">
+                            @studentName
+                        </h4>
+
+                        @if (Model.Student.IsDeleted)
+                        {
+                            <span class="badge bg-secondary mt-2">
+                                الطالب محذوف من النظام
+                            </span>
+                        }
+                    </div>
+
+                    <hr />
+
+                    <div class="mb-3">
+                        <div class="text-muted mb-2">
+                            الرقم الجامعي
+                        </div>
+
+                        <div class="fw-bold">
+                            @Model.Student.UniversityNumber
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- بيانات المقرر -->
+        <div class="col-lg-6">
+
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-header py-3"
+                     style="background:#142d4e; color:white;">
+
+                    <h5 class="mb-0">
+                        بيانات المقرر الدراسي
+                    </h5>
+
+                </div>
+
+                <div class="card-body p-4">
+
+                    <div class="mb-3">
+                        <div class="text-muted mb-2">
+                            اسم المقرر
+                        </div>
+
+                        <h4 style="color:#142d4e; font-weight:800;">
+                            @Model.CourseOffering.Course.Name
+                        </h4>
+                    </div>
+
+                    <hr />
+
+                    <div class="mb-3">
+                        <div class="text-muted mb-2">
+                            رمز المقرر
+                        </div>
+
+                        <div class="fw-bold">
+                            @Model.CourseOffering.Course.Code
+                        </div>
+                    </div>
+
+                    <hr />
+
+                    <div>
+                        <div class="text-muted mb-2">
+                            الساعات المعتمدة
+                        </div>
+
+                        <div class="fw-bold">
+                            @Model.CourseOffering.Course.CreditHours ساعة
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- بيانات الفصل -->
+        <div class="col-lg-6">
+
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-header py-3"
+                     style="background:#142d4e; color:white;">
+
+                    <h5 class="mb-0">
+                        بيانات الفصل الدراسي
+                    </h5>
+
+                </div>
+
+                <div class="card-body p-4">
+
+                    <div class="mb-3">
+                        <div class="text-muted mb-2">
+                            الفصل الدراسي
+                        </div>
+
+                        <h4 style="color:#142d4e; font-weight:800;">
+                            @Model.CourseOffering.Semester.Name
+                        </h4>
+                    </div>
+
+                    <hr />
+
+                    <div class="mb-3">
+                        <div class="text-muted mb-2">
+                            العام الدراسي
+                        </div>
+
+                        <div class="fw-bold">
+                            @Model.CourseOffering.Semester.AcademicYear
+                        </div>
+                    </div>
+
+                    <hr />
+
+                    <div>
+                        <div class="text-muted mb-2">
+                            حالة الفصل
+                        </div>
+
+                        @if (Model.CourseOffering.Semester.IsActive)
+                        {
+                            <span class="badge bg-success px-3 py-2">
+                                فعّال
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary px-3 py-2">
+                                غير فعّال
+                            </span>
+                        }
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- بيانات التسجيل -->
+        <div class="col-lg-6">
+
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-header py-3"
+                     style="background:#142d4e; color:white;">
+
+                    <h5 class="mb-0">
+                        معلومات التسجيل
+                    </h5>
+
+                </div>
+
+                <div class="card-body p-4">
+
+                    <div class="mb-3">
+                        <div class="text-muted mb-2">
+                            تاريخ ووقت التسجيل
+                        </div>
+
+                        <div class="fw-bold">
+                            @Model.RegisteredAt.ToLocalTime().ToString("yyyy/MM/dd HH:mm")
+                        </div>
+                    </div>
+
+                    <hr />
+
+                    <div class="mb-3">
+                        <div class="text-muted mb-2">
+                            السعة الاستيعابية للمقرر
+                        </div>
+
+                        <div class="fw-bold">
+                            @Model.CourseOffering.Capacity طالب
+                        </div>
+                    </div>
+
+                    <hr />
+
+                    <div>
+                        <div class="text-muted mb-2">
+                            حالة التسجيل
+                        </div>
+
+                        @if (isRegistered)
+                        {
+                            <span class="badge bg-success px-3 py-2">
+                                تسجيل فعّال
+                            </span>
+                        }
+                        else if (isCancelled)
+                        {
+                            <span class="badge bg-secondary px-3 py-2">
+                                تسجيل ملغى
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-warning text-dark px-3 py-2">
+                                @Model.Status
+                            </span>
+                        }
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- أزرار الإجراءات -->
+    <div class="d-flex justify-content-end gap-2 flex-wrap mt-4">
+
+        <a asp-controller="Registrations"
+           asp-action="Index"
+           class="btn btn-outline-secondary px-4">
+            العودة للتسجيلات
+        </a>
+
+        @if (isRegistered)
+        {
+            <form asp-controller="Registrations"
+                  asp-action="Cancel"
+                  asp-route-id="@Model.Id"
+                  method="post"
+                  onsubmit="return confirm('هل تريدون إلغاء تسجيل الطالب في هذا المقرر؟');">
+
+                @Html.AntiForgeryToken()
+
+                <button type="submit"
+                        class="btn btn-outline-danger px-4">
+                    إلغاء التسجيل
+                </button>
+
+            </form>
+        }
+        else if (canReactivate)
+        {
+            <form asp-controller="Registrations"
+                  asp-action="Reactivate"
+                  asp-route-id="@Model.Id"
+                  method="post"
+                  onsubmit="return confirm('هل تريدون إعادة تفعيل تسجيل الطالب؟');">
+
+                @Html.AntiForgeryToken()
+
+                <button type="submit"
+                        class="btn px-4"
+                        style="background:#c9a24d;
+                               color:#142d4e;
+                               font-weight:800;">
+                    إعادة تفعيل التسجيل
+                </button>
+
+            </form>
+        }
+
+    </div>
+
+    <div class="alert alert-light border mt-4 mb-0">
+        <strong>ملاحظة:</strong>
+        إلغاء التسجيل لا يحذف السجل من قاعدة البيانات.
+        وإعادة التفعيل تتطلب فصلًا دراسيًا فعّالًا،
+        وطالبًا غير محذوف، ومقعدًا شاغرًا.
+    </div>
+
+</div>

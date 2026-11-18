@@ -1,4 +1,9 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -22,23 +27,29 @@ namespace StudentAffairsManagementSystem.Controllers
             _userManager = userManager;
         }
 
-        // عرض جميع الموظفين
+        // ==========================================
+        // عرض الموظفين غير المحذوفين
+        // ==========================================
         public async Task<IActionResult> Index()
         {
             var employees = await _context.Employees
                 .AsNoTracking()
+                .Where(e => !e.IsDeleted)
                 .OrderBy(e => e.Id)
                 .ToListAsync();
 
             return View(employees);
         }
 
-        // عرض تفاصيل موظف
+        // ==========================================
+        // تفاصيل الموظف
+        // ==========================================
         public async Task<IActionResult> Details(long id)
         {
             var employee = await _context.Employees
                 .AsNoTracking()
-                .FirstOrDefaultAsync(e => e.Id == id);
+                .FirstOrDefaultAsync(e =>
+                    e.Id == id && !e.IsDeleted);
 
             if (employee == null)
                 return NotFound();
@@ -46,14 +57,18 @@ namespace StudentAffairsManagementSystem.Controllers
             return View(employee);
         }
 
-        // فتح صفحة إضافة موظف
+        // ==========================================
+        // صفحة إضافة موظف
+        // ==========================================
         [HttpGet]
         public IActionResult Create()
         {
             return View(new CreateEmployeeViewModel());
         }
 
-        // إنشاء موظف وحسابه
+        // ==========================================
+        // إنشاء الموظف وحساب Identity
+        // ==========================================
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(
@@ -62,7 +77,6 @@ namespace StudentAffairsManagementSystem.Controllers
             model.EmployeeNumber =
                 model.EmployeeNumber?.Trim() ?? "";
 
-            // منع تكرار الرقم الوظيفي
             bool numberExists = await _context.Employees
                 .AnyAsync(e =>
                     e.EmployeeNumber == model.EmployeeNumber);
@@ -74,7 +88,6 @@ namespace StudentAffairsManagementSystem.Controllers
                     "الرقم الوظيفي مستخدم مسبقاً");
             }
 
-            // منع وجود حساب بنفس الرقم
             var existingAccount =
                 await _userManager.FindByNameAsync(
                     model.EmployeeNumber);
@@ -89,7 +102,6 @@ namespace StudentAffairsManagementSystem.Controllers
             if (!ModelState.IsValid)
                 return View(model);
 
-            // حفظ الحساب والدور والموظف معاً
             await using var transaction =
                 await _context.Database.BeginTransactionAsync();
 
@@ -100,7 +112,6 @@ namespace StudentAffairsManagementSystem.Controllers
                 Role = "Employee"
             };
 
-            // إنشاء حساب الموظف
             var createResult =
                 await _userManager.CreateAsync(
                     account,
@@ -120,7 +131,6 @@ namespace StudentAffairsManagementSystem.Controllers
                 return View(model);
             }
 
-            // إضافة دور Employee الحقيقي
             var roleResult =
                 await _userManager.AddToRoleAsync(
                     account,
@@ -140,7 +150,6 @@ namespace StudentAffairsManagementSystem.Controllers
                 return View(model);
             }
 
-            // إنشاء سجل الموظف
             var employee = new Employee
             {
                 EmployeeNumber = model.EmployeeNumber,
@@ -149,13 +158,14 @@ namespace StudentAffairsManagementSystem.Controllers
                 LastName = model.LastName,
                 Phone = model.Phone,
                 Address = model.Address,
-                AccountId = account.Id
+                AccountId = account.Id,
+                IsDeleted = false,
+                DeletedAt = null
             };
 
             _context.Employees.Add(employee);
             await _context.SaveChangesAsync();
 
-            // تثبيت الحساب والدور والموظف
             await transaction.CommitAsync();
 
             return RedirectToAction(
@@ -163,12 +173,15 @@ namespace StudentAffairsManagementSystem.Controllers
                 new { id = employee.Id });
         }
 
-        // فتح صفحة تعديل الموظف
+        // ==========================================
+        // صفحة تعديل الموظف
+        // ==========================================
         [HttpGet]
         public async Task<IActionResult> Edit(long id)
         {
             var employee = await _context.Employees
-                .FirstOrDefaultAsync(e => e.Id == id);
+                .FirstOrDefaultAsync(e =>
+                    e.Id == id && !e.IsDeleted);
 
             if (employee == null)
                 return NotFound();
@@ -176,7 +189,9 @@ namespace StudentAffairsManagementSystem.Controllers
             return View(employee);
         }
 
-        // حفظ تعديلات الموظف
+        // ==========================================
+        // حفظ تعديل الموظف
+        // ==========================================
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(
@@ -187,7 +202,6 @@ namespace StudentAffairsManagementSystem.Controllers
             if (id != model.Id)
                 return NotFound();
 
-            // تجاهل الحقول غير الموجودة بالنموذج
             ModelState.Remove(nameof(Employee.Account));
             ModelState.Remove(nameof(Employee.EmployeeNumber));
 
@@ -195,19 +209,21 @@ namespace StudentAffairsManagementSystem.Controllers
                 return View(model);
 
             var employee = await _context.Employees
-                .FirstOrDefaultAsync(e => e.Id == id);
+                .FirstOrDefaultAsync(e =>
+                    e.Id == id && !e.IsDeleted);
 
             if (employee == null)
                 return NotFound();
 
-            // تعديل بيانات الموظف
             employee.FirstName = model.FirstName;
             employee.FatherName = model.FatherName;
             employee.LastName = model.LastName;
             employee.Phone = model.Phone;
             employee.Address = model.Address;
 
-            // تحديث رقم الهاتف بالحساب أيضاً
+            await using var transaction =
+                await _context.Database.BeginTransactionAsync();
+
             var account = await _userManager.FindByIdAsync(
                 employee.AccountId.ToString());
 
@@ -220,6 +236,8 @@ namespace StudentAffairsManagementSystem.Controllers
 
                 if (!result.Succeeded)
                 {
+                    await transaction.RollbackAsync();
+
                     foreach (var error in result.Errors)
                     {
                         ModelState.AddModelError(
@@ -232,19 +250,23 @@ namespace StudentAffairsManagementSystem.Controllers
             }
 
             await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
 
             return RedirectToAction(
                 nameof(Details),
                 new { id = employee.Id });
         }
 
-        // فتح صفحة تأكيد الحذف
+        // ==========================================
+        // صفحة تأكيد الحذف الآمن
+        // ==========================================
         [HttpGet]
         public async Task<IActionResult> Delete(long id)
         {
             var employee = await _context.Employees
                 .AsNoTracking()
-                .FirstOrDefaultAsync(e => e.Id == id);
+                .FirstOrDefaultAsync(e =>
+                    e.Id == id && !e.IsDeleted);
 
             if (employee == null)
                 return NotFound();
@@ -252,29 +274,19 @@ namespace StudentAffairsManagementSystem.Controllers
             return View(employee);
         }
 
-        // تنفيذ حذف الموظف
+        // ==========================================
+        // تنفيذ الحذف الآمن للموظف
+        // ==========================================
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
             var employee = await _context.Employees
-                .FirstOrDefaultAsync(e => e.Id == id);
+                .FirstOrDefaultAsync(e =>
+                    e.Id == id && !e.IsDeleted);
 
             if (employee == null)
                 return NotFound();
-
-            // منع الحذف إذا كان الموظف مرتبطاً بمقررات
-            bool hasOfferings =
-                await _context.CourseOfferings.AnyAsync(o =>
-                    o.EmployeeId == id);
-
-            if (hasOfferings)
-            {
-                TempData["Error"] =
-                    "لا يمكن حذف الموظف لأنه مرتبط بمقررات مطروحة";
-
-                return RedirectToAction(nameof(Index));
-            }
 
             await using var transaction =
                 await _context.Database.BeginTransactionAsync();
@@ -282,28 +294,85 @@ namespace StudentAffairsManagementSystem.Controllers
             var account = await _userManager.FindByIdAsync(
                 employee.AccountId.ToString());
 
-            // حذف سجل الموظف
-            _context.Employees.Remove(employee);
-            await _context.SaveChangesAsync();
-
-            // حذف حساب Identity المرتبط
-            if (account != null)
+            if (account == null)
             {
-                var result =
-                    await _userManager.DeleteAsync(account);
+                TempData["Error"] =
+                    "تعذر العثور على حساب الموظف المرتبط";
 
-                if (!result.Succeeded)
+                return RedirectToAction(nameof(Index));
+            }
+
+            DateTime deletedAt = DateTime.UtcNow;
+
+            // حذف آمن لسجل الموظف
+            employee.IsDeleted = true;
+            employee.DeletedAt = deletedAt;
+
+            // تعطيل حساب الدخول
+            account.LockoutEnabled = true;
+            account.LockoutEnd = DateTimeOffset.MaxValue;
+
+            // إبطال جلسات الدخول الحالية
+            var securityResult =
+                await _userManager.UpdateSecurityStampAsync(account);
+
+            if (!securityResult.Succeeded)
+            {
+                await transaction.RollbackAsync();
+
+                TempData["Error"] =
+                    "تعذر تعطيل حساب الموظف";
+
+                return RedirectToAction(nameof(Index));
+            }
+
+            // تعطيل صلاحيات الموظف والمنح التابعة لها
+            var allGrants = await _context.AccountPermissions
+                .ToListAsync();
+
+            var idsToRevoke = new HashSet<long>(
+                allGrants
+                    .Where(ap =>
+                        ap.AccountId == employee.AccountId ||
+                        ap.GrantedByAccountId == employee.AccountId)
+                    .Select(ap => ap.Id));
+
+            bool added;
+
+            do
+            {
+                added = false;
+
+                foreach (var grant in allGrants)
                 {
-                    await transaction.RollbackAsync();
+                    if (grant.ParentGrantId.HasValue &&
+                        idsToRevoke.Contains(
+                            grant.ParentGrantId.Value) &&
+                        idsToRevoke.Add(grant.Id))
+                    {
+                        added = true;
+                    }
+                }
+            }
+            while (added);
 
-                    TempData["Error"] =
-                        "تعذر حذف حساب الموظف";
-
-                    return RedirectToAction(nameof(Index));
+            foreach (var grant in allGrants)
+            {
+                if (idsToRevoke.Contains(grant.Id) &&
+                    grant.IsActive &&
+                    grant.RevokedAt == null)
+                {
+                    grant.IsActive = false;
+                    grant.CanDelegate = false;
+                    grant.RevokedAt = deletedAt;
                 }
             }
 
+            await _context.SaveChangesAsync();
             await transaction.CommitAsync();
+
+            TempData["Success"] =
+                "تم حذف الموظف بأمان وتعطيل حسابه وصلاحياته";
 
             return RedirectToAction(nameof(Index));
         }

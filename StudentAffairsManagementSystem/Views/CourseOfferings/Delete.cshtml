@@ -1,0 +1,180 @@
+﻿
+@model StudentAffairsManagementSystem.Models.CourseOffering
+
+@{
+    ViewData["Title"] = "حذف المقرر المطروح";
+
+    string employeeName =
+        $"{Model.Employee.FirstName} {Model.Employee.LastName}";
+}
+
+<div class="container-fluid py-4" dir="rtl">
+
+    <!-- عنوان الصفحة -->
+    <div class="mb-4">
+        <h2 style="color:#142d4e; font-weight:800;">
+            حذف المقرر المطروح
+        </h2>
+
+        <p class="text-muted mb-0">
+            مراجعة بيانات المقرر قبل تأكيد الحذف
+        </p>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-9 col-xl-8">
+
+            <!-- رسالة تحذيرية -->
+            <div class="alert alert-danger border-0 shadow-sm mb-4">
+
+                <h5 class="fw-bold mb-2">
+                    تنبيه: تأكيد حذف المقرر المطروح
+                </h5>
+
+                <p class="mb-2">
+                    هل أنتِ متأكدة من رغبتك بحذف هذا المقرر المطروح؟
+                </p>
+
+                <p class="mb-0">
+                    لا يمكن حذف الطرح إذا كان مرتبطًا بتسجيلات طلاب،
+                    وذلك للحفاظ على السجلات الأكاديمية.
+                </p>
+
+            </div>
+
+            <!-- تفاصيل الطرح -->
+            <div class="card border-0 shadow-sm">
+
+                <div class="card-header py-3"
+                     style="background:#142d4e; color:white;">
+
+                    <h5 class="mb-0">
+                        بيانات المقرر المطلوب حذفه
+                    </h5>
+
+                </div>
+
+                <div class="card-body p-4">
+
+                    <div class="row g-4">
+
+                        <!-- اسم المقرر -->
+                        <div class="col-md-6">
+                            <div class="text-muted mb-2">
+                                اسم المقرر الدراسي
+                            </div>
+
+                            <div class="fw-bold"
+                                 style="color:#142d4e;">
+                                @Model.Course.Name
+                            </div>
+                        </div>
+
+                        <!-- رمز المقرر -->
+                        <div class="col-md-6">
+                            <div class="text-muted mb-2">
+                                رمز المقرر
+                            </div>
+
+                            <div class="fw-bold">
+                                @Model.Course.Code
+                            </div>
+                        </div>
+
+                        <!-- الفصل الدراسي -->
+                        <div class="col-md-6">
+                            <div class="text-muted mb-2">
+                                الفصل الدراسي
+                            </div>
+
+                            <div class="fw-bold">
+                                @Model.Semester.Name
+                            </div>
+                        </div>
+
+                        <!-- العام الدراسي -->
+                        <div class="col-md-6">
+                            <div class="text-muted mb-2">
+                                العام الدراسي
+                            </div>
+
+                            <div class="fw-bold">
+                                @Model.Semester.AcademicYear
+                            </div>
+                        </div>
+
+                        <!-- الموظف المسؤول -->
+                        <div class="col-md-6">
+                            <div class="text-muted mb-2">
+                                الموظف المسؤول
+                            </div>
+
+                            <div class="fw-bold">
+                                @employeeName
+                            </div>
+                        </div>
+
+                        <!-- السعة الاستيعابية -->
+                        <div class="col-md-6">
+                            <div class="text-muted mb-2">
+                                السعة الاستيعابية
+                            </div>
+
+                            <div class="fw-bold">
+                                @Model.Capacity طالب
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <hr class="my-4" />
+
+                    <!-- نموذج تأكيد الحذف -->
+                    <form asp-controller="CourseOfferings"
+                          asp-action="Delete"
+                          asp-route-id="@Model.Id"
+                          method="post">
+
+                        @Html.AntiForgeryToken()
+
+                        <input type="hidden"
+                               asp-for="Id" />
+
+                        <div class="d-flex justify-content-end gap-2 flex-wrap">
+
+                            <a asp-controller="CourseOfferings"
+                               asp-action="Index"
+                               class="btn btn-outline-secondary px-4">
+                                إلغاء والعودة
+                            </a>
+
+                            <button type="submit"
+                                    class="btn btn-danger px-4 fw-bold">
+                                تأكيد حذف المقرر المطروح
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+            <!-- ملاحظة -->
+            <div class="alert alert-light border mt-4 mb-0">
+
+                <strong>ملاحظة مهمة:</strong>
+
+                الحذف هنا نهائي من جدول المقررات المطروحة،
+                وليس حذفًا منطقيًا.
+
+                إذا كان المقرر مرتبطًا بأي تسجيلات طلاب،
+                فسيمنع النظام حذفه.
+
+            </div>
+
+        </div>
+    </div>
+
+</div>

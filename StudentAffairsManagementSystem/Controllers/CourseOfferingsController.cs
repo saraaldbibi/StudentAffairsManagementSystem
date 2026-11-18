@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -12,8 +13,7 @@ namespace StudentAffairsManagementSystem.Controllers
     {
         private readonly ApplicationDbContext _context;
 
-        public CourseOfferingsController(
-            ApplicationDbContext context)
+        public CourseOfferingsController(ApplicationDbContext context)
         {
             _context = context;
         }
@@ -138,7 +138,7 @@ namespace StudentAffairsManagementSystem.Controllers
             if (offering == null)
                 return NotFound();
 
-            // منع تغيير المقرر أو الفصل إذا كان الطرح مرتبطاً بتسجيلات
+            // منع تغيير المقرر أو الفصل إذا كان هناك تسجيلات
             bool hasRegistrations =
                 await _context.Registrations.AnyAsync(r =>
                     r.CourseOfferingId == id);
@@ -214,7 +214,7 @@ namespace StudentAffairsManagementSystem.Controllers
             if (offering == null)
                 return NotFound();
 
-            // منع الحذف إذا كان الطرح مرتبطاً بتسجيلات طلاب
+            // منع الحذف إذا كان الطرح مرتبطاً بتسجيلات
             bool hasRegistrations =
                 await _context.Registrations.AnyAsync(r =>
                     r.CourseOfferingId == id);
@@ -246,7 +246,7 @@ namespace StudentAffairsManagementSystem.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // التحقق من بيانات الطرح
+        // التحقق من بيانات طرح المقرر
         private async Task ValidateOffering(
             CourseOffering offering,
             long? currentId = null)
@@ -275,16 +275,17 @@ namespace StudentAffairsManagementSystem.Controllers
                     "الفصل الدراسي المختار غير موجود");
             }
 
-            // التأكد من وجود الموظف
+            // التأكد من وجود الموظف وأنه غير محذوف
             bool employeeExists =
                 await _context.Employees.AnyAsync(e =>
-                    e.Id == offering.EmployeeId);
+                    e.Id == offering.EmployeeId &&
+                    !e.IsDeleted);
 
             if (!employeeExists)
             {
                 ModelState.AddModelError(
                     nameof(CourseOffering.EmployeeId),
-                    "الموظف المختار غير موجود");
+                    "الموظف المختار غير موجود أو تم حذفه");
             }
 
             // التأكد من أن السعة أكبر من صفر
@@ -310,7 +311,7 @@ namespace StudentAffairsManagementSystem.Controllers
                     "هذا المقرر مطروح مسبقاً في نفس الفصل");
             }
 
-            // منع تقليل السعة تحت عدد التسجيلات الفعالة
+            // منع تخفيض السعة تحت عدد الطلاب المسجلين
             if (currentId.HasValue)
             {
                 int registeredCount =
@@ -341,9 +342,12 @@ namespace StudentAffairsManagementSystem.Controllers
                 .OrderByDescending(s => s.StartDate)
                 .ToListAsync();
 
+            // إظهار الموظفين غير المحذوفين فقط
             var employees = await _context.Employees
                 .AsNoTracking()
+                .Where(e => !e.IsDeleted)
                 .OrderBy(e => e.FirstName)
+                .ThenBy(e => e.LastName)
                 .ToListAsync();
 
             ViewBag.CourseId = new SelectList(

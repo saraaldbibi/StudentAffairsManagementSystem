@@ -379,6 +379,9 @@ namespace StudentAffairsManagementSystem.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("EmployeeNumber")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
@@ -390,6 +393,9 @@ namespace StudentAffairsManagementSystem.Migrations
                     b.Property<string>("FirstName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<string>("LastName")
                         .IsRequired()
@@ -570,6 +576,9 @@ namespace StudentAffairsManagementSystem.Migrations
                     b.Property<string>("CertificateImage")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<long>("DepartmentId")
                         .HasColumnType("bigint");
 
@@ -595,6 +604,9 @@ namespace StudentAffairsManagementSystem.Migrations
 
                     b.Property<long?>("GraduationSemesterId")
                         .HasColumnType("bigint");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<string>("LastName")
                         .IsRequired()

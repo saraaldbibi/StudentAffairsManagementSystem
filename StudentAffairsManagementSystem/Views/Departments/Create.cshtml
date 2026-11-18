@@ -1,0 +1,239 @@
+﻿
+@model StudentAffairsManagementSystem.Models.Department
+
+@{
+    ViewData["Title"] = "إضافة قسم أكاديمي";
+}
+
+<style>
+    .department-form-page {
+        max-width: 850px;
+        margin: 0 auto;
+        color: #16263f;
+    }
+
+    .department-form-header {
+        margin-bottom: 25px;
+    }
+
+    .department-form-header h2 {
+        font-size: 25px;
+        font-weight: bold;
+        margin-bottom: 8px;
+    }
+
+    .department-form-header p {
+        color: #718096;
+        margin: 0;
+    }
+
+    .department-form-card {
+        background: white;
+        border: 1px solid #e5eaf2;
+        border-top: 4px solid #c8a66a;
+        border-radius: 16px;
+        padding: 30px;
+        box-shadow: 0 4px 15px rgba(20, 40, 70, .05);
+    }
+
+    .department-form-field {
+        margin-bottom: 24px;
+    }
+
+    .department-form-label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 9px;
+    }
+
+    .department-form-input {
+        width: 100%;
+        padding: 12px 14px;
+        border: 1px solid #d9e1eb;
+        border-radius: 10px;
+        background: white;
+        color: #16263f;
+    }
+
+    .department-form-input:focus {
+        outline: none;
+        border-color: #c8a66a;
+        box-shadow: 0 0 0 3px rgba(200, 166, 106, .15);
+    }
+
+    .department-form-hint {
+        color: #718096;
+        font-size: 13px;
+        margin-top: 7px;
+    }
+
+    .department-form-error {
+        display: block;
+        color: #b42318;
+        font-size: 13px;
+        margin-top: 7px;
+    }
+
+    .department-form-check {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 16px;
+        background: #f8f9fc;
+        border-radius: 10px;
+        margin-bottom: 25px;
+    }
+
+    .department-form-check input {
+        width: 19px;
+        height: 19px;
+        accent-color: #c8a66a;
+    }
+
+    .department-form-actions {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .department-form-save {
+        background: #c8a66a;
+        color: #16263f;
+        border: none;
+        border-radius: 10px;
+        padding: 12px 26px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .department-form-save:hover {
+        background: #b79557;
+    }
+
+    .department-form-back {
+        background: #f3f5f9;
+        color: #42536c;
+        border: 1px solid #e2e7ef;
+        border-radius: 10px;
+        padding: 12px 24px;
+        text-decoration: none;
+    }
+
+    .department-form-back:hover {
+        background: #e8edf5;
+        color: #16263f;
+    }
+
+    @@media (max-width: 650px) {
+        .department-form-card {
+            padding: 20px;
+        }
+    }
+</style>
+
+<div class="department-form-page">
+
+    <div class="department-form-header">
+        <h2>إضافة قسم أكاديمي جديد</h2>
+        <p>أدخل بيانات القسم واربطه بإحدى كليات الجامعة.</p>
+    </div>
+
+    <div class="department-form-card">
+
+        <form asp-controller="Departments"
+              asp-action="Create"
+              method="post">
+
+            @Html.AntiForgeryToken()
+
+            <div asp-validation-summary="ModelOnly"
+                 class="department-form-error"></div>
+
+            <div class="department-form-field">
+                <label asp-for="Name"
+                       class="department-form-label">
+                    اسم القسم الأكاديمي
+                </label>
+
+                <input asp-for="Name"
+                       class="department-form-input"
+                       placeholder="أدخل اسم القسم"
+                       required />
+
+                <span asp-validation-for="Name"
+                      class="department-form-error"></span>
+            </div>
+
+            <div class="department-form-field">
+                <label asp-for="Code"
+                       class="department-form-label">
+                    رمز القسم
+                </label>
+
+                <input asp-for="Code"
+                       class="department-form-input"
+                       placeholder="مثال: 01"
+                       maxlength="2"
+                       pattern="[0-9]{2}"
+                       inputmode="numeric"
+                       required />
+
+                <div class="department-form-hint">
+                    يجب أن يتكون الرمز من رقمين فقط، وألا يكون مستخدماً في قسم آخر.
+                </div>
+
+                <span asp-validation-for="Code"
+                      class="department-form-error"></span>
+            </div>
+
+            <div class="department-form-field">
+                <label asp-for="FacultyId"
+                       class="department-form-label">
+                    الكلية
+                </label>
+
+                <select asp-for="FacultyId"
+                        asp-items="ViewBag.FacultyId"
+                        class="department-form-input"
+                        required>
+                    <option value="">-- اختر الكلية --</option>
+                </select>
+
+                <span asp-validation-for="FacultyId"
+                      class="department-form-error"></span>
+
+                <div class="department-form-hint">
+                    تظهر الكليات الفعالة المسجلة في قاعدة البيانات.
+                </div>
+            </div>
+
+            <div class="department-form-check">
+                <input asp-for="IsActive"
+                       type="checkbox" />
+
+                <label asp-for="IsActive">
+                    القسم فعال ومتاح لإضافة المقررات والطلاب
+                </label>
+            </div>
+
+            <div class="department-form-actions">
+                <button type="submit"
+                        class="department-form-save">
+                    حفظ القسم
+                </button>
+
+                <a asp-controller="Departments"
+                   asp-action="Index"
+                   class="department-form-back">
+                    إلغاء والعودة
+                </a>
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

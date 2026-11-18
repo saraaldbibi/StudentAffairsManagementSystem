@@ -1,0 +1,487 @@
+﻿
+@model IEnumerable<StudentAffairsManagementSystem.Models.Employee>
+
+@{
+    ViewData["Title"] = "إدارة صلاحيات الموظفين";
+
+    var employees = Model?.ToList()
+        ?? new List<StudentAffairsManagementSystem.Models.Employee>();
+
+    var grantedAccountIds =
+        ViewBag.GrantedAccountIds as List<long>
+        ?? new List<long>();
+
+    int grantedCount = employees.Count(e =>
+        grantedAccountIds.Contains(e.AccountId));
+
+    int notGrantedCount = employees.Count - grantedCount;
+}
+
+<style>
+    .permissions-page {
+        direction: rtl;
+        max-width: 1250px;
+        margin: 25px auto;
+        color: #14263f;
+    }
+
+    .permissions-header {
+        background: #14263f;
+        color: white;
+        padding: 28px 32px;
+        border-radius: 16px;
+        border-bottom: 4px solid #c9a66b;
+        margin-bottom: 25px;
+    }
+
+    .permissions-header h2 {
+        font-size: 25px;
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+
+    .permissions-header p {
+        color: #d6dce6;
+        margin: 0;
+    }
+
+    .permissions-stats {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+        margin-bottom: 25px;
+    }
+
+    .permissions-stat-card {
+        background: white;
+        padding: 22px;
+        border: 1px solid #e5eaf0;
+        border-radius: 12px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.04);
+    }
+
+    .permissions-stat-label {
+        color: #66758b;
+        font-size: 14px;
+        margin-bottom: 10px;
+    }
+
+    .permissions-stat-number {
+        font-size: 29px;
+        font-weight: 700;
+        color: #14263f;
+    }
+
+    .permissions-table-card {
+        background: white;
+        border: 1px solid #e5eaf0;
+        border-radius: 14px;
+        overflow: hidden;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.04);
+    }
+
+    .permissions-table-header {
+        padding: 22px 25px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .permissions-table-header h3 {
+        font-size: 19px;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .permissions-search {
+        width: 260px;
+        max-width: 100%;
+        border: 1px solid #dce3ed;
+        border-radius: 9px;
+        padding: 10px 13px;
+    }
+
+    .permissions-table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: right;
+    }
+
+    .permissions-table thead {
+        background: #f3f5f9;
+    }
+
+    .permissions-table th {
+        padding: 16px;
+        color: #41536b;
+        font-size: 14px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .permissions-table td {
+        padding: 17px 16px;
+        border-top: 1px solid #edf0f5;
+        vertical-align: middle;
+    }
+
+    .permissions-table tbody tr:hover {
+        background: #fafbfd;
+    }
+
+    .permission-active {
+        display: inline-block;
+        background: #e8f6ed;
+        color: #207443;
+        border-radius: 20px;
+        padding: 7px 13px;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .permission-inactive {
+        display: inline-block;
+        background: #f1f3f6;
+        color: #66758b;
+        border-radius: 20px;
+        padding: 7px 13px;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .permission-grant-btn {
+        background: #c9a66b;
+        color: #14263f;
+        border: none;
+        border-radius: 9px;
+        padding: 10px 15px;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+    .permission-grant-btn:hover {
+        background: #b99454;
+    }
+
+    .permission-revoke-btn {
+        background: #fff1f0;
+        color: #a52d2d;
+        border: 1px solid #edc5c2;
+        border-radius: 9px;
+        padding: 10px 15px;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+    .permission-revoke-btn:hover {
+        background: #ffe1df;
+    }
+
+    .permissions-empty {
+        padding: 45px 20px;
+        text-align: center;
+        color: #718096;
+    }
+
+    .permissions-alert {
+        padding: 14px 18px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        font-weight: 600;
+    }
+
+    .permissions-success {
+        background: #e8f6ed;
+        color: #207443;
+        border: 1px solid #bfe4ca;
+    }
+
+    .permissions-error {
+        background: #fff1f0;
+        color: #a52d2d;
+        border: 1px solid #edc5c2;
+    }
+
+    .permissions-note {
+        background: #f7f9fc;
+        border-right: 4px solid #c9a66b;
+        padding: 17px 20px;
+        margin-top: 22px;
+        border-radius: 9px;
+        color: #52627a;
+    }
+
+    @@media (max-width: 800px) {
+        .permissions-stats {
+            grid-template-columns: 1fr;
+        }
+
+        .permissions-header {
+            padding: 22px;
+        }
+
+        .permissions-table-header {
+            padding: 18px;
+        }
+    }
+</style>
+
+<div class="permissions-page">
+
+    <div class="permissions-header">
+        <h2>
+            <i class="bi bi-shield-lock"></i>
+            إدارة صلاحيات الموظفين
+        </h2>
+
+        <p>
+            منح وسحب صلاحية حذف الطلاب للموظفين
+        </p>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="permissions-alert permissions-success">
+            <i class="bi bi-check-circle"></i>
+            @TempData["SuccessMessage"]
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="permissions-alert permissions-error">
+            <i class="bi bi-exclamation-triangle"></i>
+            @TempData["ErrorMessage"]
+        </div>
+    }
+
+    <div class="permissions-stats">
+
+        <div class="permissions-stat-card">
+            <div class="permissions-stat-label">
+                <i class="bi bi-people"></i>
+                إجمالي الموظفين
+            </div>
+
+            <div class="permissions-stat-number">
+                @employees.Count
+            </div>
+        </div>
+
+        <div class="permissions-stat-card">
+            <div class="permissions-stat-label">
+                <i class="bi bi-shield-check"></i>
+                لديهم صلاحية الحذف
+            </div>
+
+            <div class="permissions-stat-number">
+                @grantedCount
+            </div>
+        </div>
+
+        <div class="permissions-stat-card">
+            <div class="permissions-stat-label">
+                <i class="bi bi-shield-x"></i>
+                بدون صلاحية الحذف
+            </div>
+
+            <div class="permissions-stat-number">
+                @notGrantedCount
+            </div>
+        </div>
+
+    </div>
+
+    <div class="permissions-table-card">
+
+        <div class="permissions-table-header">
+
+            <h3>
+                <i class="bi bi-person-gear"></i>
+                قائمة الموظفين
+            </h3>
+
+            <input type="search"
+                   id="employeePermissionSearch"
+                   class="permissions-search"
+                   placeholder="ابحث برقم الموظف أو اسم الحساب..."
+                   aria-label="البحث عن موظف" />
+
+        </div>
+
+        <div class="table-responsive">
+
+            <table class="permissions-table"
+                   id="employeePermissionsTable">
+
+                <thead>
+                    <tr>
+                        <th>الرقم الوظيفي</th>
+                        <th>اسم الحساب</th>
+                        <th>الصلاحية</th>
+                        <th>الإجراء</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    @foreach (var employee in employees)
+                    {
+                        bool hasPermission =
+                            grantedAccountIds.Contains(
+                                employee.AccountId);
+
+                        <tr class="permission-employee-row">
+
+                            <td>
+                                <strong>
+                                    @employee.EmployeeNumber
+                                </strong>
+                            </td>
+
+                            <td>
+                                @(employee.Account?.UserName
+                                    ?? "غير متوفر")
+                            </td>
+
+                            <td>
+                                @if (hasPermission)
+                                {
+                                    <span class="permission-active">
+                                        <i class="bi bi-check-circle"></i>
+                                        مسموح بالحذف
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="permission-inactive">
+                                        <i class="bi bi-lock"></i>
+                                        غير مسموح
+                                    </span>
+                                }
+                            </td>
+
+                            <td>
+                                @if (hasPermission)
+                                {
+                                    <form asp-controller="EmployeePermissions"
+                                          asp-action="RevokeDeleteStudents"
+                                          method="post"
+                                          onsubmit="return confirm('هل أنت متأكد من سحب صلاحية حذف الطلاب من هذا الموظف؟');">
+
+                                        @Html.AntiForgeryToken()
+
+                                        <input type="hidden"
+                                               name="employeeId"
+                                               value="@employee.Id" />
+
+                                        <button type="submit"
+                                                class="permission-revoke-btn">
+                                            <i class="bi bi-shield-x"></i>
+                                            سحب الصلاحية
+                                        </button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <form asp-controller="EmployeePermissions"
+                                          asp-action="GrantDeleteStudents"
+                                          method="post"
+                                          onsubmit="return confirm('هل تريد منح هذا الموظف صلاحية حذف الطلاب؟');">
+
+                                        @Html.AntiForgeryToken()
+
+                                        <input type="hidden"
+                                               name="employeeId"
+                                               value="@employee.Id" />
+
+                                        <button type="submit"
+                                                class="permission-grant-btn">
+                                            <i class="bi bi-shield-check"></i>
+                                            منح الصلاحية
+                                        </button>
+                                    </form>
+                                }
+                            </td>
+
+                        </tr>
+                    }
+
+                </tbody>
+            </table>
+
+        </div>
+
+        @if (!employees.Any())
+        {
+            <div class="permissions-empty">
+                <i class="bi bi-people"
+                   style="font-size:40px;"></i>
+
+                <p class="mt-3">
+                    لا يوجد موظفون مسجلون في قاعدة البيانات.
+                </p>
+            </div>
+        }
+
+        <div id="permissionsSearchEmpty"
+             class="permissions-empty"
+             style="display:none;">
+            لا توجد نتائج مطابقة للبحث.
+        </div>
+
+    </div>
+
+    <div class="permissions-note">
+        <i class="bi bi-info-circle"></i>
+        المدير يمتلك صلاحية حذف الطلاب دائمًا.
+        الموظف يستطيع الحذف فقط إذا منحه المدير الصلاحية،
+        ويمكن سحبها منه في أي وقت.
+    </div>
+
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const searchInput =
+            document.getElementById("employeePermissionSearch");
+
+        const rows = document.querySelectorAll(
+            ".permission-employee-row");
+
+        const emptyMessage =
+            document.getElementById("permissionsSearchEmpty");
+
+        searchInput.addEventListener("input", function () {
+
+            const searchText =
+                this.value.trim().toLowerCase();
+
+            let visibleCount = 0;
+
+            rows.forEach(function (row) {
+
+                const rowText =
+                    row.innerText.toLowerCase();
+
+                const matches =
+                    rowText.includes(searchText);
+
+                row.style.display =
+                    matches ? "" : "none";
+
+                if (matches) {
+                    visibleCount++;
+                }
+            });
+
+            emptyMessage.style.display =
+                rows.length > 0 && visibleCount === 0
+                    ? "block"
+                    : "none";
+        });
+    });
+</script>

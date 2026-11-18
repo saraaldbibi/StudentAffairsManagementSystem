@@ -1,0 +1,506 @@
+﻿
+@model IEnumerable<StudentAffairsManagementSystem.Models.Student>
+
+@{
+    ViewData["Title"] = "إدارة الطلاب";
+
+    var students = Model?.ToList()
+        ?? new List<StudentAffairsManagementSystem.Models.Student>();
+
+    bool canDeleteStudents = ViewBag.CanDeleteStudents is bool allowed && allowed;
+
+    var totalStudents = students.Count;
+
+    var totalDepartments = students
+        .Select(s => s.DepartmentId)
+        .Distinct()
+        .Count();
+
+    var departments = students
+        .Where(s => s.Department != null)
+        .GroupBy(s => s.DepartmentId)
+        .Select(g => new
+        {
+            Id = g.Key,
+            Name = g.First().Department!.Name
+        })
+        .OrderBy(d => d.Name)
+        .ToList();
+}
+
+<style>
+    .students-page {
+        direction: rtl;
+        color: #14263f;
+    }
+
+    .students-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-bottom: 25px;
+    }
+
+    .students-header h2 {
+        font-size: 26px;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+
+    .students-header p {
+        color: #718096;
+        margin: 0;
+    }
+
+    .students-add-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: #c9a66b;
+        color: #14263f;
+        padding: 12px 20px;
+        border-radius: 10px;
+        text-decoration: none;
+        font-weight: 700;
+    }
+
+    .students-add-btn:hover {
+        background: #b99555;
+        color: #14263f;
+    }
+
+    .students-stats {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+        margin-bottom: 25px;
+    }
+
+    .students-stat-card {
+        background: white;
+        border: 1px solid #e5eaf0;
+        border-radius: 14px;
+        padding: 22px;
+        border-right: 4px solid #c9a66b;
+    }
+
+    .students-stat-label {
+        color: #718096;
+        font-size: 14px;
+        margin-bottom: 10px;
+    }
+
+    .students-stat-value {
+        font-size: 30px;
+        font-weight: 800;
+        color: #14263f;
+    }
+
+    .students-table-card {
+        background: white;
+        border: 1px solid #e5eaf0;
+        border-radius: 15px;
+        overflow: hidden;
+    }
+
+    .students-table-title {
+        padding: 22px;
+        border-bottom: 1px solid #e5eaf0;
+    }
+
+    .students-table-title h4 {
+        margin: 0;
+        font-weight: 700;
+        font-size: 19px;
+    }
+
+    .students-filters {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 15px;
+        padding: 20px 22px;
+        background: #f8f9fc;
+    }
+
+    .students-filter-input {
+        width: 100%;
+        border: 1px solid #dce3ed;
+        border-radius: 10px;
+        padding: 12px 15px;
+        background: white;
+        color: #14263f;
+    }
+
+    .students-filter-input:focus {
+        outline: none;
+        border-color: #c9a66b;
+    }
+
+    .students-table-wrapper {
+        overflow-x: auto;
+    }
+
+    .students-table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: right;
+    }
+
+    .students-table thead {
+        background: #14263f;
+        color: white;
+    }
+
+    .students-table th {
+        padding: 15px;
+        font-size: 14px;
+        white-space: nowrap;
+    }
+
+    .students-table td {
+        padding: 15px;
+        border-bottom: 1px solid #edf0f5;
+        vertical-align: middle;
+        font-size: 14px;
+    }
+
+    .students-table tbody tr:hover {
+        background: #fafbfd;
+    }
+
+    .students-number {
+        font-weight: 700;
+        color: #14263f;
+        direction: ltr;
+        display: inline-block;
+    }
+
+    .students-details-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 13px;
+        border-radius: 8px;
+        background: #edf1f7;
+        color: #14263f;
+        text-decoration: none;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .students-details-btn:hover {
+        background: #dce5f0;
+        color: #14263f;
+    }
+
+    .students-actions {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .students-delete-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 13px;
+        border-radius: 8px;
+        background: #fff0f0;
+        color: #a52d2d;
+        border: 1px solid #efc4c4;
+        text-decoration: none;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .students-delete-btn:hover {
+        background: #ffe1e1;
+        color: #922424;
+    }
+
+    .students-empty {
+        text-align: center;
+        padding: 45px 20px;
+        color: #718096;
+    }
+
+    .students-empty i {
+        font-size: 42px;
+        color: #c9a66b;
+        display: block;
+        margin-bottom: 15px;
+    }
+
+    .students-count-footer {
+        padding: 15px 22px;
+        color: #718096;
+        font-size: 13px;
+        border-top: 1px solid #edf0f5;
+    }
+
+    @@media (max-width: 700px) {
+        .students-stats,
+        .students-filters {
+            grid-template-columns: 1fr;
+        }
+
+        .students-header h2 {
+            font-size: 22px;
+        }
+    }
+</style>
+
+<div class="students-page">
+
+    <div class="students-header">
+        <div>
+            <h2>
+                <i class="bi bi-people-fill"></i>
+                إدارة الطلاب
+            </h2>
+            <p>عرض وإدارة بيانات الطلاب المسجلين في الجامعة</p>
+        </div>
+
+        <a asp-controller="Students"
+           asp-action="Create"
+           class="students-add-btn">
+            <i class="bi bi-person-plus"></i>
+            إضافة طالب جديد
+        </a>
+    </div>
+
+    <div class="students-stats">
+
+        <div class="students-stat-card">
+            <div class="students-stat-label">
+                إجمالي الطلاب المسجلين
+            </div>
+            <div class="students-stat-value">
+                @totalStudents
+            </div>
+        </div>
+
+        <div class="students-stat-card">
+            <div class="students-stat-label">
+                الأقسام التي تضم طلاباً
+            </div>
+            <div class="students-stat-value">
+                @totalDepartments
+            </div>
+        </div>
+
+    </div>
+
+    <div class="students-table-card">
+
+        <div class="students-table-title">
+            <h4>
+                <i class="bi bi-list-ul"></i>
+                قائمة الطلاب
+            </h4>
+        </div>
+
+        <div class="students-filters">
+
+            <input type="text"
+                   id="studentSearch"
+                   class="students-filter-input"
+                   placeholder="ابحث باسم الطالب أو الرقم الجامعي..." />
+
+            <select id="departmentFilter"
+                    class="students-filter-input">
+                <option value="">جميع الأقسام</option>
+
+                @foreach (var department in departments)
+                {
+                    <option value="@department.Id">
+                        @department.Name
+                    </option>
+                }
+            </select>
+
+        </div>
+
+        <div class="students-table-wrapper">
+
+            <table class="students-table">
+                <thead>
+                    <tr>
+                        <th>الرقم الجامعي</th>
+                        <th>اسم الطالب</th>
+                        <th>القسم الأكاديمي</th>
+                        <th>فصل القبول</th>
+                        <th>رقم الهاتف</th>
+                        <th>الإجراءات</th>
+                    </tr>
+                </thead>
+
+                <tbody id="studentsTableBody">
+
+                    @foreach (var student in students)
+                    {
+                        var fullName = string.Join(" ",
+                            new[]
+                            {
+                                student.FirstName,
+                                student.FatherName,
+                                student.LastName
+                            }.Where(n => !string.IsNullOrWhiteSpace(n)));
+
+                        <tr class="student-row"
+                            data-department="@student.DepartmentId">
+
+                            <td>
+                                <span class="students-number">
+                                    @student.UniversityNumber
+                                </span>
+                            </td>
+
+                            <td>
+                                <strong>@fullName</strong>
+                            </td>
+
+                            <td>
+                                @(student.Department?.Name ?? "غير محدد")
+                            </td>
+
+                            <td>
+                                @(student.AdmissionSemester?.Name ?? "غير محدد")
+                            </td>
+
+                            <td>
+                                @(student.Phone ?? "غير محدد")
+                            </td>
+
+                            <td>
+                                <div class="students-actions">
+                                    <a asp-controller="Students"
+                                       asp-action="Details"
+                                       asp-route-id="@student.Id"
+                                       class="students-details-btn">
+                                        <i class="bi bi-eye"></i>
+                                        عرض التفاصيل
+                                    </a>
+
+                                    @if (canDeleteStudents)
+                                    {
+                                        <a asp-controller="Students"
+                                           asp-action="Delete"
+                                           asp-route-id="@student.Id"
+                                           class="students-delete-btn"
+                                           aria-label="حذف الطالب @fullName">
+                                            <i class="bi bi-trash3"></i>
+                                            حذف
+                                        </a>
+                                    }
+                                </div>
+                            </td>
+
+                        </tr>
+                    }
+
+                </tbody>
+            </table>
+
+        </div>
+
+        <div id="noSearchResults"
+             class="students-empty"
+             style="display:none;">
+            لا يوجد طلاب مطابقون للبحث.
+        </div>
+
+        @if (!students.Any())
+        {
+            <div class="students-empty">
+                <i class="bi bi-person-lines-fill"></i>
+                لا يوجد طلاب مسجلون حالياً.
+                <div>يمكنكم إضافة أول طالب من الزر الموجود بالأعلى.</div>
+            </div>
+        }
+
+        <div class="students-count-footer">
+            عدد الطلاب الظاهرين:
+            <span id="visibleStudentsCount">@totalStudents</span>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const searchInput =
+            document.getElementById("studentSearch");
+
+        const departmentFilter =
+            document.getElementById("departmentFilter");
+
+        const rows =
+            document.querySelectorAll(".student-row");
+
+        const visibleCount =
+            document.getElementById("visibleStudentsCount");
+
+        const noResults =
+            document.getElementById("noSearchResults");
+
+        function filterStudents() {
+
+            const searchText =
+                searchInput.value.trim().toLowerCase();
+
+            const selectedDepartment =
+                departmentFilter.value;
+
+            let count = 0;
+
+            rows.forEach(function (row) {
+
+                const rowText =
+                    row.textContent.toLowerCase();
+
+                const rowDepartment =
+                    row.getAttribute("data-department");
+
+                const matchesSearch =
+                    rowText.includes(searchText);
+
+                const matchesDepartment =
+                    !selectedDepartment ||
+                    rowDepartment === selectedDepartment;
+
+                const show =
+                    matchesSearch && matchesDepartment;
+
+                row.style.display = show ? "" : "none";
+
+                if (show) {
+                    count++;
+                }
+            });
+
+            visibleCount.textContent = count;
+
+            noResults.style.display =
+                rows.length > 0 && count === 0
+                    ? "block"
+                    : "none";
+        }
+
+        searchInput.addEventListener(
+            "input",
+            filterStudents
+        );
+
+        departmentFilter.addEventListener(
+            "change",
+            filterStudents
+        );
+
+    });
+</script>

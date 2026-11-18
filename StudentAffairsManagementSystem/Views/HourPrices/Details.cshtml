@@ -1,0 +1,188 @@
+﻿
+@model StudentAffairsManagementSystem.Models.HourPrice
+
+@{
+    ViewData["Title"] = "تفاصيل سعر الساعة الدراسية";
+
+    bool isAdmin = User.IsInRole("Admin");
+}
+
+<div class="container-fluid py-4" dir="rtl">
+
+    <!-- عنوان الصفحة -->
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+
+        <div>
+            <h2 style="color:#142d4e; font-weight:800;">
+                تفاصيل سعر الساعة الدراسية
+            </h2>
+
+            <p class="text-muted mb-0">
+                عرض معلومات سعر الساعة المسجل في النظام
+            </p>
+        </div>
+
+        <a asp-controller="HourPrices"
+           asp-action="Index"
+           class="btn btn-outline-secondary">
+            العودة إلى أسعار الساعات
+        </a>
+
+    </div>
+
+    <!-- بطاقة التفاصيل -->
+    <div class="card border-0 shadow-sm">
+
+        <div class="card-header py-3"
+             style="background:#142d4e; color:white;">
+
+            <h5 class="mb-0">
+                معلومات سعر الساعة
+            </h5>
+
+        </div>
+
+        <div class="card-body p-4">
+
+            <!-- القسم -->
+            <div class="mb-4">
+
+                <div class="text-muted mb-2">
+                    القسم الدراسي
+                </div>
+
+                <h4 style="color:#142d4e; font-weight:800;">
+                    @Model.Department.Name
+                </h4>
+
+            </div>
+
+            <hr />
+
+            <!-- معلومات الفصل -->
+            <h5 class="mb-4"
+                style="color:#142d4e; font-weight:700;">
+                معلومات الفصل الدراسي
+            </h5>
+
+            <div class="row g-4 mb-4">
+
+                <div class="col-md-6">
+
+                    <div class="text-muted mb-2">
+                        اسم الفصل الدراسي
+                    </div>
+
+                    <div class="fw-bold fs-5">
+                        @Model.Semester.Name
+                    </div>
+
+                </div>
+
+                <div class="col-md-6">
+
+                    <div class="text-muted mb-2">
+                        العام الدراسي
+                    </div>
+
+                    <div class="fw-bold fs-5">
+                        @Model.Semester.AcademicYear
+                    </div>
+
+                </div>
+
+                <div class="col-md-6">
+
+                    <div class="text-muted mb-2">
+                        رقم الفصل الدراسي
+                    </div>
+
+                    <div class="fw-bold fs-5">
+                        @Model.Semester.SemesterNumber
+                    </div>
+
+                </div>
+
+                <div class="col-md-6">
+
+                    <div class="text-muted mb-2">
+                        حالة الفصل الدراسي
+                    </div>
+
+                    @if (Model.Semester.IsActive)
+                    {
+                        <span class="badge bg-success px-3 py-2">
+                            فعال
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary px-3 py-2">
+                            غير فعال
+                        </span>
+                    }
+
+                </div>
+
+            </div>
+
+            <hr />
+
+            <!-- سعر الساعة -->
+            <h5 class="mb-3"
+                style="color:#142d4e; font-weight:700;">
+                السعر المسجل
+            </h5>
+
+            <div class="mb-4">
+
+                <div class="text-muted mb-2">
+                    سعر الساعة الدراسية
+                </div>
+
+                <div style="color:#142d4e; font-size:32px; font-weight:800;">
+                    @Model.PricePerHour.ToString("N2")
+                </div>
+
+                <small class="text-muted">
+                    السعر المحدد لهذا القسم خلال الفصل الدراسي المذكور.
+                </small>
+
+            </div>
+
+            <hr />
+
+            <!-- الأزرار -->
+            <div class="d-flex flex-wrap gap-3 mt-4">
+
+                @if (isAdmin)
+                {
+                    <a asp-controller="HourPrices"
+                       asp-action="Edit"
+                       asp-route-id="@Model.Id"
+                       class="btn px-4 py-2"
+                       style="background:#c9a24d; color:#142d4e; font-weight:800;">
+                        تعديل سعر الساعة
+                    </a>
+
+                    <a asp-controller="HourPrices"
+                       asp-action="Delete"
+                       asp-route-id="@Model.Id"
+                       class="btn btn-outline-danger px-4 py-2">
+                        حذف سعر الساعة
+                    </a>
+                }
+
+                <a asp-controller="HourPrices"
+                   asp-action="Index"
+                   class="btn btn-outline-secondary px-4 py-2">
+                    رجوع
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
