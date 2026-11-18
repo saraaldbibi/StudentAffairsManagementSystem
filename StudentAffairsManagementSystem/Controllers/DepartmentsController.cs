@@ -1,9 +1,12 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using StudentAffairsManagementSystem.Data;
 using StudentAffairsManagementSystem.Models;
+using StudentAffairsManagementSystem.Permissions;
+using StudentAffairsManagementSystem.Services;
 
 namespace StudentAffairsManagementSystem.Controllers
 {
@@ -11,13 +14,44 @@ namespace StudentAffairsManagementSystem.Controllers
     public class DepartmentsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly PermissionService _permissionService;
 
-        public DepartmentsController(ApplicationDbContext context)
+        public DepartmentsController(
+            ApplicationDbContext context,
+            PermissionService permissionService)
         {
             _context = context;
+            _permissionService = permissionService;
         }
 
-        // عرض جميع الأقسام مع الكليات
+        // Get the authenticated account ID
+        private long? GetCurrentAccountId()
+        {
+            var value = User.FindFirstValue(
+                ClaimTypes.NameIdentifier);
+
+            if (long.TryParse(value, out long accountId))
+                return accountId;
+
+            return null;
+        }
+
+        // Check permission to edit any department
+        private async Task<bool> CanEditDepartmentsAsync()
+        {
+            var accountId = GetCurrentAccountId();
+
+            if (!accountId.HasValue)
+                return false;
+
+            return await _permissionService.HasPermissionAsync(
+                accountId.Value,
+                PermissionCodes.DepartmentsEdit);
+        }
+
+        // =====================================
+        // View all departments
+        // =====================================
         public async Task<IActionResult> Index()
         {
             var departments = await _context.Departments
@@ -29,7 +63,9 @@ namespace StudentAffairsManagementSystem.Controllers
             return View(departments);
         }
 
-        // عرض تفاصيل القسم
+        // =====================================
+        // Department details
+        // =====================================
         public async Task<IActionResult> Details(long id)
         {
             var department = await _context.Departments
@@ -43,7 +79,9 @@ namespace StudentAffairsManagementSystem.Controllers
             return View(department);
         }
 
-        // فتح صفحة إضافة قسم
+        // =====================================
+        // Create department - Admin only
+        // =====================================
         [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<IActionResult> Create()
@@ -52,7 +90,6 @@ namespace StudentAffairsManagementSystem.Controllers
             return View(new Department());
         }
 
-        // حفظ قسم جديد
         [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -65,7 +102,6 @@ namespace StudentAffairsManagementSystem.Controllers
             department.Name = department.Name?.Trim() ?? "";
             department.Code = department.Code?.Trim() ?? "";
 
-            // التحقق من اسم القسم
             if (string.IsNullOrWhiteSpace(department.Name))
             {
                 ModelState.AddModelError(
@@ -73,7 +109,6 @@ namespace StudentAffairsManagementSystem.Controllers
                     "اسم القسم مطلوب");
             }
 
-            // رمز القسم يجب أن يتكون من رقمين بالضبط
             if (department.Code.Length != 2 ||
                 !department.Code.All(c => c >= '0' && c <= '9'))
             {
@@ -82,7 +117,6 @@ namespace StudentAffairsManagementSystem.Controllers
                     "رمز القسم يجب أن يتكون من رقمين فقط");
             }
 
-            // التأكد من وجود الكلية وأنها فعالة
             bool facultyExists = await _context.Faculties
                 .AnyAsync(f =>
                     f.Id == department.FacultyId &&
@@ -95,7 +129,6 @@ namespace StudentAffairsManagementSystem.Controllers
                     "الكلية غير موجودة أو غير فعالة");
             }
 
-            // التأكد من عدم تكرار رمز القسم
             bool codeExists = await _context.Departments
                 .AnyAsync(d => d.Code == department.Code);
 
@@ -131,11 +164,15 @@ namespace StudentAffairsManagementSystem.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // فتح صفحة تعديل القسم
-        [Authorize(Roles = "Admin")]
+        // =====================================
+        // Edit department - Admin or authorized Employee
+        // =====================================
         [HttpGet]
         public async Task<IActionResult> Edit(long id)
         {
+            if (!await CanEditDepartmentsAsync())
+                return Forbid();
+
             var department = await _context.Departments
                 .FindAsync(id);
 
@@ -147,8 +184,6 @@ namespace StudentAffairsManagementSystem.Controllers
             return View(department);
         }
 
-        // حفظ تعديل القسم
-        [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(
@@ -156,6 +191,10 @@ namespace StudentAffairsManagementSystem.Controllers
             [Bind("Id,Name,Code,FacultyId,IsActive")]
             Department department)
         {
+            // Check authorization on every POST request
+            if (!await CanEditDepartmentsAsync())
+                return Forbid();
+
             if (id != department.Id)
                 return NotFound();
 
@@ -209,7 +248,8 @@ namespace StudentAffairsManagementSystem.Controllers
             if (existingDepartment == null)
                 return NotFound();
 
-            // منع تغيير رمز القسم بعد تسجيل طلاب فيه
+            // Do not change the department code
+            // after students have been registered
             if (existingDepartment.Code != department.Code)
             {
                 bool hasStudents = await _context.Students
@@ -251,7 +291,9 @@ namespace StudentAffairsManagementSystem.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // فتح صفحة تأكيد الحذف
+        // =====================================
+        // Delete department - Admin only
+        // =====================================
         [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<IActionResult> Delete(long id)
@@ -267,7 +309,6 @@ namespace StudentAffairsManagementSystem.Controllers
             return View(department);
         }
 
-        // تنفيذ حذف القسم
         [Authorize(Roles = "Admin")]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
@@ -329,7 +370,9 @@ namespace StudentAffairsManagementSystem.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // تجهيز قائمة الكليات الفعالة
+        // =====================================
+        // Load active faculties
+        // =====================================
         private async Task LoadFaculties()
         {
             var faculties = await _context.Faculties

@@ -1,0 +1,3 @@
+﻿SELECT Id, Code, Name
+FROM dbo.PERMISSIONS
+ORDER BY Code;

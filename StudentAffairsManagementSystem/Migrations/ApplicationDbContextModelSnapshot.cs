@@ -227,6 +227,51 @@ namespace StudentAffairsManagementSystem.Migrations
                     b.ToTable("ACCOUNTS", (string)null);
                 });
 
+            modelBuilder.Entity("StudentAffairsManagementSystem.Models.AccountPermission", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("AccountId")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("CanDelegate")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("GrantedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long>("GrantedByAccountId")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<long?>("ParentGrantId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("PermissionId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("RevokedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GrantedByAccountId");
+
+                    b.HasIndex("ParentGrantId");
+
+                    b.HasIndex("PermissionId");
+
+                    b.HasIndex("AccountId", "PermissionId", "IsActive");
+
+                    b.ToTable("ACCOUNT_PERMISSIONS", (string)null);
+                });
+
             modelBuilder.Entity("StudentAffairsManagementSystem.Models.Course", b =>
                 {
                     b.Property<long>("Id")
@@ -410,6 +455,32 @@ namespace StudentAffairsManagementSystem.Migrations
                     b.HasIndex("SemesterId");
 
                     b.ToTable("HOUR_PRICES", (string)null);
+                });
+
+            modelBuilder.Entity("StudentAffairsManagementSystem.Models.Permission", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique();
+
+                    b.ToTable("PERMISSIONS", (string)null);
                 });
 
             modelBuilder.Entity("StudentAffairsManagementSystem.Models.Registration", b =>
@@ -625,6 +696,40 @@ namespace StudentAffairsManagementSystem.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("StudentAffairsManagementSystem.Models.AccountPermission", b =>
+                {
+                    b.HasOne("StudentAffairsManagementSystem.Models.Account", "Account")
+                        .WithMany()
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("StudentAffairsManagementSystem.Models.Account", "GrantedByAccount")
+                        .WithMany()
+                        .HasForeignKey("GrantedByAccountId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("StudentAffairsManagementSystem.Models.AccountPermission", "ParentGrant")
+                        .WithMany()
+                        .HasForeignKey("ParentGrantId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("StudentAffairsManagementSystem.Models.Permission", "Permission")
+                        .WithMany()
+                        .HasForeignKey("PermissionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Account");
+
+                    b.Navigation("GrantedByAccount");
+
+                    b.Navigation("ParentGrant");
+
+                    b.Navigation("Permission");
                 });
 
             modelBuilder.Entity("StudentAffairsManagementSystem.Models.Course", b =>

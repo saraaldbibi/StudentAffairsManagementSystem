@@ -8,10 +8,14 @@ using StudentAffairsManagementSystem.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// =====================================
 // MVC
+// =====================================
 builder.Services.AddControllersWithViews();
 
+// =====================================
 // Database
+// =====================================
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString(
@@ -19,34 +23,33 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     )
 );
 
+// =====================================
 // Identity Configuration
+// =====================================
 builder.Services
     .AddIdentity<Account, IdentityRole<long>>(options =>
     {
-        // Password settings
         options.Password.RequireDigit = true;
         options.Password.RequireLowercase = false;
         options.Password.RequireUppercase = false;
         options.Password.RequireNonAlphanumeric = false;
         options.Password.RequiredLength = 8;
 
-        // Lockout settings
         options.Lockout.DefaultLockoutTimeSpan =
             TimeSpan.FromMinutes(15);
 
         options.Lockout.MaxFailedAccessAttempts = 5;
         options.Lockout.AllowedForNewUsers = true;
 
-        // User settings
         options.User.RequireUniqueEmail = false;
-
-        // Sign-in settings
         options.SignIn.RequireConfirmedAccount = false;
     })
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
+// =====================================
 // Authentication Cookie
+// =====================================
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/Account/Login";
@@ -59,13 +62,13 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.Cookie.HttpOnly = true;
     options.Cookie.SecurePolicy =
         CookieSecurePolicy.Always;
-
     options.Cookie.SameSite = SameSiteMode.Lax;
 
-    // Return 401 instead of redirect for backend tests
+    // Return 401 for unauthenticated backend requests
     options.Events.OnRedirectToLogin = context =>
     {
-        if (context.Request.Path.StartsWithSegments("/auth-test"))
+        if (context.Request.Path.StartsWithSegments("/auth-test") ||
+            context.Request.Path.StartsWithSegments("/api"))
         {
             context.Response.StatusCode = 401;
             return Task.CompletedTask;
@@ -75,10 +78,11 @@ builder.Services.ConfigureApplicationCookie(options =>
         return Task.CompletedTask;
     };
 
-    // Return 403 instead of redirect for backend tests
+    // Return 403 for unauthorized backend requests
     options.Events.OnRedirectToAccessDenied = context =>
     {
-        if (context.Request.Path.StartsWithSegments("/auth-test"))
+        if (context.Request.Path.StartsWithSegments("/auth-test") ||
+            context.Request.Path.StartsWithSegments("/api"))
         {
             context.Response.StatusCode = 403;
             return Task.CompletedTask;
@@ -89,10 +93,19 @@ builder.Services.ConfigureApplicationCookie(options =>
     };
 });
 
+// =====================================
+// Permission Service
+// =====================================
+builder.Services.AddScoped<PermissionService>();
+
+// =====================================
 // Build Application
+// =====================================
 var app = builder.Build();
 
-// Initialize Roles and Admin Account
+// =====================================
+// Initialize Roles, Admin and Permissions
+// =====================================
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
@@ -100,17 +113,33 @@ using (var scope = app.Services.CreateScope())
     var roleManager = services.GetRequiredService<
         RoleManager<IdentityRole<long>>>();
 
-    // Create basic roles
+    // Create basic Identity roles
     await AccountController.EnsureRolesCreatedAsync(
         roleManager);
 
-    // Create first Admin account
+    // Create initial Admin
     await AdminSeeder.SeedAsync(
         services,
         app.Configuration);
+
+    // Seed permission definitions
+    var dbContext = services.GetRequiredService<
+        ApplicationDbContext>();
+
+    await PermissionSeeder.SeedAsync(dbContext);
+
+    // Create test employee only in Development
+    if (app.Environment.IsDevelopment())
+    {
+        await EmployeeTestSeeder.SeedAsync(
+            services,
+            app.Configuration);
+    }
 }
 
+// =====================================
 // HTTP Pipeline
+// =====================================
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -118,17 +147,13 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseRouting();
 
-// Authentication and Authorization
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Static Files
 app.MapStaticAssets();
 
-// Default Route
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}")

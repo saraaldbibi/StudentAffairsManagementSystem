@@ -15,7 +15,7 @@ namespace StudentAffairsManagementSystem.Data
         {
         }
 
-        // Tables
+        // Existing tables
         public DbSet<Faculty> Faculties { get; set; }
         public DbSet<Department> Departments { get; set; }
         public DbSet<Employee> Employees { get; set; }
@@ -26,11 +26,15 @@ namespace StudentAffairsManagementSystem.Data
         public DbSet<CourseOffering> CourseOfferings { get; set; }
         public DbSet<Registration> Registrations { get; set; }
 
+        // New permission tables
+        public DbSet<Permission> Permissions { get; set; }
+        public DbSet<AccountPermission> AccountPermissions { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
 
-            // Accounts table
+            // Table names
             builder.Entity<Account>().ToTable("ACCOUNTS");
             builder.Entity<Faculty>().ToTable("FACULTIES");
             builder.Entity<Department>().ToTable("DEPARTMENTS");
@@ -42,6 +46,12 @@ namespace StudentAffairsManagementSystem.Data
             builder.Entity<CourseOffering>().ToTable("COURSE_OFFERINGS");
             builder.Entity<Registration>().ToTable("REGISTRATIONS");
 
+            // New table names
+            builder.Entity<Permission>().ToTable("PERMISSIONS");
+            builder.Entity<AccountPermission>()
+                .ToTable("ACCOUNT_PERMISSIONS");
+
+            // Unique indexes
             builder.Entity<Student>()
                 .HasIndex(s => s.UniversityNumber)
                 .IsUnique();
@@ -50,6 +60,9 @@ namespace StudentAffairsManagementSystem.Data
                 .HasIndex(e => e.EmployeeNumber)
                 .IsUnique();
 
+            builder.Entity<Department>()
+                .HasIndex(d => d.Code)
+                .IsUnique();
 
             // Student -> Department
             builder.Entity<Student>()
@@ -150,6 +163,7 @@ namespace StudentAffairsManagementSystem.Data
                 .HasForeignKey(r => r.CourseOfferingId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            // Existing property configurations
             builder.Entity<HourPrice>()
                 .Property(h => h.PricePerHour)
                 .HasPrecision(18, 2);
@@ -170,9 +184,55 @@ namespace StudentAffairsManagementSystem.Data
                 .Property(s => s.EndDate)
                 .HasColumnType("date");
 
-            builder.Entity<Department>()
-                .HasIndex(d => d.Code)
+            // ====================================
+            // Permission configurations
+            // ====================================
+
+            // Every permission must have a unique code
+            builder.Entity<Permission>()
+                .HasIndex(p => p.Code)
                 .IsUnique();
+
+            // AccountPermission -> Account receiving permission
+            builder.Entity<AccountPermission>()
+                .HasOne(ap => ap.Account)
+                .WithMany()
+                .HasForeignKey(ap => ap.AccountId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // AccountPermission -> Permission
+            builder.Entity<AccountPermission>()
+                .HasOne(ap => ap.Permission)
+                .WithMany()
+                .HasForeignKey(ap => ap.PermissionId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // AccountPermission -> Account granting permission
+            builder.Entity<AccountPermission>()
+                .HasOne(ap => ap.GrantedByAccount)
+                .WithMany()
+                .HasForeignKey(ap => ap.GrantedByAccountId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Delegated permission -> Original permission grant
+            builder.Entity<AccountPermission>()
+                .HasOne(ap => ap.ParentGrant)
+                .WithMany()
+                .HasForeignKey(ap => ap.ParentGrantId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Speed up permission lookups
+            builder.Entity<AccountPermission>()
+                .HasIndex(ap => new
+                {
+                    ap.AccountId,
+                    ap.PermissionId,
+                    ap.IsActive
+                });
+
+            // Speed up finding delegated permissions
+            builder.Entity<AccountPermission>()
+                .HasIndex(ap => ap.ParentGrantId);
         }
     }
 }
