@@ -1,8 +1,14 @@
-﻿using System.Data;
+﻿
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using StudentAffairsManagementSystem.Data;
 using StudentAffairsManagementSystem.Models;
+using StudentAffairsManagementSystem.Permissions;
 
 namespace StudentAffairsManagementSystem.Services
 {
@@ -19,210 +25,143 @@ namespace StudentAffairsManagementSystem.Services
             _userManager = userManager;
         }
 
-        // Check whether a user has a permission.
+        // ==========================================
+        // التحقق من صلاحية المستخدم الحالي
+        // ==========================================
         public async Task<bool> HasPermissionAsync(
-            long accountId,
+            ClaimsPrincipal user,
             string permissionCode)
         {
+            if (user?.Identity?.IsAuthenticated != true)
+                return false;
+
             if (string.IsNullOrWhiteSpace(permissionCode))
                 return false;
 
-            var account = await _userManager
-                .FindByIdAsync(accountId.ToString());
-
-            if (account == null)
-                return false;
-
-            if (await _userManager.IsInRoleAsync(account, "Admin"))
+            if (user.IsInRole("Admin"))
                 return true;
 
-            bool isEmployee = await _userManager
-                .IsInRoleAsync(account, "Employee");
-
-            bool isStudent = await _userManager
-                .IsInRoleAsync(account, "Student");
-
-            if (!isEmployee && !isStudent)
+            if (!user.IsInRole("Employee"))
                 return false;
 
-            var grants = await _context.AccountPermissions
-                .AsNoTracking()
-                .Where(ap =>
-                    ap.AccountId == accountId &&
-                    ap.Permission.Code == permissionCode &&
-                    ap.IsActive &&
-                    ap.RevokedAt == null)
-                .Select(ap => ap.Id)
-                .ToListAsync();
+            string? accountIdValue =
+                _userManager.GetUserId(user);
 
-            foreach (var grantId in grants)
+            if (!long.TryParse(
+                accountIdValue,
+                out long accountId))
             {
-                if (await IsGrantValidAsync(
-                    grantId, permissionCode))
-                {
-                    return true;
-                }
+                return false;
             }
 
-            return false;
+            return await _context.AccountPermissions
+                .AsNoTracking()
+                .AnyAsync(ap =>
+                    ap.AccountId == accountId &&
+                    ap.IsActive &&
+                    ap.RevokedAt == null &&
+                    ap.Permission.Code == permissionCode);
         }
 
-        // Check whether a user may delegate a permission.
-        public async Task<bool> CanDelegateAsync(
-            long accountId,
-            string permissionCode)
+        // ==========================================
+        // صلاحية حذف الطلاب
+        // ==========================================
+        public async Task<bool> CanDeleteStudentsAsync(
+            ClaimsPrincipal user)
         {
-            if (string.IsNullOrWhiteSpace(permissionCode))
-                return false;
-
-            var account = await _userManager
-                .FindByIdAsync(accountId.ToString());
-
-            if (account == null)
-                return false;
-
-            if (await _userManager.IsInRoleAsync(account, "Admin"))
-                return true;
-
-            if (!await _userManager.IsInRoleAsync(
-                account, "Employee"))
-            {
-                return false;
-            }
-
-            var grants = await _context.AccountPermissions
-                .AsNoTracking()
-                .Where(ap =>
-                    ap.AccountId == accountId &&
-                    ap.Permission.Code == permissionCode &&
-                    ap.CanDelegate &&
-                    ap.IsActive &&
-                    ap.RevokedAt == null)
-                .Select(ap => ap.Id)
-                .ToListAsync();
-
-            foreach (var grantId in grants)
-            {
-                if (await IsGrantValidAsync(
-                    grantId, permissionCode))
-                {
-                    return true;
-                }
-            }
-
-            return false;
+            return await HasPermissionAsync(
+                user,
+                PermissionCodes.StudentsDelete);
         }
 
-        // Grant a permission.
-        // The callerId MUST come from the authenticated
-        // user on the server, never from request input.
+        // ==========================================
+        // منح صلاحية لموظف
+        // ==========================================
         public async Task<bool> GrantPermissionAsync(
-            long callerId,
+            long callerAccountId,
             long targetAccountId,
             string permissionCode,
-            bool canDelegate = false)
+            bool canDelegate)
         {
-            if (string.IsNullOrWhiteSpace(permissionCode))
+            if (callerAccountId <= 0 ||
+                targetAccountId <= 0 ||
+                string.IsNullOrWhiteSpace(permissionCode))
+            {
+                return false;
+            }
+
+            if (callerAccountId == targetAccountId)
                 return false;
 
-            if (callerId == targetAccountId)
-                return false;
+            var caller = await _userManager.FindByIdAsync(
+                callerAccountId.ToString());
 
-            await using var transaction =
-                await _context.Database.BeginTransactionAsync(
-                    IsolationLevel.Serializable);
-
-            var caller = await _userManager
-                .FindByIdAsync(callerId.ToString());
-
-            var target = await _userManager
-                .FindByIdAsync(targetAccountId.ToString());
+            var target = await _userManager.FindByIdAsync(
+                targetAccountId.ToString());
 
             if (caller == null || target == null)
                 return false;
 
-            bool callerIsAdmin = await _userManager
-                .IsInRoleAsync(caller, "Admin");
+            bool callerIsAdmin =
+                await _userManager.IsInRoleAsync(
+                    caller, "Admin");
 
-            bool callerIsEmployee = await _userManager
-                .IsInRoleAsync(caller, "Employee");
+            bool callerIsEmployee =
+                await _userManager.IsInRoleAsync(
+                    caller, "Employee");
 
-            bool targetIsEmployee = await _userManager
-                .IsInRoleAsync(target, "Employee");
+            bool targetIsEmployee =
+                await _userManager.IsInRoleAsync(
+                    target, "Employee");
 
-            bool targetIsStudent = await _userManager
-                .IsInRoleAsync(target, "Student");
-
-            // Reject ambiguous or unsupported target roles.
-            if (targetIsEmployee == targetIsStudent ||
-                await _userManager.IsInRoleAsync(target, "Admin"))
-            {
+            // منح الصلاحيات للموظفين فقط
+            if (!targetIsEmployee)
                 return false;
-            }
 
-            long? parentGrantId = null;
-
-            if (callerIsAdmin)
-            {
-                // Admin may grant to employees or students.
-                // Only employees may receive delegation rights.
-                if (canDelegate && !targetIsEmployee)
-                    return false;
-            }
-            else if (callerIsEmployee)
-            {
-                // Employees may grant only to students.
-                if (!targetIsStudent || canDelegate)
-                    return false;
-
-                // Find a valid delegable parent grant.
-                var possibleParents = await _context
-                    .AccountPermissions
-                    .AsNoTracking()
-                    .Where(ap =>
-                        ap.AccountId == callerId &&
-                        ap.Permission.Code == permissionCode &&
-                        ap.CanDelegate &&
-                        ap.IsActive &&
-                        ap.RevokedAt == null)
-                    .Select(ap => ap.Id)
-                    .ToListAsync();
-
-                foreach (var candidateId in possibleParents)
-                {
-                    if (await IsGrantValidAsync(
-                        candidateId, permissionCode))
-                    {
-                        parentGrantId = candidateId;
-                        break;
-                    }
-                }
-
-                if (!parentGrantId.HasValue)
-                    return false;
-            }
-            else
-            {
-                // Students and other users cannot grant.
+            if (!callerIsAdmin && !callerIsEmployee)
                 return false;
-            }
 
             var permission = await _context.Permissions
+                .AsNoTracking()
                 .FirstOrDefaultAsync(p =>
                     p.Code == permissionCode);
 
             if (permission == null)
                 return false;
 
-            // Prevent an active duplicate from this grantor.
-            bool alreadyGranted = await _context
-                .AccountPermissions
-                .AnyAsync(ap =>
-                    ap.AccountId == targetAccountId &&
-                    ap.PermissionId == permission.Id &&
-                    ap.GrantedByAccountId == callerId &&
-                    ap.IsActive &&
-                    ap.RevokedAt == null);
+            long? parentGrantId = null;
+
+            // الموظف يحتاج صلاحية تفويض فعالة
+            if (!callerIsAdmin)
+            {
+                var parentGrant =
+                    await _context.AccountPermissions
+                        .AsNoTracking()
+                        .Where(ap =>
+                            ap.AccountId == callerAccountId &&
+                            ap.PermissionId == permission.Id &&
+                            ap.IsActive &&
+                            ap.RevokedAt == null &&
+                            ap.CanDelegate)
+                        .OrderBy(ap => ap.Id)
+                        .FirstOrDefaultAsync();
+
+                if (parentGrant == null)
+                    return false;
+
+                parentGrantId = parentGrant.Id;
+
+                // الموظف لا يستطيع منح حق التفويض
+                canDelegate = false;
+            }
+
+            bool alreadyGranted =
+                await _context.AccountPermissions
+                    .AnyAsync(ap =>
+                        ap.AccountId == targetAccountId &&
+                        ap.PermissionId == permission.Id &&
+                        ap.IsActive &&
+                        ap.RevokedAt == null);
 
             if (alreadyGranted)
                 return false;
@@ -231,219 +170,169 @@ namespace StudentAffairsManagementSystem.Services
             {
                 AccountId = targetAccountId,
                 PermissionId = permission.Id,
-                GrantedByAccountId = callerId,
-                CanDelegate = callerIsAdmin &&
-                              targetIsEmployee &&
-                              canDelegate,
-                ParentGrantId = parentGrantId,
+                GrantedByAccountId = callerAccountId,
+                CanDelegate = canDelegate,
                 IsActive = true,
                 GrantedAt = DateTime.UtcNow,
-                RevokedAt = null
+                RevokedAt = null,
+                ParentGrantId = parentGrantId
             };
 
             _context.AccountPermissions.Add(grant);
+
             await _context.SaveChangesAsync();
 
-            await transaction.CommitAsync();
             return true;
         }
 
-        // Revoke a permission grant by its record ID.
+        // ==========================================
+        // سحب صلاحية موجودة
+        // ==========================================
         public async Task<bool> RevokePermissionAsync(
-            long callerId,
+            long callerAccountId,
             long grantId)
         {
-            await using var transaction =
-                await _context.Database.BeginTransactionAsync(
-                    IsolationLevel.Serializable);
+            if (callerAccountId <= 0 || grantId <= 0)
+                return false;
 
-            var caller = await _userManager
-                .FindByIdAsync(callerId.ToString());
+            var caller = await _userManager.FindByIdAsync(
+                callerAccountId.ToString());
 
             if (caller == null)
                 return false;
 
-            bool isAdmin = await _userManager
-                .IsInRoleAsync(caller, "Admin");
+            bool callerIsAdmin =
+                await _userManager.IsInRoleAsync(
+                    caller, "Admin");
 
-            bool isEmployee = await _userManager
-                .IsInRoleAsync(caller, "Employee");
+            bool callerIsEmployee =
+                await _userManager.IsInRoleAsync(
+                    caller, "Employee");
 
-            if (!isAdmin && !isEmployee)
+            if (!callerIsAdmin && !callerIsEmployee)
                 return false;
 
             var grant = await _context.AccountPermissions
-                .FirstOrDefaultAsync(ap => ap.Id == grantId);
+                .FirstOrDefaultAsync(ap =>
+                    ap.Id == grantId &&
+                    ap.IsActive &&
+                    ap.RevokedAt == null);
 
-            if (grant == null ||
-                !grant.IsActive ||
-                grant.RevokedAt != null)
-            {
+            if (grant == null)
                 return false;
-            }
 
-            if (!isAdmin)
+            if (!callerIsAdmin)
             {
-                // Employee can revoke only their own
-                // delegated grants to students.
-                if (grant.GrantedByAccountId != callerId ||
-                    !grant.ParentGrantId.HasValue)
-                {
+                // الموظف يسحب فقط الصلاحيات التي منحها
+                if (grant.GrantedByAccountId != callerAccountId)
                     return false;
-                }
 
-                var target = await _userManager
-                    .FindByIdAsync(grant.AccountId.ToString());
+                bool stillCanDelegate =
+                    await _context.AccountPermissions
+                        .AnyAsync(ap =>
+                            ap.AccountId == callerAccountId &&
+                            ap.PermissionId == grant.PermissionId &&
+                            ap.IsActive &&
+                            ap.RevokedAt == null &&
+                            ap.CanDelegate);
 
-                if (target == null ||
-                    !await _userManager.IsInRoleAsync(
-                        target, "Student"))
-                {
+                if (!stillCanDelegate)
                     return false;
-                }
             }
 
-            grant.IsActive = false;
-            grant.RevokedAt = DateTime.UtcNow;
+            // سحب المنحة وجميع المنح التابعة لها
+            var allGrants = await _context.AccountPermissions
+                .Where(ap =>
+                    ap.PermissionId == grant.PermissionId)
+                .ToListAsync();
+
+            var idsToRevoke = new HashSet<long>
+            {
+                grant.Id
+            };
+
+            bool added;
+
+            do
+            {
+                added = false;
+
+                foreach (var item in allGrants)
+                {
+                    if (item.ParentGrantId.HasValue &&
+                        idsToRevoke.Contains(
+                            item.ParentGrantId.Value) &&
+                        idsToRevoke.Add(item.Id))
+                    {
+                        added = true;
+                    }
+                }
+            }
+            while (added);
+
+            DateTime revokedAt = DateTime.UtcNow;
+
+            foreach (var item in allGrants)
+            {
+                if (idsToRevoke.Contains(item.Id) &&
+                    item.IsActive &&
+                    item.RevokedAt == null)
+                {
+                    item.IsActive = false;
+                    item.CanDelegate = false;
+                    item.RevokedAt = revokedAt;
+                }
+            }
 
             await _context.SaveChangesAsync();
-            await transaction.CommitAsync();
 
-            // Descendant grants automatically become invalid
-            // when their parent is revoked, because
-            // IsGrantValidAsync checks the entire chain.
             return true;
         }
 
-        // Get all grants for a target account.
-        // The caller must be Admin, or an Employee
-        // viewing grants they personally issued.
+        // ==========================================
+        // عرض صلاحيات حساب معين
+        // ==========================================
         public async Task<List<AccountPermission>>
             GetPermissionsAsync(
-                long callerId,
+                long callerAccountId,
                 long targetAccountId)
         {
-            var caller = await _userManager
-                .FindByIdAsync(callerId.ToString());
+            if (callerAccountId <= 0 ||
+                targetAccountId <= 0)
+            {
+                return new List<AccountPermission>();
+            }
+
+            var caller = await _userManager.FindByIdAsync(
+                callerAccountId.ToString());
 
             if (caller == null)
                 return new List<AccountPermission>();
 
-            bool isAdmin = await _userManager
-                .IsInRoleAsync(caller, "Admin");
+            bool callerIsAdmin =
+                await _userManager.IsInRoleAsync(
+                    caller, "Admin");
 
-            bool isEmployee = await _userManager
-                .IsInRoleAsync(caller, "Employee");
+            bool callerIsEmployee =
+                await _userManager.IsInRoleAsync(
+                    caller, "Employee");
 
-            if (!isAdmin && !isEmployee)
-                return new List<AccountPermission>();
+            if (!callerIsAdmin)
+            {
+                if (!callerIsEmployee ||
+                    callerAccountId != targetAccountId)
+                {
+                    return new List<AccountPermission>();
+                }
+            }
 
-            var query = _context.AccountPermissions
+            return await _context.AccountPermissions
                 .AsNoTracking()
                 .Include(ap => ap.Permission)
-                .Where(ap => ap.AccountId == targetAccountId);
-
-            if (!isAdmin)
-            {
-                query = query.Where(ap =>
-                    ap.GrantedByAccountId == callerId &&
-                    ap.ParentGrantId != null);
-            }
-
-            return await query
+                .Where(ap =>
+                    ap.AccountId == targetAccountId)
                 .OrderByDescending(ap => ap.GrantedAt)
                 .ToListAsync();
-        }
-
-        // Validate a grant and its complete parent chain.
-        private async Task<bool> IsGrantValidAsync(
-            long grantId,
-            string permissionCode)
-        {
-            var visitedIds = new HashSet<long>();
-            long? currentGrantId = grantId;
-
-            const int maxDepth = 100;
-            int depth = 0;
-
-            while (currentGrantId.HasValue)
-            {
-                if (depth++ >= maxDepth)
-                    return false;
-
-                if (!visitedIds.Add(currentGrantId.Value))
-                    return false;
-
-                var grant = await _context.AccountPermissions
-                    .AsNoTracking()
-                    .Include(ap => ap.Permission)
-                    .FirstOrDefaultAsync(ap =>
-                        ap.Id == currentGrantId.Value);
-
-                if (grant == null ||
-                    !grant.IsActive ||
-                    grant.RevokedAt != null ||
-                    grant.Permission.Code != permissionCode)
-                {
-                    return false;
-                }
-
-                if (!grant.ParentGrantId.HasValue)
-                {
-                    // A root grant must come from an Admin.
-                    var grantor = await _userManager
-                        .FindByIdAsync(
-                            grant.GrantedByAccountId.ToString());
-
-                    if (grantor == null)
-                        return false;
-
-                    return await _userManager
-                        .IsInRoleAsync(grantor, "Admin");
-                }
-
-                // A student grant cannot be delegated further.
-                if (grant.CanDelegate)
-                    return false;
-
-                var parent = await _context.AccountPermissions
-                    .AsNoTracking()
-                    .FirstOrDefaultAsync(ap =>
-                        ap.Id == grant.ParentGrantId.Value);
-
-                if (parent == null ||
-                    parent.AccountId != grant.GrantedByAccountId ||
-                    !parent.CanDelegate)
-                {
-                    return false;
-                }
-
-                var grantorAccount = await _userManager
-                    .FindByIdAsync(
-                        grant.GrantedByAccountId.ToString());
-
-                if (grantorAccount == null ||
-                    !await _userManager.IsInRoleAsync(
-                        grantorAccount, "Employee"))
-                {
-                    return false;
-                }
-
-                var recipientAccount = await _userManager
-                    .FindByIdAsync(
-                        grant.AccountId.ToString());
-
-                if (recipientAccount == null ||
-                    !await _userManager.IsInRoleAsync(
-                        recipientAccount, "Student"))
-                {
-                    return false;
-                }
-
-                currentGrantId = grant.ParentGrantId;
-            }
-
-            return false;
         }
     }
 }

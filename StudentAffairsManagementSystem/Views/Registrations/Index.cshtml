@@ -1,0 +1,315 @@
+﻿
+@model IEnumerable<StudentAffairsManagementSystem.Models.Registration>
+
+@{
+    ViewData["Title"] = "إدارة تسجيلات الطلاب";
+
+    var registrations = Model.ToList();
+
+    int totalRegistrations = registrations.Count;
+
+    int activeRegistrations = registrations
+        .Count(r => r.Status == "Registered");
+
+    int cancelledRegistrations = registrations
+        .Count(r => r.Status == "Cancelled");
+
+    int registeredStudents = registrations
+        .Where(r => r.Status == "Registered")
+        .Select(r => r.StudentId)
+        .Distinct()
+        .Count();
+}
+
+<div class="container-fluid py-4" dir="rtl">
+
+    <!-- عنوان الصفحة -->
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+
+        <div>
+            <h2 style="color:#142d4e; font-weight:800;">
+                إدارة تسجيلات الطلاب
+            </h2>
+
+            <p class="text-muted mb-0">
+                عرض تسجيلات الطلاب في المقررات المطروحة وإدارة حالاتها
+            </p>
+        </div>
+
+        <a asp-controller="Registrations"
+           asp-action="Create"
+           class="btn px-4 py-2"
+           style="background:#c9a24d; color:#142d4e; font-weight:800;">
+            + تسجيل طالب بمقرر
+        </a>
+
+    </div>
+
+    <!-- رسائل النظام -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["Success"]
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["Error"]
+        </div>
+    }
+
+    <!-- بطاقات الإحصائيات -->
+    <div class="row g-3 mb-4">
+
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <div class="text-muted mb-2">
+                        إجمالي سجلات التسجيل
+                    </div>
+
+                    <h2 class="mb-0"
+                        style="color:#142d4e; font-weight:800;">
+                        @totalRegistrations
+                    </h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <div class="text-muted mb-2">
+                        التسجيلات الفعالة
+                    </div>
+
+                    <h2 class="mb-0"
+                        style="color:#198754; font-weight:800;">
+                        @activeRegistrations
+                    </h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <div class="text-muted mb-2">
+                        التسجيلات الملغاة
+                    </div>
+
+                    <h2 class="mb-0"
+                        style="color:#dc3545; font-weight:800;">
+                        @cancelledRegistrations
+                    </h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <div class="text-muted mb-2">
+                        الطلاب لديهم تسجيلات فعالة
+                    </div>
+
+                    <h2 class="mb-0"
+                        style="color:#142d4e; font-weight:800;">
+                        @registeredStudents
+                    </h2>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- جدول التسجيلات -->
+    <div class="card border-0 shadow-sm">
+
+        <div class="card-header py-3"
+             style="background:#142d4e; color:white;">
+
+            <h5 class="mb-0">
+                قائمة تسجيلات الطلاب
+            </h5>
+
+        </div>
+
+        <div class="card-body p-0">
+
+            <div class="table-responsive">
+
+                <table class="table table-hover align-middle text-center mb-0">
+
+                    <thead style="background:#f5f6f8;">
+                        <tr>
+                            <th>الرقم الجامعي</th>
+                            <th>اسم الطالب</th>
+                            <th>المقرر الدراسي</th>
+                            <th>الفصل الدراسي</th>
+                            <th>تاريخ التسجيل</th>
+                            <th>الحالة</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        @if (registrations.Any())
+                        {
+                            @foreach (var registration in registrations)
+                            {
+                                <tr>
+
+                                    <td class="fw-bold">
+                                        @registration.Student.UniversityNumber
+                                    </td>
+
+                                    <td>
+                                        @registration.Student.FirstName
+                                        @registration.Student.LastName
+
+                                        @if (registration.Student.IsDeleted)
+                                        {
+                                            <span class="badge bg-secondary">
+                                                محذوف
+                                            </span>
+                                        }
+                                    </td>
+
+                                    <td>
+                                        @registration.CourseOffering.Course.Name
+                                    </td>
+
+                                    <td>
+                                        @registration.CourseOffering.Semester.Name
+                                        <div class="small text-muted">
+                                            @registration.CourseOffering.Semester.AcademicYear
+                                        </div>
+                                    </td>
+
+                                    <td>
+                                        @registration.RegisteredAt.ToLocalTime().ToString("yyyy/MM/dd HH:mm")
+                                    </td>
+
+                                    <td>
+                                        @if (registration.Status == "Registered")
+                                        {
+                                            <span class="badge bg-success px-3 py-2">
+                                                مسجل
+                                            </span>
+                                        }
+                                        else if (registration.Status == "Cancelled")
+                                        {
+                                            <span class="badge bg-secondary px-3 py-2">
+                                                ملغى
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-warning text-dark px-3 py-2">
+                                                @registration.Status
+                                            </span>
+                                        }
+                                    </td>
+
+                                    <td>
+                                        <div class="d-flex justify-content-center align-items-center gap-2 flex-wrap">
+
+                                            <a asp-controller="Registrations"
+                                               asp-action="Details"
+                                               asp-route-id="@registration.Id"
+                                               class="btn btn-sm btn-outline-primary">
+                                                التفاصيل
+                                            </a>
+
+                                            @if (registration.Status == "Registered")
+                                            {
+                                                <form asp-controller="Registrations"
+                                                      asp-action="Cancel"
+                                                      asp-route-id="@registration.Id"
+                                                      method="post"
+                                                      onsubmit="return confirm('هل تريدون إلغاء تسجيل الطالب في هذا المقرر؟');">
+
+                                                    @Html.AntiForgeryToken()
+
+                                                    <button type="submit"
+                                                            class="btn btn-sm btn-outline-danger">
+                                                        إلغاء التسجيل
+                                                    </button>
+
+                                                </form>
+                                            }
+                                            else if (registration.Status == "Cancelled" &&
+                                                     registration.CourseOffering.Semester.IsActive &&
+                                                     !registration.Student.IsDeleted)
+                                            {
+                                                <form asp-controller="Registrations"
+                                                      asp-action="Reactivate"
+                                                      asp-route-id="@registration.Id"
+                                                      method="post"
+                                                      onsubmit="return confirm('هل تريدون إعادة تفعيل تسجيل الطالب؟');">
+
+                                                    @Html.AntiForgeryToken()
+
+                                                    <button type="submit"
+                                                            class="btn btn-sm btn-outline-success">
+                                                        إعادة التفعيل
+                                                    </button>
+
+                                                </form>
+                                            }
+
+                                        </div>
+                                    </td>
+
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="7"
+                                    class="text-center text-muted py-5">
+
+                                    <div class="mb-3" style="font-size:36px;">
+                                        📚
+                                    </div>
+
+                                    <h5 class="mb-2">
+                                        لا توجد تسجيلات طلاب حاليًا
+                                    </h5>
+
+                                    <p class="mb-0">
+                                        ستظهر التسجيلات هنا بعد تسجيل الطلاب
+                                        في المقررات المطروحة.
+                                    </p>
+
+                                </td>
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- ملاحظة -->
+    <div class="alert alert-light border mt-4 mb-0">
+
+        <strong>ملاحظة:</strong>
+
+        إلغاء التسجيل لا يحذف السجل من قاعدة البيانات.
+        ويمكن إعادة تفعيله إذا كان الفصل الدراسي فعالًا،
+        والطالب غير محذوف، وتوجد مقاعد شاغرة.
+
+    </div>
+
+</div>

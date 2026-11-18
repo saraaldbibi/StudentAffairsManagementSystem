@@ -1,4 +1,7 @@
-﻿namespace StudentAffairsManagementSystem.Models
+﻿
+using System;
+
+namespace StudentAffairsManagementSystem.Models
 {
     public class Employee
     {
@@ -23,5 +26,15 @@
         public long AccountId { get; set; }
 
         public Account Account { get; set; } = null!;
+
+        // ==========================================
+        // الحذف الآمن للموظف (Soft Delete)
+        // ==========================================
+
+        // هل الموظف محذوف؟
+        public bool IsDeleted { get; set; } = false;
+
+        // تاريخ ووقت الحذف
+        public DateTime? DeletedAt { get; set; }
     }
 }

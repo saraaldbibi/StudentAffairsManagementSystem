@@ -1,0 +1,243 @@
+﻿
+@model IEnumerable<StudentAffairsManagementSystem.Models.Semester>
+
+@{
+    ViewData["Title"] = "إدارة الفصول الدراسية";
+
+    var semesters = Model.ToList();
+    bool isAdmin = User.IsInRole("Admin");
+
+    int totalSemesters = semesters.Count;
+    int activeSemesters = semesters.Count(s => s.IsActive);
+    int inactiveSemesters = semesters.Count(s => !s.IsActive);
+}
+
+<div class="container-fluid py-4" dir="rtl">
+
+    <!-- عنوان الصفحة -->
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+
+        <div>
+            <h2 style="color:#142d4e; font-weight:800;">
+                إدارة الفصول الدراسية
+            </h2>
+
+            <p class="text-muted mb-0">
+                عرض الفصول الدراسية والأعوام الأكاديمية في الجامعة
+            </p>
+        </div>
+
+        @if (isAdmin)
+        {
+            <a asp-controller="Semesters"
+               asp-action="Create"
+               class="btn px-4 py-2"
+               style="background:#c9a24d; color:#142d4e; font-weight:800;">
+                + إضافة فصل دراسي
+            </a>
+        }
+
+    </div>
+
+    <!-- رسائل النجاح والخطأ -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["Success"]
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["Error"]
+        </div>
+    }
+
+    <!-- بطاقات الإحصائيات -->
+    <div class="row g-3 mb-4">
+
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+
+                    <div class="text-muted mb-2">
+                        إجمالي الفصول الدراسية
+                    </div>
+
+                    <h2 class="mb-0"
+                        style="color:#142d4e; font-weight:800;">
+                        @totalSemesters
+                    </h2>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+
+                    <div class="text-muted mb-2">
+                        الفصول الفعالة
+                    </div>
+
+                    <h2 class="mb-0 text-success fw-bold">
+                        @activeSemesters
+                    </h2>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+
+                    <div class="text-muted mb-2">
+                        الفصول غير الفعالة
+                    </div>
+
+                    <h2 class="mb-0 text-secondary fw-bold">
+                        @inactiveSemesters
+                    </h2>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- جدول الفصول الدراسية -->
+    <div class="card border-0 shadow-sm">
+
+        <div class="card-header py-3"
+             style="background:#142d4e; color:white;">
+
+            <h5 class="mb-0">
+                قائمة الفصول الدراسية
+            </h5>
+
+        </div>
+
+        <div class="card-body p-0">
+
+            <div class="table-responsive">
+
+                <table class="table table-hover align-middle text-center mb-0">
+
+                    <thead style="background:#f5f6f8;">
+                        <tr>
+                            <th>رقم الفصل</th>
+                            <th>اسم الفصل</th>
+                            <th>العام الدراسي</th>
+                            <th>تاريخ البداية</th>
+                            <th>تاريخ النهاية</th>
+                            <th>الحالة</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        @if (semesters.Any())
+                        {
+                            @foreach (var semester in semesters)
+                            {
+                                <tr>
+
+                                    <td class="fw-bold">
+                                        @semester.SemesterNumber
+                                    </td>
+
+                                    <td>
+                                        @semester.Name
+                                    </td>
+
+                                    <td>
+                                        @semester.AcademicYear
+                                    </td>
+
+                                    <td dir="ltr">
+                                        @semester.StartDate.ToString("yyyy/MM/dd")
+                                    </td>
+
+                                    <td dir="ltr">
+                                        @semester.EndDate.ToString("yyyy/MM/dd")
+                                    </td>
+
+                                    <td>
+                                        @if (semester.IsActive)
+                                        {
+                                            <span class="badge bg-success px-3 py-2">
+                                                فعال
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary px-3 py-2">
+                                                غير فعال
+                                            </span>
+                                        }
+                                    </td>
+
+                                    <td>
+                                        <div class="d-flex justify-content-center gap-2 flex-wrap">
+
+                                            <a asp-controller="Semesters"
+                                               asp-action="Details"
+                                               asp-route-id="@semester.Id"
+                                               class="btn btn-sm btn-outline-primary">
+                                                التفاصيل
+                                            </a>
+
+                                            @if (isAdmin)
+                                            {
+                                                <a asp-controller="Semesters"
+                                                   asp-action="Edit"
+                                                   asp-route-id="@semester.Id"
+                                                   class="btn btn-sm btn-outline-warning">
+                                                    تعديل
+                                                </a>
+
+                                                <a asp-controller="Semesters"
+                                                   asp-action="Delete"
+                                                   asp-route-id="@semester.Id"
+                                                   class="btn btn-sm btn-outline-danger">
+                                                    حذف
+                                                </a>
+                                            }
+
+                                        </div>
+                                    </td>
+
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="7"
+                                    class="text-center text-muted py-5">
+
+                                    <div style="font-size:36px;" class="mb-2">
+                                        📚
+                                    </div>
+
+                                    لا توجد فصول دراسية مسجلة حاليًا.
+
+                                </td>
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

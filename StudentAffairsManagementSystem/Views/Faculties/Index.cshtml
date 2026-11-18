@@ -1,0 +1,265 @@
+﻿
+@model IEnumerable<StudentAffairsManagementSystem.Models.Faculty>
+
+@{
+    ViewData["Title"] = "إدارة الكليات";
+
+    var faculties = Model?.ToList()
+        ?? new List<StudentAffairsManagementSystem.Models.Faculty>();
+
+    var isAdmin = User.IsInRole("Admin");
+}
+
+<style>
+    .faculties-page {
+        max-width: 900px;
+        margin: 0 auto;
+        color: #16263f;
+    }
+
+    .faculties-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+        flex-wrap: wrap;
+        margin-bottom: 25px;
+    }
+
+    .faculties-header h2 {
+        font-size: 25px;
+        font-weight: bold;
+        margin-bottom: 8px;
+    }
+
+    .faculties-header p {
+        color: #718096;
+        margin: 0;
+    }
+
+    .faculties-add {
+        background: #c8a66a;
+        color: #16263f;
+        border-radius: 10px;
+        padding: 12px 20px;
+        text-decoration: none;
+        font-weight: bold;
+    }
+
+    .faculties-card {
+        background: white;
+        border: 1px solid #e5eaf2;
+        border-top: 4px solid #c8a66a;
+        border-radius: 15px;
+        padding: 28px;
+    }
+
+    .faculties-label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 12px;
+    }
+
+    .faculties-select {
+        width: 100%;
+        border: 1px solid #d9e1eb;
+        border-radius: 10px;
+        padding: 14px;
+        background: white;
+        color: #16263f;
+        font-size: 16px;
+    }
+
+    .faculties-select:focus {
+        outline: none;
+        border-color: #c8a66a;
+    }
+
+    .faculty-details {
+        display: none;
+        margin-top: 25px;
+        padding: 22px;
+        background: #f8f9fc;
+        border-radius: 12px;
+    }
+
+    .faculty-name {
+        font-size: 22px;
+        font-weight: bold;
+        margin-bottom: 14px;
+    }
+
+    .faculty-status {
+        display: inline-block;
+        border-radius: 8px;
+        padding: 7px 13px;
+        font-size: 13px;
+        font-weight: bold;
+    }
+
+    .faculty-active {
+        background: #e8f6ee;
+        color: #197647;
+    }
+
+    .faculty-inactive {
+        background: #fff0ee;
+        color: #b42318;
+    }
+
+    .faculty-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 20px;
+    }
+
+    .faculty-action {
+        background: #e7edf5;
+        color: #16263f;
+        padding: 10px 15px;
+        border-radius: 8px;
+        text-decoration: none;
+    }
+
+    .faculty-delete {
+        background: #fff0ee;
+        color: #b42318;
+    }
+
+    .faculties-message {
+        color: #718096;
+        margin-top: 15px;
+    }
+</style>
+
+<div class="faculties-page">
+
+    <div class="faculties-header">
+        <div>
+            <h2>إدارة الكليات</h2>
+            <p>اختر كلية لعرض بياناتها وإدارتها.</p>
+        </div>
+
+        @if (isAdmin)
+        {
+            <a asp-controller="Faculties"
+               asp-action="Create"
+               class="faculties-add">
+                <i class="bi bi-plus-circle"></i>
+                إضافة كلية جديدة
+            </a>
+        }
+    </div>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["Error"]
+        </div>
+    }
+
+    <div class="faculties-card">
+
+        <label for="facultySelect"
+               class="faculties-label">
+            الكلية
+        </label>
+
+        <select id="facultySelect"
+                class="faculties-select">
+            <option value="">-- اختر الكلية --</option>
+
+            @foreach (var faculty in faculties)
+            {
+                <option value="@faculty.Id">
+                    @faculty.Name
+                </option>
+            }
+        </select>
+
+        @if (!faculties.Any())
+        {
+            <p class="faculties-message">
+                لا توجد كليات مسجلة حالياً.
+            </p>
+        }
+
+        @foreach (var faculty in faculties)
+        {
+            <div class="faculty-details"
+                 id="faculty-@faculty.Id">
+
+                <div class="faculty-name">
+                    @faculty.Name
+                </div>
+
+                @if (faculty.IsActive)
+                {
+                    <span class="faculty-status faculty-active">
+                        كلية فعّالة
+                    </span>
+                }
+                else
+                {
+                    <span class="faculty-status faculty-inactive">
+                        كلية غير فعّالة
+                    </span>
+                }
+
+                <div class="faculty-actions">
+
+                    <a asp-controller="Faculties"
+                       asp-action="Details"
+                       asp-route-id="@faculty.Id"
+                       class="faculty-action">
+                        عرض التفاصيل
+                    </a>
+
+                    @if (isAdmin)
+                    {
+                        <a asp-controller="Faculties"
+                           asp-action="Edit"
+                           asp-route-id="@faculty.Id"
+                           class="faculty-action">
+                            تعديل الكلية
+                        </a>
+
+                        <a asp-controller="Faculties"
+                           asp-action="Delete"
+                           asp-route-id="@faculty.Id"
+                           class="faculty-action faculty-delete">
+                            حذف الكلية
+                        </a>
+                    }
+                </div>
+            </div>
+        }
+
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const select = document.getElementById("facultySelect");
+        const details = document.querySelectorAll(".faculty-details");
+
+        if (!select) return;
+
+        select.addEventListener("change", function () {
+            details.forEach(function (item) {
+                item.style.display = "none";
+            });
+
+            if (!this.value) return;
+
+            const selected = document.getElementById(
+                "faculty-" + this.value
+            );
+
+            if (selected) {
+                selected.style.display = "block";
+            }
+        });
+    });
+</script>

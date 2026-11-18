@@ -1,0 +1,196 @@
+﻿
+@model StudentAffairsManagementSystem.Models.Faculty
+
+@{
+    ViewData["Title"] = "إضافة كلية جديدة";
+}
+
+<style>
+    .faculty-page {
+        max-width: 850px;
+        margin: 0 auto;
+        color: #16263f;
+    }
+
+    .faculty-header {
+        margin-bottom: 25px;
+    }
+
+    .faculty-header h2 {
+        font-size: 25px;
+        font-weight: bold;
+        margin-bottom: 8px;
+    }
+
+    .faculty-header p {
+        color: #718096;
+        margin: 0;
+    }
+
+    .faculty-card {
+        background: white;
+        border: 1px solid #e5eaf2;
+        border-top: 4px solid #c8a66a;
+        border-radius: 16px;
+        padding: 30px;
+        box-shadow: 0 4px 15px rgba(20, 40, 70, .05);
+    }
+
+    .faculty-field {
+        margin-bottom: 24px;
+    }
+
+    .faculty-label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 9px;
+    }
+
+    .faculty-input {
+        width: 100%;
+        padding: 12px 14px;
+        border: 1px solid #d9e1eb;
+        border-radius: 10px;
+        background: white;
+        color: #16263f;
+    }
+
+    .faculty-input:focus {
+        outline: none;
+        border-color: #c8a66a;
+        box-shadow: 0 0 0 3px rgba(200, 166, 106, .15);
+    }
+
+    .faculty-error {
+        display: block;
+        color: #b42318;
+        font-size: 13px;
+        margin-top: 7px;
+    }
+
+    .faculty-check {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: #f8f9fc;
+        border-radius: 10px;
+        padding: 17px;
+        margin-bottom: 25px;
+    }
+
+    .faculty-check input {
+        width: 19px;
+        height: 19px;
+        accent-color: #c8a66a;
+    }
+
+    .faculty-actions {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .faculty-save {
+        background: #c8a66a;
+        color: #16263f;
+        border: none;
+        border-radius: 10px;
+        padding: 12px 26px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .faculty-save:hover {
+        background: #b79557;
+    }
+
+    .faculty-back {
+        background: #f3f5f9;
+        color: #42536c;
+        border: 1px solid #e2e7ef;
+        border-radius: 10px;
+        padding: 12px 24px;
+        text-decoration: none;
+    }
+
+    .faculty-back:hover {
+        background: #e8edf5;
+        color: #16263f;
+    }
+
+    @@media (max-width: 650px) {
+        .faculty-card {
+            padding: 20px;
+        }
+    }
+</style>
+
+<div class="faculty-page">
+
+    <div class="faculty-header">
+        <h2>إضافة كلية جديدة</h2>
+        <p>
+            أدخل بيانات الكلية لتسجيلها في نظام إدارة شؤون الطلاب.
+        </p>
+    </div>
+
+    <div class="faculty-card">
+
+        <form asp-controller="Faculties"
+              asp-action="Create"
+              method="post">
+
+            @Html.AntiForgeryToken()
+
+            <div asp-validation-summary="ModelOnly"
+                 class="faculty-error"></div>
+
+            <div class="faculty-field">
+                <label asp-for="Name"
+                       class="faculty-label">
+                    اسم الكلية
+                </label>
+
+                <input asp-for="Name"
+                       class="faculty-input"
+                       placeholder="أدخل الاسم الرسمي للكلية"
+                       required />
+
+                <span asp-validation-for="Name"
+                      class="faculty-error"></span>
+            </div>
+
+            <div class="faculty-check">
+                <input asp-for="IsActive"
+                       type="checkbox"
+                       checked />
+
+                <label asp-for="IsActive">
+                    الكلية فعّالة ومتاحة لإضافة الأقسام الأكاديمية
+                </label>
+            </div>
+
+            <div class="faculty-actions">
+
+                <button type="submit"
+                        class="faculty-save">
+                    حفظ الكلية
+                </button>
+
+                <a asp-controller="Faculties"
+                   asp-action="Index"
+                   class="faculty-back">
+                    إلغاء والعودة
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

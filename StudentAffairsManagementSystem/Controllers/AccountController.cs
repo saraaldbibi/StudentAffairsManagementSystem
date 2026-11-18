@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Microsoft.AspNetCore.Authorization;
@@ -45,15 +46,45 @@ namespace StudentAffairsManagementSystem.Controllers
             public bool RememberMe { get; set; }
         }
 
+        // توجيه المستخدم حسب دوره
+        private IActionResult RedirectByRole(string role)
+        {
+            if (role == "Admin")
+            {
+                return RedirectToAction(
+                    "Index", "AdminDashboard");
+            }
+
+            // مؤقتاً لحين إنشاء لوحات الموظف والطالب
+            return RedirectToAction(
+                "Index", "Home");
+        }
+
         // عرض صفحة تسجيل الدخول
         [HttpGet]
         [AllowAnonymous]
-        public IActionResult Login()
+        public async Task<IActionResult> Login()
         {
             if (User.Identity?.IsAuthenticated == true)
             {
-                return RedirectToAction(
-                    "Index", "Home");
+                var currentUser =
+                    await _userManager.GetUserAsync(User);
+
+                if (currentUser != null)
+                {
+                    var roles =
+                        await _userManager.GetRolesAsync(currentUser);
+
+                    if (roles.Count == 1 &&
+                        AllowedRoles.Contains(roles[0]) &&
+                        currentUser.Role == roles[0])
+                    {
+                        return RedirectByRole(roles[0]);
+                    }
+                }
+
+                // جلسة غير متطابقة مع بيانات الأدوار
+                await _signInManager.SignOutAsync();
             }
 
             return View(new LoginViewModel());
@@ -80,8 +111,7 @@ namespace StudentAffairsManagementSystem.Controllers
                 return View(model);
             }
 
-            // اسم المستخدم هو الرقم الجامعي
-            // أو رقم الموظف أو admin
+            // البحث عن الحساب
             var user = await _userManager.FindByNameAsync(
                 userNumber);
 
@@ -129,7 +159,7 @@ namespace StudentAffairsManagementSystem.Controllers
                 return View(model);
             }
 
-            // التأكد من وجود دور واحد صحيح في Identity
+            // التأكد من وجود دور واحد صحيح
             var identityRoles =
                 await _userManager.GetRolesAsync(user);
 
@@ -144,7 +174,7 @@ namespace StudentAffairsManagementSystem.Controllers
                 return View(model);
             }
 
-            // التأكد من تطابق الدور النصي مع Identity
+            // مطابقة الدور النصي مع Identity
             if (user.Role != identityRoles[0])
             {
                 ModelState.AddModelError(
@@ -155,13 +185,13 @@ namespace StudentAffairsManagementSystem.Controllers
                 return View(model);
             }
 
-            // إنشاء جلسة تسجيل الدخول بعد نجاح الفحوصات
+            // إنشاء جلسة تسجيل الدخول
             await _signInManager.SignInAsync(
                 user,
                 model.RememberMe);
 
-            return RedirectToAction(
-                "Index", "Home");
+            // الانتقال للوحة المناسبة حسب الدور
+            return RedirectByRole(identityRoles[0]);
         }
 
         // تسجيل الخروج
@@ -175,7 +205,7 @@ namespace StudentAffairsManagementSystem.Controllers
             return RedirectToAction(nameof(Login));
         }
 
-        // رفض الوصول عند عدم امتلاك الصلاحية
+        // رفض الوصول
         [HttpGet]
         [AllowAnonymous]
         public IActionResult AccessDenied()
@@ -185,7 +215,7 @@ namespace StudentAffairsManagementSystem.Controllers
                 "ليس لديك صلاحية للوصول إلى هذه الصفحة");
         }
 
-        // إنشاء الأدوار الأساسية عند تشغيل التطبيق
+        // إنشاء الأدوار الأساسية
         public static async Task EnsureRolesCreatedAsync(
             RoleManager<IdentityRole<long>> roleManager)
         {
@@ -211,7 +241,7 @@ namespace StudentAffairsManagementSystem.Controllers
         }
 
         // تعيين دور للحساب من كود إداري موثوق فقط
-        // هذه الدالة ليست Action ولا يمكن استدعاؤها عبر رابط
+        // ليست Action ويمكن استدعاؤها من الكود فقط
         public static async Task<IdentityResult> AssignRoleAsync(
             UserManager<Account> userManager,
             Account account,
@@ -226,11 +256,10 @@ namespace StudentAffairsManagementSystem.Controllers
                     });
             }
 
-            // التأكد من أن الدور موجود في Identity
+            // إضافة الدور المطلوب
             if (!await userManager.IsInRoleAsync(
                 account, roleName))
             {
-                // إضافة الدور الجديد أولاً
                 var addResult =
                     await userManager.AddToRoleAsync(
                         account, roleName);
@@ -257,7 +286,7 @@ namespace StudentAffairsManagementSystem.Controllers
                     return removeResult;
             }
 
-            // تحديث الدور النصي للمطابقة
+            // تحديث الدور النصي
             account.Role = roleName;
 
             return await userManager.UpdateAsync(account);

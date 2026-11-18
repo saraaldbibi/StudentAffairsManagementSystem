@@ -1,0 +1,410 @@
+﻿
+@model IEnumerable<StudentAffairsManagementSystem.Models.Course>
+
+@{
+    ViewData["Title"] = "المقررات الدراسية";
+
+    var courses = Model?.ToList()
+        ?? new List<StudentAffairsManagementSystem.Models.Course>();
+
+    var totalCourses = courses.Count;
+    var totalHours = courses.Sum(c => c.CreditHours);
+    var totalDepartments = courses
+        .Select(c => c.DepartmentId)
+        .Distinct()
+        .Count();
+
+    var isAdmin = User.IsInRole("Admin");
+}
+
+<style>
+    .courses-page {
+        color: #16263f;
+    }
+
+    .courses-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        flex-wrap: wrap;
+        margin-bottom: 25px;
+    }
+
+    .courses-header h2 {
+        font-size: 25px;
+        font-weight: bold;
+        margin-bottom: 8px;
+    }
+
+    .courses-header p {
+        color: #718096;
+        margin: 0;
+    }
+
+    .courses-add-btn {
+        background: #c8a66a;
+        color: #16263f;
+        border-radius: 10px;
+        padding: 12px 20px;
+        text-decoration: none;
+        font-weight: bold;
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+    }
+
+    .courses-add-btn:hover {
+        background: #b79557;
+        color: #16263f;
+    }
+
+    .courses-stats {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 18px;
+        margin-bottom: 25px;
+    }
+
+    .courses-stat-card {
+        background: white;
+        border: 1px solid #e5eaf2;
+        border-top: 4px solid #c8a66a;
+        border-radius: 14px;
+        padding: 22px;
+    }
+
+    .courses-stat-label {
+        color: #718096;
+        font-size: 14px;
+        margin-bottom: 10px;
+    }
+
+    .courses-stat-value {
+        color: #16263f;
+        font-size: 28px;
+        font-weight: bold;
+    }
+
+    .courses-table-card {
+        background: white;
+        border: 1px solid #e5eaf2;
+        border-radius: 15px;
+        overflow: hidden;
+    }
+
+    .courses-table-header {
+        padding: 22px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+        flex-wrap: wrap;
+        border-bottom: 1px solid #e5eaf2;
+    }
+
+    .courses-table-header h3 {
+        margin: 0;
+        font-size: 19px;
+        font-weight: bold;
+    }
+
+    .courses-search {
+        width: 280px;
+        max-width: 100%;
+        padding: 11px 14px;
+        border: 1px solid #d9e1eb;
+        border-radius: 9px;
+        outline: none;
+    }
+
+    .courses-search:focus {
+        border-color: #c8a66a;
+    }
+
+    .courses-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .courses-table th {
+        background: #f8f9fc;
+        color: #42536c;
+        padding: 17px;
+        text-align: right;
+        font-size: 13px;
+        white-space: nowrap;
+    }
+
+    .courses-table td {
+        padding: 17px;
+        border-top: 1px solid #edf0f5;
+        vertical-align: middle;
+    }
+
+    .courses-table tbody tr:hover {
+        background: #fcfcfe;
+    }
+
+    .courses-code {
+        display: inline-block;
+        background: #eef2f8;
+        color: #304661;
+        border-radius: 7px;
+        padding: 6px 10px;
+        font-weight: bold;
+        direction: ltr;
+    }
+
+    .courses-hours {
+        display: inline-block;
+        background: #f8f2e7;
+        color: #8b6b37;
+        border-radius: 7px;
+        padding: 6px 12px;
+    }
+
+    .courses-actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .courses-action-link {
+        padding: 7px 11px;
+        border-radius: 7px;
+        text-decoration: none;
+        font-size: 13px;
+        background: #eef2f8;
+        color: #304661;
+    }
+
+    .courses-action-link:hover {
+        background: #dfe7f2;
+        color: #16263f;
+    }
+
+    .courses-action-delete {
+        background: #fff0ee;
+        color: #b42318;
+    }
+
+    .courses-action-delete:hover {
+        background: #ffe1dc;
+        color: #912018;
+    }
+
+    .courses-empty {
+        padding: 45px 20px;
+        text-align: center;
+        color: #718096;
+    }
+
+    .courses-empty i {
+        display: block;
+        font-size: 40px;
+        color: #c8a66a;
+        margin-bottom: 12px;
+    }
+
+    @@media (max-width: 800px) {
+        .courses-stats {
+            grid-template-columns: 1fr;
+        }
+
+        .courses-table {
+            min-width: 750px;
+        }
+    }
+</style>
+
+<div class="courses-page">
+
+    <div class="courses-header">
+        <div>
+            <h2>إدارة المقررات الدراسية</h2>
+            <p>
+                عرض المقررات الأكاديمية المسجلة في النظام.
+            </p>
+        </div>
+
+        @if (isAdmin)
+        {
+            <a asp-controller="Courses"
+               asp-action="Create"
+               class="courses-add-btn">
+                <i class="bi bi-plus-circle"></i>
+                إضافة مقرر جديد
+            </a>
+        }
+    </div>
+
+    <div class="courses-stats">
+
+        <div class="courses-stat-card">
+            <div class="courses-stat-label">
+                إجمالي المقررات
+            </div>
+            <div class="courses-stat-value">
+                @totalCourses
+            </div>
+        </div>
+
+        <div class="courses-stat-card">
+            <div class="courses-stat-label">
+                مجموع الساعات المعتمدة
+            </div>
+            <div class="courses-stat-value">
+                @totalHours
+            </div>
+        </div>
+
+        <div class="courses-stat-card">
+            <div class="courses-stat-label">
+                الأقسام المرتبطة بالمقررات
+            </div>
+            <div class="courses-stat-value">
+                @totalDepartments
+            </div>
+        </div>
+
+    </div>
+
+    <div class="courses-table-card">
+
+        <div class="courses-table-header">
+            <h3>قائمة المقررات</h3>
+
+            <input type="search"
+                   id="courseSearch"
+                   class="courses-search"
+                   placeholder="ابحث عن مقرر أو رمز أو قسم..." />
+        </div>
+
+        <div style="overflow-x:auto;">
+
+            <table class="courses-table"
+                   id="coursesTable">
+
+                <thead>
+                    <tr>
+                        <th>رمز المقرر</th>
+                        <th>اسم المقرر</th>
+                        <th>القسم الأكاديمي</th>
+                        <th>الساعات المعتمدة</th>
+                        <th>الإجراءات</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    @foreach (var course in courses)
+                    {
+                        <tr class="course-data-row">
+
+                            <td>
+                                <span class="courses-code">
+                                    @course.Code
+                                </span>
+                            </td>
+
+                            <td>
+                                <strong>@course.Name</strong>
+                            </td>
+
+                            <td>
+                                @(course.Department?.Name ?? "غير محدد")
+                            </td>
+
+                            <td>
+                                <span class="courses-hours">
+                                    @course.CreditHours ساعات
+                                </span>
+                            </td>
+
+                            <td>
+                                <div class="courses-actions">
+
+                                    <a asp-controller="Courses"
+                                       asp-action="Details"
+                                       asp-route-id="@course.Id"
+                                       class="courses-action-link">
+                                        تفاصيل
+                                    </a>
+
+                                    @if (isAdmin)
+                                    {
+                                        <a asp-controller="Courses"
+                                           asp-action="Edit"
+                                           asp-route-id="@course.Id"
+                                           class="courses-action-link">
+                                            تعديل
+                                        </a>
+
+                                        <a asp-controller="Courses"
+                                           asp-action="Delete"
+                                           asp-route-id="@course.Id"
+                                           class="courses-action-link courses-action-delete">
+                                            حذف
+                                        </a>
+                                    }
+
+                                </div>
+                            </td>
+
+                        </tr>
+                    }
+
+                </tbody>
+            </table>
+
+            @if (!courses.Any())
+            {
+                <div class="courses-empty">
+                    <i class="bi bi-journal-x"></i>
+                    لا توجد مقررات دراسية مسجلة حالياً.
+                </div>
+            }
+
+            <div id="noSearchResults"
+                 class="courses-empty"
+                 style="display:none;">
+                لا توجد مقررات مطابقة للبحث.
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const searchInput = document.getElementById("courseSearch");
+        const rows = document.querySelectorAll(".course-data-row");
+        const noResults = document.getElementById("noSearchResults");
+
+        if (!searchInput) return;
+
+        searchInput.addEventListener("input", function () {
+            const term = this.value.trim().toLowerCase();
+            let visibleCount = 0;
+
+            rows.forEach(function (row) {
+                const text = row.textContent.toLowerCase();
+                const matches = text.includes(term);
+
+                row.style.display = matches ? "" : "none";
+
+                if (matches) visibleCount++;
+            });
+
+            if (noResults) {
+                noResults.style.display =
+                    rows.length > 0 && visibleCount === 0
+                        ? "block"
+                        : "none";
+            }
+        });
+    });
+</script>

@@ -1,4 +1,7 @@
-﻿using System.Security.Claims;
+﻿
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -24,34 +27,20 @@ namespace StudentAffairsManagementSystem.Controllers
             _permissionService = permissionService;
         }
 
-        // Get the authenticated account ID
-        private long? GetCurrentAccountId()
-        {
-            var value = User.FindFirstValue(
-                ClaimTypes.NameIdentifier);
-
-            if (long.TryParse(value, out long accountId))
-                return accountId;
-
-            return null;
-        }
-
-        // Check permission to edit any department
+        // =====================================
+        // Check department editing permission
+        // =====================================
         private async Task<bool> CanEditDepartmentsAsync()
         {
-            var accountId = GetCurrentAccountId();
-
-            if (!accountId.HasValue)
-                return false;
-
             return await _permissionService.HasPermissionAsync(
-                accountId.Value,
+                User,
                 PermissionCodes.DepartmentsEdit);
         }
 
         // =====================================
         // View all departments
         // =====================================
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
             var departments = await _context.Departments
@@ -66,6 +55,7 @@ namespace StudentAffairsManagementSystem.Controllers
         // =====================================
         // Department details
         // =====================================
+        [HttpGet]
         public async Task<IActionResult> Details(long id)
         {
             var department = await _context.Departments
@@ -74,7 +64,9 @@ namespace StudentAffairsManagementSystem.Controllers
                 .FirstOrDefaultAsync(d => d.Id == id);
 
             if (department == null)
+            {
                 return NotFound();
+            }
 
             return View(department);
         }
@@ -87,6 +79,7 @@ namespace StudentAffairsManagementSystem.Controllers
         public async Task<IActionResult> Create()
         {
             await LoadFaculties();
+
             return View(new Department());
         }
 
@@ -99,8 +92,11 @@ namespace StudentAffairsManagementSystem.Controllers
         {
             ModelState.Remove(nameof(Department.Faculty));
 
-            department.Name = department.Name?.Trim() ?? "";
-            department.Code = department.Code?.Trim() ?? "";
+            department.Name =
+                department.Name?.Trim() ?? "";
+
+            department.Code =
+                department.Code?.Trim() ?? "";
 
             if (string.IsNullOrWhiteSpace(department.Name))
             {
@@ -165,19 +161,24 @@ namespace StudentAffairsManagementSystem.Controllers
         }
 
         // =====================================
-        // Edit department - Admin or authorized Employee
+        // Edit department
+        // Admin or authorized Employee
         // =====================================
         [HttpGet]
         public async Task<IActionResult> Edit(long id)
         {
             if (!await CanEditDepartmentsAsync())
+            {
                 return Forbid();
+            }
 
             var department = await _context.Departments
                 .FindAsync(id);
 
             if (department == null)
+            {
                 return NotFound();
+            }
 
             await LoadFaculties();
 
@@ -191,17 +192,24 @@ namespace StudentAffairsManagementSystem.Controllers
             [Bind("Id,Name,Code,FacultyId,IsActive")]
             Department department)
         {
-            // Check authorization on every POST request
+            // Check permission again on POST
             if (!await CanEditDepartmentsAsync())
+            {
                 return Forbid();
+            }
 
             if (id != department.Id)
+            {
                 return NotFound();
+            }
 
             ModelState.Remove(nameof(Department.Faculty));
 
-            department.Name = department.Name?.Trim() ?? "";
-            department.Code = department.Code?.Trim() ?? "";
+            department.Name =
+                department.Name?.Trim() ?? "";
+
+            department.Code =
+                department.Code?.Trim() ?? "";
 
             if (string.IsNullOrWhiteSpace(department.Name))
             {
@@ -246,10 +254,12 @@ namespace StudentAffairsManagementSystem.Controllers
                 .FindAsync(id);
 
             if (existingDepartment == null)
+            {
                 return NotFound();
+            }
 
-            // Do not change the department code
-            // after students have been registered
+            // Do not change department code
+            // if any students are linked to it
             if (existingDepartment.Code != department.Code)
             {
                 bool hasStudents = await _context.Students
@@ -304,13 +314,16 @@ namespace StudentAffairsManagementSystem.Controllers
                 .FirstOrDefaultAsync(d => d.Id == id);
 
             if (department == null)
+            {
                 return NotFound();
+            }
 
             return View(department);
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpPost, ActionName("Delete")]
+        [HttpPost]
+        [ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
@@ -318,7 +331,9 @@ namespace StudentAffairsManagementSystem.Controllers
                 .FindAsync(id);
 
             if (department == null)
+            {
                 return NotFound();
+            }
 
             bool hasStudents = await _context.Students
                 .AnyAsync(s => s.DepartmentId == id);

@@ -1,0 +1,276 @@
+﻿
+@model StudentAffairsManagementSystem.Controllers.AccountController.LoginViewModel
+
+@{
+    Layout = null;
+    ViewData["Title"] = "تسجيل الدخول";
+}
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>تسجيل الدخول - الجامعة الدولية للعلوم والنهضة</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Tahoma, Arial, sans-serif;
+            background: #ffffff;
+            color: #16263e;
+        }
+
+        .login-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .login-form-side {
+            width: 45%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 45px;
+        }
+
+        .login-box {
+            width: 100%;
+            max-width: 430px;
+        }
+
+        .login-box h1 {
+            font-size: 32px;
+            margin-bottom: 12px;
+        }
+
+        .subtitle {
+            color: #718096;
+            margin-bottom: 35px;
+        }
+
+        .form-group {
+            margin-bottom: 22px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 9px;
+            font-size: 15px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid #d8dfeb;
+            border-radius: 10px;
+            font-size: 15px;
+            outline: none;
+        }
+
+        .form-control:focus {
+            border-color: #c6a368;
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 25px;
+        }
+
+        .remember-me label {
+            margin: 0;
+        }
+
+        .login-button {
+            width: 100%;
+            padding: 16px;
+            background: #c6a368;
+            color: #16263e;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .login-button:hover {
+            background: #b59053;
+        }
+
+        .validation-error {
+            color: #b42318;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        .brand-side {
+            width: 55%;
+            background: #16263e;
+            color: white;
+            padding: 55px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .brand-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .brand-header img {
+            width: 75px;
+            height: 75px;
+            object-fit: contain;
+            border-radius: 50%;
+            background: white;
+        }
+
+        .brand-name {
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        .brand-content h2 {
+            font-size: 40px;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .brand-content p {
+            font-size: 18px;
+            color: #c5cedd;
+            line-height: 1.9;
+        }
+
+        .gold-line {
+            width: 75px;
+            height: 5px;
+            background: #c6a368;
+        }
+
+        .copyright {
+            color: #c5cedd;
+            font-size: 13px;
+        }
+
+        @@media (max-width: 850px) {
+            .login-container {
+                flex-direction: column;
+            }
+
+            .brand-side,
+            .login-form-side {
+                width: 100%;
+            }
+
+            .brand-side {
+                min-height: 280px;
+                padding: 30px;
+            }
+
+            .brand-content h2 {
+                font-size: 25px;
+            }
+
+            .login-form-side {
+                padding: 35px 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="login-container">
+
+        <div class="login-form-side">
+            <div class="login-box">
+
+                <h1>مرحباً بعودتك</h1>
+                <p class="subtitle">سجّل الدخول إلى حسابك للمتابعة</p>
+
+                <form asp-controller="Account"
+                      asp-action="Login"
+                      method="post">
+
+                    @Html.AntiForgeryToken()
+
+                    <div asp-validation-summary="ModelOnly"
+                         class="validation-error"></div>
+
+                    <div class="form-group">
+                        <label asp-for="UserNumber">اسم المستخدم أو الرقم الجامعي</label>
+                        <input asp-for="UserNumber"
+                               class="form-control"
+                               placeholder="أدخل اسم المستخدم أو الرقم الجامعي"
+                               autocomplete="username" />
+                        <span asp-validation-for="UserNumber"
+                              class="validation-error"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="Password">كلمة المرور</label>
+                        <input asp-for="Password"
+                               type="password"
+                               class="form-control"
+                               placeholder="أدخل كلمة المرور"
+                               autocomplete="current-password" />
+                        <span asp-validation-for="Password"
+                              class="validation-error"></span>
+                    </div>
+
+                    <div class="remember-me">
+                        <input asp-for="RememberMe" />
+                        <label asp-for="RememberMe">تذكرني</label>
+                    </div>
+
+                    <button type="submit" class="login-button">
+                        تسجيل الدخول
+                    </button>
+                </form>
+
+            </div>
+        </div>
+
+        <div class="brand-side">
+
+            <div class="brand-header">
+                <img src="~/images/iusr-logo.jfif"
+                     alt="شعار الجامعة الدولية للعلوم والنهضة" />
+
+                <div class="brand-name">
+                    الجامعة الدولية للعلوم والنهضة
+                </div>
+            </div>
+
+            <div class="brand-content">
+                <div class="gold-line"></div>
+
+                <h2>
+                    منصة واحدة لإدارة
+                    جميع الشؤون الأكاديمية
+                </h2>
+
+                <p>
+                    إدارة الطلاب والمقررات والتسجيلات
+                    والرسوم الجامعية بسهولة وأمان،
+                    ضمن نظام متكامل يخدم الجامعة.
+                </p>
+            </div>
+
+            <div class="copyright">
+                © 2026 الجامعة الدولية للعلوم والنهضة
+            </div>
+
+        </div>
+
+    </div>
+</body>
+</html>

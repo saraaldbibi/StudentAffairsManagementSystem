@@ -1,0 +1,202 @@
+﻿
+@model StudentAffairsManagementSystem.Models.Course
+
+@{
+    ViewData["Title"] = "تفاصيل المقرر";
+}
+
+<style>
+    .course-details-page {
+        max-width: 950px;
+        margin: 30px auto;
+        direction: rtl;
+        font-family: 'Cairo', Tahoma, sans-serif;
+    }
+
+    .course-details-card {
+        background: #ffffff;
+        border-radius: 18px;
+        overflow: hidden;
+        box-shadow: 0 5px 25px rgba(0, 0, 0, 0.07);
+        border: 1px solid #e7eaf0;
+    }
+
+    .course-details-header {
+        background: #14263f;
+        padding: 28px 32px;
+        color: #ffffff;
+        border-bottom: 4px solid #c9a66b;
+    }
+
+    .course-details-header h2 {
+        font-size: 25px;
+        font-weight: 700;
+        margin: 0 0 8px;
+    }
+
+    .course-details-header p {
+        margin: 0;
+        color: #d6dce6;
+        font-size: 14px;
+    }
+
+    .course-details-body {
+        padding: 30px;
+    }
+
+    .course-info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 20px;
+    }
+
+    .course-info-item {
+        background: #f8f9fc;
+        border: 1px solid #edf0f5;
+        border-radius: 12px;
+        padding: 20px;
+    }
+
+    .course-info-label {
+        display: block;
+        font-size: 13px;
+        color: #718096;
+        margin-bottom: 10px;
+    }
+
+    .course-info-value {
+        display: block;
+        font-size: 18px;
+        font-weight: 700;
+        color: #14263f;
+        overflow-wrap: anywhere;
+    }
+
+    .course-details-footer {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        padding: 0 30px 30px;
+    }
+
+    .course-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 20px;
+        border-radius: 10px;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .course-btn-back {
+        background: #edf1f7;
+        color: #14263f;
+    }
+
+    .course-btn-edit {
+        background: #c9a66b;
+        color: #14263f;
+    }
+
+    @@media (max-width: 650px) {
+        .course-info-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .course-details-body {
+            padding: 20px;
+        }
+
+        .course-details-footer {
+            padding: 0 20px 20px;
+        }
+    }
+</style>
+
+<div class="course-details-page">
+
+    <div class="course-details-card">
+
+        <div class="course-details-header">
+            <h2>
+                <i class="bi bi-book"></i>
+                تفاصيل المقرر الدراسي
+            </h2>
+
+            <p>عرض البيانات المسجلة للمقرر الدراسي</p>
+        </div>
+
+        <div class="course-details-body">
+
+            <div class="course-info-grid">
+
+                <div class="course-info-item">
+                    <span class="course-info-label">
+                        اسم المقرر
+                    </span>
+
+                    <span class="course-info-value">
+                        @Model.Name
+                    </span>
+                </div>
+
+                <div class="course-info-item">
+                    <span class="course-info-label">
+                        رمز المقرر
+                    </span>
+
+                    <span class="course-info-value">
+                        @Model.Code
+                    </span>
+                </div>
+
+                <div class="course-info-item">
+                    <span class="course-info-label">
+                        الساعات المعتمدة
+                    </span>
+
+                    <span class="course-info-value">
+                        @Model.CreditHours
+                    </span>
+                </div>
+
+                <div class="course-info-item">
+                    <span class="course-info-label">
+                        القسم الأكاديمي
+                    </span>
+
+                    <span class="course-info-value">
+                        @(Model.Department?.Name ?? "غير محدد")
+                    </span>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="course-details-footer">
+
+            <a asp-controller="Courses"
+               asp-action="Index"
+               class="course-btn course-btn-back">
+                <i class="bi bi-arrow-right"></i>
+                العودة إلى المقررات
+            </a>
+
+            @if (User.IsInRole("Admin"))
+            {
+                <a asp-controller="Courses"
+                   asp-action="Edit"
+                   asp-route-id="@Model.Id"
+                   class="course-btn course-btn-edit">
+                    <i class="bi bi-pencil-square"></i>
+                    تعديل المقرر
+                </a>
+            }
+
+        </div>
+
+    </div>
+
+</div>

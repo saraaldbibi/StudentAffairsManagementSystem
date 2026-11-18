@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -17,7 +18,9 @@ namespace StudentAffairsManagementSystem.Controllers
             _context = context;
         }
 
-        // عرض جميع المقررات مع الأقسام
+        // ==========================================
+        // عرض جميع المقررات الدراسية
+        // ==========================================
         public async Task<IActionResult> Index()
         {
             var courses = await _context.Courses
@@ -29,7 +32,10 @@ namespace StudentAffairsManagementSystem.Controllers
             return View(courses);
         }
 
-        // عرض تفاصيل مقرر
+        // ==========================================
+        // عرض تفاصيل مقرر دراسي
+        // ==========================================
+        [HttpGet]
         public async Task<IActionResult> Details(long id)
         {
             var course = await _context.Courses
@@ -38,12 +44,16 @@ namespace StudentAffairsManagementSystem.Controllers
                 .FirstOrDefaultAsync(c => c.Id == id);
 
             if (course == null)
+            {
                 return NotFound();
+            }
 
             return View(course);
         }
 
-        // فتح صفحة إضافة مقرر
+        // ==========================================
+        // فتح صفحة إضافة مقرر جديد
+        // ==========================================
         [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<IActionResult> Create()
@@ -53,7 +63,9 @@ namespace StudentAffairsManagementSystem.Controllers
             return View(new Course());
         }
 
-        // حفظ مقرر جديد
+        // ==========================================
+        // حفظ مقرر دراسي جديد
+        // ==========================================
         [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -61,7 +73,6 @@ namespace StudentAffairsManagementSystem.Controllers
             [Bind("Name,Code,CreditHours,DepartmentId")]
             Course course)
         {
-            // خاصية Department لا تُرسل من النموذج
             ModelState.Remove(nameof(Course.Department));
 
             course.Name = course.Name?.Trim() ?? "";
@@ -94,7 +105,9 @@ namespace StudentAffairsManagementSystem.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        // ==========================================
         // فتح صفحة تعديل مقرر
+        // ==========================================
         [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<IActionResult> Edit(long id)
@@ -103,14 +116,18 @@ namespace StudentAffairsManagementSystem.Controllers
                 .FindAsync(id);
 
             if (course == null)
+            {
                 return NotFound();
+            }
 
             await LoadDepartments();
 
             return View(course);
         }
 
+        // ==========================================
         // حفظ تعديلات المقرر
+        // ==========================================
         [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -120,7 +137,9 @@ namespace StudentAffairsManagementSystem.Controllers
             Course model)
         {
             if (id != model.Id)
+            {
                 return NotFound();
+            }
 
             ModelState.Remove(nameof(Course.Department));
 
@@ -139,7 +158,9 @@ namespace StudentAffairsManagementSystem.Controllers
                 .FindAsync(id);
 
             if (course == null)
+            {
                 return NotFound();
+            }
 
             course.Name = model.Name;
             course.Code = model.Code;
@@ -163,7 +184,9 @@ namespace StudentAffairsManagementSystem.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        // ==========================================
         // فتح صفحة تأكيد حذف مقرر
+        // ==========================================
         [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<IActionResult> Delete(long id)
@@ -174,12 +197,16 @@ namespace StudentAffairsManagementSystem.Controllers
                 .FirstOrDefaultAsync(c => c.Id == id);
 
             if (course == null)
+            {
                 return NotFound();
+            }
 
             return View(course);
         }
 
+        // ==========================================
         // تنفيذ حذف المقرر
+        // ==========================================
         [Authorize(Roles = "Admin")]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
@@ -189,12 +216,13 @@ namespace StudentAffairsManagementSystem.Controllers
                 .FindAsync(id);
 
             if (course == null)
+            {
                 return NotFound();
+            }
 
             // منع حذف مقرر مرتبط بطرح دراسي
-            bool hasOfferings =
-                await _context.CourseOfferings
-                    .AnyAsync(o => o.CourseId == id);
+            bool hasOfferings = await _context.CourseOfferings
+                .AnyAsync(o => o.CourseId == id);
 
             if (hasOfferings)
             {
@@ -221,7 +249,9 @@ namespace StudentAffairsManagementSystem.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        // ==========================================
         // التحقق من صحة بيانات المقرر
+        // ==========================================
         private async Task ValidateCourse(
             Course course,
             long? currentCourseId = null)
@@ -250,7 +280,7 @@ namespace StudentAffairsManagementSystem.Controllers
                     "عدد الساعات لازم يكون أكبر من صفر");
             }
 
-            // التأكد من أن القسم موجود وفعال
+            // التأكد من أن القسم موجود وفعّال
             bool departmentExists =
                 await _context.Departments.AnyAsync(d =>
                     d.Id == course.DepartmentId &&
@@ -260,7 +290,7 @@ namespace StudentAffairsManagementSystem.Controllers
             {
                 ModelState.AddModelError(
                     nameof(Course.DepartmentId),
-                    "القسم غير موجود أو غير فعال");
+                    "القسم غير موجود أو غير فعّال");
             }
 
             // منع تكرار رمز المقرر ضمن نفس القسم
@@ -282,7 +312,9 @@ namespace StudentAffairsManagementSystem.Controllers
             }
         }
 
-        // تجهيز قائمة الأقسام الفعالة
+        // ==========================================
+        // تجهيز القائمة المنسدلة للأقسام الفعّالة
+        // ==========================================
         private async Task LoadDepartments()
         {
             var departments = await _context.Departments

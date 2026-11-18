@@ -1,0 +1,237 @@
+﻿
+@model StudentAffairsManagementSystem.Models.Employee
+
+@{
+    ViewData["Title"] = "تفاصيل الموظف";
+
+    string fullName =
+        $"{Model.FirstName} {Model.FatherName} {Model.LastName}";
+}
+
+<div class="container-fluid py-4" dir="rtl">
+
+    <!-- عنوان الصفحة -->
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+
+        <div>
+            <h2 style="color:#142d4e; font-weight:800;">
+                تفاصيل الموظف
+            </h2>
+
+            <p class="text-muted mb-0">
+                عرض البيانات الشخصية والوظيفية للموظف
+            </p>
+        </div>
+
+        <a asp-controller="Employees"
+           asp-action="Index"
+           class="btn btn-outline-secondary">
+            العودة إلى قائمة الموظفين
+        </a>
+
+    </div>
+
+    <!-- بطاقة معلومات الموظف -->
+    <div class="card border-0 shadow-sm mb-4">
+
+        <div class="card-header py-3"
+             style="background:#142d4e; color:white;">
+
+            <h5 class="mb-0">
+                معلومات الموظف
+            </h5>
+
+        </div>
+
+        <div class="card-body p-4">
+
+            <!-- الاسم والرقم الوظيفي -->
+            <div class="d-flex align-items-center flex-wrap gap-3 mb-4">
+
+                <div style="
+                    width:75px;
+                    height:75px;
+                    background:#142d4e;
+                    color:#c9a24d;
+                    border-radius:16px;
+                    display:flex;
+                    align-items:center;
+                    justify-content:center;
+                    font-size:34px;">
+                    👤
+                </div>
+
+                <div>
+                    <h4 class="mb-2"
+                        style="color:#142d4e; font-weight:800;">
+                        @fullName
+                    </h4>
+
+                    <span class="badge"
+                          style="background:#c9a24d; color:#142d4e;">
+                        الرقم الوظيفي: @Model.EmployeeNumber
+                    </span>
+                </div>
+
+            </div>
+
+            <hr />
+
+            <!-- المعلومات الشخصية -->
+            <h5 class="mb-3"
+                style="color:#142d4e; font-weight:700;">
+                المعلومات الشخصية
+            </h5>
+
+            <div class="row g-4 mb-4">
+
+                <div class="col-md-4">
+                    <div class="text-muted mb-1">
+                        الاسم الأول
+                    </div>
+
+                    <div class="fw-bold">
+                        @Model.FirstName
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="text-muted mb-1">
+                        اسم الأب
+                    </div>
+
+                    <div class="fw-bold">
+                        @Model.FatherName
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="text-muted mb-1">
+                        الكنية
+                    </div>
+
+                    <div class="fw-bold">
+                        @Model.LastName
+                    </div>
+                </div>
+
+            </div>
+
+            <hr />
+
+            <!-- المعلومات الوظيفية -->
+            <h5 class="mb-3"
+                style="color:#142d4e; font-weight:700;">
+                المعلومات الوظيفية
+            </h5>
+
+            <div class="row g-4 mb-4">
+
+                <div class="col-md-6">
+                    <div class="text-muted mb-1">
+                        الرقم الوظيفي
+                    </div>
+
+                    <div class="fw-bold" dir="ltr"
+                         style="text-align:right;">
+                        @Model.EmployeeNumber
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="text-muted mb-1">
+                        نوع الحساب
+                    </div>
+
+                    <div>
+                        <span class="badge"
+                              style="background:#142d4e; color:white;">
+                            موظف
+                        </span>
+                    </div>
+                </div>
+
+            </div>
+
+            <hr />
+
+            <!-- معلومات التواصل -->
+            <h5 class="mb-3"
+                style="color:#142d4e; font-weight:700;">
+                معلومات التواصل
+            </h5>
+
+            <div class="row g-4">
+
+                <div class="col-md-6">
+                    <div class="text-muted mb-1">
+                        رقم الهاتف
+                    </div>
+
+                    <div class="fw-bold">
+                        @if (!string.IsNullOrWhiteSpace(Model.Phone))
+                        {
+                            <span dir="ltr">
+                                @Model.Phone
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="text-muted">
+                                غير مسجل
+                            </span>
+                        }
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="text-muted mb-1">
+                        العنوان
+                    </div>
+
+                    <div class="fw-bold">
+                        @if (!string.IsNullOrWhiteSpace(Model.Address))
+                        {
+                            @Model.Address
+                        }
+                        else
+                        {
+                            <span class="text-muted">
+                                غير مسجل
+                            </span>
+                        }
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- أزرار الإجراءات -->
+    <div class="d-flex flex-wrap gap-3">
+
+        <a asp-controller="Employees"
+           asp-action="Edit"
+           asp-route-id="@Model.Id"
+           class="btn px-4 py-2"
+           style="background:#c9a24d; color:#142d4e; font-weight:800;">
+            تعديل بيانات الموظف
+        </a>
+
+        <a asp-controller="Employees"
+           asp-action="Delete"
+           asp-route-id="@Model.Id"
+           class="btn btn-outline-danger px-4 py-2">
+            حذف الموظف
+        </a>
+
+        <a asp-controller="Employees"
+           asp-action="Index"
+           class="btn btn-outline-secondary px-4 py-2">
+            العودة
+        </a>
+
+    </div>
+
+</div>

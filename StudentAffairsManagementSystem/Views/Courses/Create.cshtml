@@ -1,0 +1,231 @@
+﻿
+@model StudentAffairsManagementSystem.Models.Course
+
+@{
+    ViewData["Title"] = "إضافة مقرر دراسي";
+}
+
+<style>
+    .course-form-page {
+        max-width: 850px;
+        margin: 0 auto;
+    }
+
+    .course-form-header {
+        margin-bottom: 25px;
+    }
+
+    .course-form-header h2 {
+        color: #16263f;
+        font-size: 25px;
+        font-weight: bold;
+        margin-bottom: 8px;
+    }
+
+    .course-form-header p {
+        color: #718096;
+        margin: 0;
+    }
+
+    .course-form-card {
+        background: #fff;
+        border: 1px solid #e5eaf2;
+        border-top: 4px solid #c8a66a;
+        border-radius: 16px;
+        padding: 30px;
+        box-shadow: 0 4px 15px rgba(20, 40, 70, .05);
+    }
+
+    .course-form-label {
+        display: block;
+        color: #16263f;
+        font-weight: bold;
+        margin-bottom: 9px;
+    }
+
+    .course-form-control {
+        width: 100%;
+        border: 1px solid #d9e1eb;
+        border-radius: 10px;
+        padding: 12px 14px;
+        background: #fff;
+        color: #16263f;
+    }
+
+    .course-form-control:focus {
+        outline: none;
+        border-color: #c8a66a;
+        box-shadow: 0 0 0 3px rgba(200, 166, 106, .15);
+    }
+
+    .course-form-field {
+        margin-bottom: 23px;
+    }
+
+    .course-form-hint {
+        color: #7b8797;
+        font-size: 12px;
+        margin-top: 7px;
+    }
+
+    .course-form-error {
+        display: block;
+        color: #b42318;
+        font-size: 13px;
+        margin-top: 6px;
+    }
+
+    .course-form-actions {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        padding-top: 12px;
+    }
+
+    .course-form-save {
+        background: #c8a66a;
+        color: #16263f;
+        border: none;
+        border-radius: 10px;
+        padding: 12px 26px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .course-form-save:hover {
+        background: #b79557;
+    }
+
+    .course-form-back {
+        background: #f3f5f9;
+        color: #42536c;
+        border: 1px solid #e2e7ef;
+        border-radius: 10px;
+        padding: 12px 24px;
+        text-decoration: none;
+    }
+
+    .course-form-back:hover {
+        background: #e8edf5;
+        color: #16263f;
+    }
+
+    @@media (max-width: 650px) {
+        .course-form-card {
+            padding: 20px;
+        }
+    }
+</style>
+
+<div class="course-form-page">
+
+    <div class="course-form-header">
+        <h2>إضافة مقرر دراسي جديد</h2>
+        <p>
+            أدخل بيانات المقرر لربطه بالقسم الأكاديمي المناسب.
+        </p>
+    </div>
+
+    <div class="course-form-card">
+
+        <form asp-controller="Courses"
+              asp-action="Create"
+              method="post">
+
+            @Html.AntiForgeryToken()
+
+            <div asp-validation-summary="ModelOnly"
+                 class="course-form-error"></div>
+
+            <div class="course-form-field">
+                <label asp-for="Name"
+                       class="course-form-label">
+                    اسم المقرر الدراسي
+                </label>
+
+                <input asp-for="Name"
+                       class="course-form-control"
+                       placeholder="أدخل اسم المقرر"
+                       required />
+
+                <span asp-validation-for="Name"
+                      class="course-form-error"></span>
+            </div>
+
+            <div class="course-form-field">
+                <label asp-for="Code"
+                       class="course-form-label">
+                    رمز المقرر
+                </label>
+
+                <input asp-for="Code"
+                       class="course-form-control"
+                       placeholder="أدخل رمز المقرر"
+                       required />
+
+                <span asp-validation-for="Code"
+                      class="course-form-error"></span>
+            </div>
+
+            <div class="course-form-field">
+                <label asp-for="CreditHours"
+                       class="course-form-label">
+                    عدد الساعات المعتمدة
+                </label>
+
+                <input asp-for="CreditHours"
+                       type="number"
+                       min="1"
+                       step="1"
+                       class="course-form-control"
+                       required />
+
+                <span asp-validation-for="CreditHours"
+                      class="course-form-error"></span>
+            </div>
+
+            <div class="course-form-field">
+                <label asp-for="DepartmentId"
+                       class="course-form-label">
+                    القسم الأكاديمي
+                </label>
+
+                <select asp-for="DepartmentId"
+                        asp-items="ViewBag.DepartmentId"
+                        class="course-form-control"
+                        required>
+                    <option value="">-- اختر القسم الأكاديمي --</option>
+                </select>
+
+                <span asp-validation-for="DepartmentId"
+                      class="course-form-error"></span>
+
+                <div class="course-form-hint">
+                    تظهر الأقسام المتاحة من قاعدة البيانات.
+                </div>
+            </div>
+
+            <div class="course-form-actions">
+
+                <button type="submit"
+                        class="course-form-save">
+                    حفظ المقرر
+                </button>
+
+                <a asp-controller="Courses"
+                   asp-action="Index"
+                   class="course-form-back">
+                    إلغاء والعودة
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

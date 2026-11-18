@@ -1,0 +1,274 @@
+﻿
+@model IEnumerable<StudentAffairsManagementSystem.Models.CourseOffering>
+
+@{
+    ViewData["Title"] = "إدارة المقررات المطروحة";
+
+    bool isAdmin = User.IsInRole("Admin");
+
+    var offerings = Model.ToList();
+
+    int totalOfferings = offerings.Count;
+
+    int coursesCount = offerings
+        .Select(o => o.CourseId)
+        .Distinct()
+        .Count();
+
+    int semestersCount = offerings
+        .Select(o => o.SemesterId)
+        .Distinct()
+        .Count();
+}
+
+<div class="container-fluid py-4" dir="rtl">
+
+    <!-- عنوان الصفحة -->
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+
+        <div>
+            <h2 style="color:#142d4e; font-weight:800;">
+                إدارة المقررات المطروحة
+            </h2>
+
+            <p class="text-muted mb-0">
+                عرض المقررات المطروحة حسب الفصل الدراسي والموظف المسؤول
+            </p>
+        </div>
+
+        @if (isAdmin)
+        {
+            <a asp-controller="CourseOfferings"
+               asp-action="Create"
+               class="btn px-4 py-2"
+               style="background:#c9a24d; color:#142d4e; font-weight:800;">
+                + طرح مقرر جديد
+            </a>
+        }
+
+    </div>
+
+    <!-- رسائل النظام -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["Success"]
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["Error"]
+        </div>
+    }
+
+    <!-- بطاقات الإحصائيات -->
+    <div class="row g-3 mb-4">
+
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+
+                    <div class="text-muted mb-2">
+                        إجمالي المقررات المطروحة
+                    </div>
+
+                    <h2 class="mb-0"
+                        style="color:#142d4e; font-weight:800;">
+                        @totalOfferings
+                    </h2>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+
+                    <div class="text-muted mb-2">
+                        المقررات المختلفة المطروحة
+                    </div>
+
+                    <h2 class="mb-0"
+                        style="color:#142d4e; font-weight:800;">
+                        @coursesCount
+                    </h2>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+
+                    <div class="text-muted mb-2">
+                        الفصول التي لديها مقررات مطروحة
+                    </div>
+
+                    <h2 class="mb-0"
+                        style="color:#142d4e; font-weight:800;">
+                        @semestersCount
+                    </h2>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- جدول المقررات المطروحة -->
+    <div class="card border-0 shadow-sm">
+
+        <div class="card-header py-3"
+             style="background:#142d4e; color:white;">
+
+            <h5 class="mb-0">
+                قائمة المقررات المطروحة
+            </h5>
+
+        </div>
+
+        <div class="card-body p-0">
+
+            <div class="table-responsive">
+
+                <table class="table table-hover align-middle text-center mb-0">
+
+                    <thead style="background:#f5f6f8;">
+                        <tr>
+                            <th>المقرر الدراسي</th>
+                            <th>رمز المقرر</th>
+                            <th>الفصل الدراسي</th>
+                            <th>العام الدراسي</th>
+                            <th>الموظف المسؤول</th>
+                            <th>السعة الاستيعابية</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        @if (offerings.Any())
+                        {
+                            @foreach (var offering in offerings)
+                            {
+                                <tr>
+
+                                    <!-- اسم المقرر -->
+                                    <td class="fw-bold">
+                                        @offering.Course.Name
+                                    </td>
+
+                                    <!-- رمز المقرر -->
+                                    <td>
+                                        @offering.Course.Code
+                                    </td>
+
+                                    <!-- الفصل الدراسي -->
+                                    <td>
+                                        @offering.Semester.Name
+                                    </td>
+
+                                    <!-- العام الدراسي -->
+                                    <td>
+                                        @offering.Semester.AcademicYear
+                                    </td>
+
+                                    <!-- الموظف المسؤول -->
+                                    <td>
+                                        @offering.Employee.FirstName
+                                        @offering.Employee.LastName
+
+                                        @if (offering.Employee.IsDeleted)
+                                        {
+                                            <span class="badge bg-secondary">
+                                                محذوف
+                                            </span>
+                                        }
+                                    </td>
+
+                                    <!-- السعة -->
+                                    <td>
+                                        <span class="badge px-3 py-2"
+                                              style="background:#e8eef6; color:#142d4e;">
+                                            @offering.Capacity طالب
+                                        </span>
+                                    </td>
+
+                                    <!-- الإجراءات -->
+                                    <td>
+                                        <div class="d-flex justify-content-center gap-2 flex-wrap">
+
+                                            <a asp-controller="CourseOfferings"
+                                               asp-action="Details"
+                                               asp-route-id="@offering.Id"
+                                               class="btn btn-sm btn-outline-primary">
+                                                التفاصيل
+                                            </a>
+
+                                            @if (isAdmin)
+                                            {
+                                                <a asp-controller="CourseOfferings"
+                                                   asp-action="Edit"
+                                                   asp-route-id="@offering.Id"
+                                                   class="btn btn-sm btn-outline-warning">
+                                                    تعديل
+                                                </a>
+
+                                                <a asp-controller="CourseOfferings"
+                                                   asp-action="Delete"
+                                                   asp-route-id="@offering.Id"
+                                                   class="btn btn-sm btn-outline-danger">
+                                                    حذف
+                                                </a>
+                                            }
+
+                                        </div>
+                                    </td>
+
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="7"
+                                    class="text-center text-muted py-5">
+
+                                    <div class="mb-3" style="font-size:36px;">
+                                        📚
+                                    </div>
+
+                                    <h5 class="mb-2">
+                                        لا توجد مقررات مطروحة حاليًا
+                                    </h5>
+
+                                    <p class="mb-0">
+                                        ستظهر المقررات هنا بعد طرحها ضمن الفصول الدراسية.
+                                    </p>
+
+                                </td>
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- ملاحظة -->
+    <div class="alert alert-light border mt-4 mb-0">
+        <strong>ملاحظة:</strong>
+        السعة الاستيعابية هي العدد الأقصى المسموح به للتسجيل
+        في المقرر المطروح، وليست عدد المقاعد المتبقية.
+    </div>
+
+</div>

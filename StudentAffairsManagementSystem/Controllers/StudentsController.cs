@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using System.Data;
 using System.Globalization;
 using System.Linq;
@@ -8,6 +9,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using StudentAffairsManagementSystem.Data;
 using StudentAffairsManagementSystem.Models;
+using StudentAffairsManagementSystem.Permissions;
+using StudentAffairsManagementSystem.Services;
 using StudentAffairsManagementSystem.ViewModels;
 
 namespace StudentAffairsManagementSystem.Controllers
@@ -17,31 +20,47 @@ namespace StudentAffairsManagementSystem.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<Account> _userManager;
+        private readonly PermissionService _permissionService;
 
         public StudentsController(
             ApplicationDbContext context,
-            UserManager<Account> userManager)
+            UserManager<Account> userManager,
+            PermissionService permissionService)
         {
             _context = context;
             _userManager = userManager;
+            _permissionService = permissionService;
         }
 
-        // عرض جميع الطلاب
+        // ==========================================
+        // عرض الطلاب غير المحذوفين
+        // ==========================================
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
             var students = await _context.Students
+                .Where(s => !s.IsDeleted)
                 .Include(s => s.Department)
                 .Include(s => s.AdmissionSemester)
                 .AsNoTracking()
+                .OrderBy(s => s.FirstName)
+                .ThenBy(s => s.LastName)
                 .ToListAsync();
+
+            ViewBag.CanDeleteStudents =
+                await _permissionService.CanDeleteStudentsAsync(User);
 
             return View(students);
         }
 
-        // عرض تفاصيل طالب معين
+        // ==========================================
+        // تفاصيل الطالب
+        // ==========================================
+        [HttpGet]
         public async Task<IActionResult> Details(long id)
         {
             var student = await _context.Students
+                .Where(s => !s.IsDeleted)
                 .Include(s => s.Department)
                 .Include(s => s.AdmissionSemester)
                 .Include(s => s.GraduationSemester)
@@ -49,27 +68,34 @@ namespace StudentAffairsManagementSystem.Controllers
                 .FirstOrDefaultAsync(s => s.Id == id);
 
             if (student == null)
+            {
                 return NotFound();
+            }
+
+            ViewBag.CanDeleteStudents =
+                await _permissionService.CanDeleteStudentsAsync(User);
 
             return View(student);
         }
 
+        // ==========================================
         // فتح صفحة إضافة طالب
+        // ==========================================
         [HttpGet]
         public async Task<IActionResult> Create()
         {
             await LoadStudentLists();
-
             return View(new CreateStudentViewModel());
         }
 
-        // حفظ الطالب وإنشاء حسابه
+        // ==========================================
+        // إضافة الطالب وإنشاء حسابه
+        // ==========================================
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(
             CreateStudentViewModel model)
         {
-            // التحقق من وجود القسم وأنه فعال
             var department = await _context.Departments
                 .AsNoTracking()
                 .FirstOrDefaultAsync(d =>
@@ -90,10 +116,9 @@ namespace StudentAffairsManagementSystem.Controllers
             {
                 ModelState.AddModelError(
                     nameof(model.DepartmentId),
-                    "رمز الفرع لازم يكون رقمين بالضبط");
+                    "رمز القسم يجب أن يكون رقمين بالضبط");
             }
 
-            // التحقق من فصل القبول
             bool admissionSemesterExists =
                 await _context.Semesters.AnyAsync(s =>
                     s.Id == model.AdmissionSemesterId);
@@ -105,7 +130,6 @@ namespace StudentAffairsManagementSystem.Controllers
                     "فصل القبول غير موجود");
             }
 
-            // التحقق من فصل التخرج إذا تم اختياره
             if (model.GraduationSemesterId.HasValue)
             {
                 bool graduationSemesterExists =
@@ -126,38 +150,34 @@ namespace StudentAffairsManagementSystem.Controllers
                 return View(model);
             }
 
-            // تاريخ إضافة الطالب على الموقع
             DateTime registrationDate = DateTime.Now;
 
-            // الشهر من تاريخ الإضافة
             string registrationMonth =
                 registrationDate.Month.ToString(
                     "D2",
                     CultureInfo.InvariantCulture);
 
-            // آخر رقمين من سنة الإضافة
             string registrationYear =
                 (registrationDate.Year % 100).ToString(
                     "D2",
                     CultureInfo.InvariantCulture);
 
-            // معاملة لحفظ الحساب والدور والطالب معاً
             await using var transaction =
                 await _context.Database.BeginTransactionAsync(
                     IsolationLevel.Serializable);
 
             string departmentCode = department!.Code;
 
-            // جلب الأرقام الجامعية لنفس الفرع
+            // نحتسب أرقام الطلاب المحذوفين أيضًا
+            // حتى لا نعيد استخدام رقم جامعي قديم
             var existingNumbers = await _context.Students
-                .Where(s => s.DepartmentId == department.Id)
+                .Where(s => s.UniversityNumber.StartsWith(
+                    departmentCode))
                 .Select(s => s.UniversityNumber)
                 .ToListAsync();
 
-            // تحديد أكبر تسلسل مستخدم
             int lastSequence = existingNumbers
                 .Where(n =>
-                    n != null &&
                     n.Length == 9 &&
                     n.StartsWith(departmentCode))
                 .Select(n =>
@@ -171,20 +191,18 @@ namespace StudentAffairsManagementSystem.Controllers
 
             int nextSequence = lastSequence + 1;
 
-            // الحد الأقصى للتسلسل هو 999
             if (nextSequence > 999)
             {
                 await transaction.RollbackAsync();
 
                 ModelState.AddModelError(
                     string.Empty,
-                    "وصل الفرع للحد الأقصى من الأرقام التسلسلية");
+                    "وصل القسم إلى الحد الأقصى من الأرقام التسلسلية");
 
                 await LoadStudentLists();
                 return View(model);
             }
 
-            // رمز الفرع + الشهر + السنة + التسلسل
             string universityNumber =
                 departmentCode +
                 registrationMonth +
@@ -193,7 +211,6 @@ namespace StudentAffairsManagementSystem.Controllers
                     "D3",
                     CultureInfo.InvariantCulture);
 
-            // إنشاء حساب الطالب
             var account = new Account
             {
                 UserName = universityNumber,
@@ -221,7 +238,6 @@ namespace StudentAffairsManagementSystem.Controllers
                 return View(model);
             }
 
-            // ربط الحساب بدور Student الحقيقي
             var roleResult =
                 await _userManager.AddToRoleAsync(
                     account,
@@ -242,15 +258,14 @@ namespace StudentAffairsManagementSystem.Controllers
                 return View(model);
             }
 
-            // إنشاء سجل الطالب
             var student = new Student
             {
                 UniversityNumber = universityNumber,
 
-                FirstName = model.FirstName,
-                FatherName = model.FatherName,
-                MotherName = model.MotherName,
-                LastName = model.LastName,
+                FirstName = model.FirstName.Trim(),
+                FatherName = model.FatherName.Trim(),
+                MotherName = model.MotherName.Trim(),
+                LastName = model.LastName.Trim(),
 
                 DepartmentId = model.DepartmentId,
                 AccountId = account.Id,
@@ -276,14 +291,15 @@ namespace StudentAffairsManagementSystem.Controllers
 
                 PersonalImage = model.PersonalImage,
                 NationalIdImage = model.NationalIdImage,
-                CertificateImage = model.CertificateImage
+                CertificateImage = model.CertificateImage,
+
+                IsDeleted = false,
+                DeletedAt = null
             };
 
             _context.Students.Add(student);
 
             await _context.SaveChangesAsync();
-
-            // تثبيت الحساب والدور والطالب معاً
             await transaction.CommitAsync();
 
             return RedirectToAction(
@@ -291,12 +307,286 @@ namespace StudentAffairsManagementSystem.Controllers
                 new { id = student.Id });
         }
 
+        // ==========================================
+        // فتح صفحة تعديل الطالب
+        // ==========================================
+        [HttpGet]
+        public async Task<IActionResult> Edit(long id)
+        {
+            var student = await _context.Students
+                .AsNoTracking()
+                .FirstOrDefaultAsync(s =>
+                    s.Id == id &&
+                    !s.IsDeleted);
+
+            if (student == null)
+            {
+                return NotFound();
+            }
+
+            var model = new EditStudentViewModel
+            {
+                Id = student.Id,
+                UniversityNumber = student.UniversityNumber,
+
+                FirstName = student.FirstName,
+                FatherName = student.FatherName,
+                MotherName = student.MotherName,
+                LastName = student.LastName,
+
+                BirthDate = student.BirthDate,
+                Gender = student.Gender,
+                NationalId = student.NationalId,
+                Nationality = student.Nationality,
+
+                DepartmentId = student.DepartmentId,
+                AdmissionSemesterId =
+                    student.AdmissionSemesterId,
+                GraduationSemesterId =
+                    student.GraduationSemesterId,
+
+                Status = student.Status,
+                GraduationAverage =
+                    student.GraduationAverage,
+
+                Phone = student.Phone,
+                Address = student.Address,
+                Governorate = student.Governorate,
+
+                PersonalImage = student.PersonalImage,
+                NationalIdImage = student.NationalIdImage,
+                CertificateImage = student.CertificateImage
+            };
+
+            await LoadStudentLists();
+            return View(model);
+        }
+
+        // ==========================================
+        // حفظ تعديل الطالب
+        // ==========================================
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(
+            long id,
+            EditStudentViewModel model)
+        {
+            if (id != model.Id)
+            {
+                return NotFound();
+            }
+
+            var student = await _context.Students
+                .FirstOrDefaultAsync(s =>
+                    s.Id == id &&
+                    !s.IsDeleted);
+
+            if (student == null)
+            {
+                return NotFound();
+            }
+
+            model.UniversityNumber = student.UniversityNumber;
+
+            ModelState.Remove(
+                nameof(EditStudentViewModel.UniversityNumber));
+
+            bool departmentExists =
+                await _context.Departments.AnyAsync(d =>
+                    d.Id == model.DepartmentId &&
+                    d.IsActive);
+
+            if (!departmentExists)
+            {
+                ModelState.AddModelError(
+                    nameof(model.DepartmentId),
+                    "القسم غير موجود أو غير فعال");
+            }
+
+            bool admissionSemesterExists =
+                await _context.Semesters.AnyAsync(s =>
+                    s.Id == model.AdmissionSemesterId);
+
+            if (!admissionSemesterExists)
+            {
+                ModelState.AddModelError(
+                    nameof(model.AdmissionSemesterId),
+                    "فصل القبول غير موجود");
+            }
+
+            if (model.GraduationSemesterId.HasValue)
+            {
+                bool graduationSemesterExists =
+                    await _context.Semesters.AnyAsync(s =>
+                        s.Id == model.GraduationSemesterId.Value);
+
+                if (!graduationSemesterExists)
+                {
+                    ModelState.AddModelError(
+                        nameof(model.GraduationSemesterId),
+                        "فصل التخرج غير موجود");
+                }
+            }
+
+            if (!ModelState.IsValid)
+            {
+                await LoadStudentLists();
+                return View(model);
+            }
+
+            student.FirstName = model.FirstName.Trim();
+            student.FatherName = model.FatherName.Trim();
+            student.MotherName = model.MotherName.Trim();
+            student.LastName = model.LastName.Trim();
+
+            student.BirthDate = model.BirthDate;
+            student.Gender = model.Gender;
+            student.NationalId = model.NationalId;
+            student.Nationality = model.Nationality;
+
+            student.DepartmentId = model.DepartmentId;
+            student.AdmissionSemesterId =
+                model.AdmissionSemesterId;
+            student.GraduationSemesterId =
+                model.GraduationSemesterId;
+
+            student.Status = model.Status;
+            student.GraduationAverage =
+                model.GraduationAverage;
+
+            student.Phone = model.Phone;
+            student.Address = model.Address;
+            student.Governorate = model.Governorate;
+
+            student.PersonalImage = model.PersonalImage;
+            student.NationalIdImage = model.NationalIdImage;
+            student.CertificateImage = model.CertificateImage;
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(
+                nameof(Details),
+                new { id = student.Id });
+        }
+
+        // ==========================================
+        // صفحة تأكيد حذف الطالب
+        // ==========================================
+        [HttpGet]
+        public async Task<IActionResult> Delete(long id)
+        {
+            // التحقق من الصلاحية عند كل طلب
+            bool canDelete =
+                await _permissionService.HasPermissionAsync(
+                    User,
+                    PermissionCodes.StudentsDelete);
+
+            if (!canDelete)
+            {
+                return Forbid();
+            }
+
+            var student = await _context.Students
+                .Include(s => s.Department)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(s =>
+                    s.Id == id &&
+                    !s.IsDeleted);
+
+            if (student == null)
+            {
+                return NotFound();
+            }
+
+            return View(student);
+        }
+
+        // ==========================================
+        // تنفيذ الحذف الآمن
+        // ==========================================
+        [HttpPost]
+        [ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(long id)
+        {
+            // التحقق من الصلاحية مجددًا عند التنفيذ
+            bool canDelete =
+                await _permissionService.HasPermissionAsync(
+                    User,
+                    PermissionCodes.StudentsDelete);
+
+            if (!canDelete)
+            {
+                return Forbid();
+            }
+
+            var student = await _context.Students
+                .FirstOrDefaultAsync(s =>
+                    s.Id == id &&
+                    !s.IsDeleted);
+
+            if (student == null)
+            {
+                return NotFound();
+            }
+
+            var account = await _userManager.FindByIdAsync(
+                student.AccountId.ToString(
+                    CultureInfo.InvariantCulture));
+
+            if (account == null)
+            {
+                TempData["ErrorMessage"] =
+                    "حساب الطالب غير موجود، لم يتم الحذف.";
+
+                return RedirectToAction(
+                    nameof(Delete),
+                    new { id });
+            }
+
+            await using var transaction =
+                await _context.Database.BeginTransactionAsync();
+
+            student.IsDeleted = true;
+            student.DeletedAt = DateTime.UtcNow;
+
+            // منع تسجيل الدخول الجديد
+            account.LockoutEnabled = true;
+            account.LockoutEnd = DateTimeOffset.MaxValue;
+
+            var updateResult =
+                await _userManager.UpdateAsync(account);
+
+            if (!updateResult.Succeeded)
+            {
+                await transaction.RollbackAsync();
+
+                TempData["ErrorMessage"] =
+                    "تعذّر إيقاف حساب الطالب. لم يتم الحذف.";
+
+                return RedirectToAction(
+                    nameof(Delete),
+                    new { id });
+            }
+
+            await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
+
+            TempData["SuccessMessage"] =
+                "تم حذف الطالب من القوائم وإيقاف حسابه مع الاحتفاظ بسجلاته الأكاديمية.";
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        // ==========================================
         // تجهيز قوائم الأقسام والفصول
+        // ==========================================
         private async Task LoadStudentLists()
         {
             ViewBag.Departments = await _context.Departments
                 .Where(d => d.IsActive)
                 .AsNoTracking()
+                .OrderBy(d => d.Name)
                 .ToListAsync();
 
             ViewBag.Semesters = await _context.Semesters

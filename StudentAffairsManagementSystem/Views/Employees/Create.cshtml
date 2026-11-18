@@ -1,0 +1,230 @@
+﻿
+@model StudentAffairsManagementSystem.ViewModels.CreateEmployeeViewModel
+
+@{
+    ViewData["Title"] = "إضافة موظف جديد";
+}
+
+<div class="container-fluid py-4" dir="rtl">
+
+    <!-- عنوان الصفحة -->
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+        <div>
+            <h2 style="color:#142d4e; font-weight:800;">
+                إضافة موظف جديد
+            </h2>
+
+            <p class="text-muted mb-0">
+                إدخال بيانات الموظف وإنشاء حساب دخول له
+            </p>
+        </div>
+
+        <a asp-controller="Employees"
+           asp-action="Index"
+           class="btn btn-outline-secondary">
+            العودة إلى الموظفين
+        </a>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+
+        <div class="card-header py-3"
+             style="background:#142d4e; color:white;">
+            <h5 class="mb-0">
+                بيانات الموظف
+            </h5>
+        </div>
+
+        <div class="card-body p-4">
+
+            <form asp-controller="Employees"
+                  asp-action="Create"
+                  method="post">
+
+                @Html.AntiForgeryToken()
+
+                <div asp-validation-summary="ModelOnly"
+                     class="text-danger mb-3"></div>
+
+                <!-- الرقم الوظيفي -->
+                <div class="mb-4">
+                    <label asp-for="EmployeeNumber"
+                           class="form-label fw-bold">
+                        الرقم الوظيفي
+                    </label>
+
+                    <input asp-for="EmployeeNumber"
+                           class="form-control"
+                           placeholder="أدخل الرقم الوظيفي"
+                           autocomplete="off" />
+
+                    <span asp-validation-for="EmployeeNumber"
+                          class="text-danger"></span>
+                </div>
+
+                <!-- المعلومات الشخصية -->
+                <h5 class="mb-3"
+                    style="color:#142d4e; font-weight:700;">
+                    المعلومات الشخصية
+                </h5>
+
+                <div class="row g-3 mb-4">
+
+                    <div class="col-md-4">
+                        <label asp-for="FirstName"
+                               class="form-label fw-bold">
+                            الاسم الأول
+                        </label>
+
+                        <input asp-for="FirstName"
+                               class="form-control"
+                               placeholder="الاسم الأول" />
+
+                        <span asp-validation-for="FirstName"
+                              class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="FatherName"
+                               class="form-label fw-bold">
+                            اسم الأب
+                        </label>
+
+                        <input asp-for="FatherName"
+                               class="form-control"
+                               placeholder="اسم الأب" />
+
+                        <span asp-validation-for="FatherName"
+                              class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="LastName"
+                               class="form-label fw-bold">
+                            الكنية
+                        </label>
+
+                        <input asp-for="LastName"
+                               class="form-control"
+                               placeholder="الكنية" />
+
+                        <span asp-validation-for="LastName"
+                              class="text-danger"></span>
+                    </div>
+
+                </div>
+
+                <!-- معلومات التواصل -->
+                <h5 class="mb-3"
+                    style="color:#142d4e; font-weight:700;">
+                    معلومات التواصل
+                </h5>
+
+                <div class="row g-3 mb-4">
+
+                    <div class="col-md-6">
+                        <label asp-for="Phone"
+                               class="form-label fw-bold">
+                            رقم الهاتف
+                        </label>
+
+                        <input asp-for="Phone"
+                               type="tel"
+                               class="form-control"
+                               placeholder="رقم الهاتف"
+                               dir="ltr" />
+
+                        <span asp-validation-for="Phone"
+                              class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="Address"
+                               class="form-label fw-bold">
+                            العنوان
+                        </label>
+
+                        <input asp-for="Address"
+                               class="form-control"
+                               placeholder="عنوان الموظف" />
+
+                        <span asp-validation-for="Address"
+                              class="text-danger"></span>
+                    </div>
+
+                </div>
+
+                <!-- بيانات حساب الدخول -->
+                <h5 class="mb-3"
+                    style="color:#142d4e; font-weight:700;">
+                    بيانات حساب الدخول
+                </h5>
+
+                <div class="alert alert-light border mb-3">
+                    سيكون الرقم الوظيفي هو اسم المستخدم
+                    الذي يستخدمه الموظف لتسجيل الدخول.
+                </div>
+
+                <div class="row g-3 mb-4">
+
+                    <div class="col-md-6">
+                        <label asp-for="Password"
+                               class="form-label fw-bold">
+                            كلمة المرور
+                        </label>
+
+                        <input asp-for="Password"
+                               class="form-control"
+                               placeholder="أدخل كلمة المرور"
+                               autocomplete="new-password"
+                               dir="ltr" />
+
+                        <span asp-validation-for="Password"
+                              class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="ConfirmPassword"
+                               class="form-label fw-bold">
+                            تأكيد كلمة المرور
+                        </label>
+
+                        <input asp-for="ConfirmPassword"
+                               class="form-control"
+                               placeholder="أعد إدخال كلمة المرور"
+                               autocomplete="new-password"
+                               dir="ltr" />
+
+                        <span asp-validation-for="ConfirmPassword"
+                              class="text-danger"></span>
+                    </div>
+
+                </div>
+
+                <!-- أزرار الحفظ -->
+                <div class="d-flex gap-3 flex-wrap mt-4">
+
+                    <button type="submit"
+                            class="btn px-5 py-2"
+                            style="background:#c9a24d; color:#142d4e; font-weight:800;">
+                        حفظ الموظف وإنشاء الحساب
+                    </button>
+
+                    <a asp-controller="Employees"
+                       asp-action="Index"
+                       class="btn btn-outline-secondary px-4 py-2">
+                        إلغاء
+                    </a>
+
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
