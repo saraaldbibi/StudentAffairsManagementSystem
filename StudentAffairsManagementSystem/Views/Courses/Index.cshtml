@@ -19,16 +19,18 @@
 
     var isAdmin = User.IsInRole("Admin");
 
-    // الفصل الدراسي الفعّال
     var activeSemester = ViewBag.ActiveSemester as Semester;
 
-    // أسعار الساعات حسب القسم في الفصل الفعّال
     var hourPrices = ViewBag.HourPrices
         as Dictionary<long, decimal>
         ?? new Dictionary<long, decimal>();
+
+    var departments = ViewBag.Departments as List<Department>
+        ?? new List<Department>();
 }
 
 <style>
+
     .courses-page {
         color: #16263f;
     }
@@ -70,6 +72,8 @@
             color: #16263f;
         }
 
+    /* بطاقات الإحصائيات */
+
     .courses-stats {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -97,6 +101,8 @@
         font-weight: bold;
     }
 
+    /* تنسيق قائمة المقررات */
+
     .courses-table-card {
         background: white;
         border: 1px solid #e5eaf2;
@@ -120,6 +126,15 @@
             font-weight: bold;
         }
 
+    /* البحث والفلترة */
+
+    .courses-filters {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
     .courses-search {
         width: 280px;
         max-width: 100%;
@@ -129,9 +144,25 @@
         outline: none;
     }
 
-        .courses-search:focus {
+    .courses-filters select {
+        width: 240px;
+        max-width: 100%;
+        padding: 11px 14px;
+        border: 1px solid #d9e1eb;
+        border-radius: 9px;
+        background: white;
+        color: #16263f;
+        outline: none;
+        cursor: pointer;
+    }
+
+        .courses-search:focus,
+        .courses-filters select:focus {
             border-color: #c8a66a;
+            box-shadow: 0 0 0 3px rgba(200, 166, 106, 0.12);
         }
+
+    /* الجدول */
 
     .courses-table {
         width: 100%;
@@ -139,23 +170,33 @@
     }
 
         .courses-table th {
-            background: #f8f9fc;
-            color: #42536c;
+            background: #16263f;
+            color: #ffffff;
             padding: 17px;
             text-align: right;
-            font-size: 13px;
+            font-size: 14px;
+            font-weight: bold;
             white-space: nowrap;
         }
 
         .courses-table td {
-            padding: 17px;
-            border-top: 1px solid #edf0f5;
+            padding: 15px 17px;
+            border-top: 1px solid #e5eaf2;
             vertical-align: middle;
+            color: #16263f;
+            font-size: 14px;
         }
 
-        .courses-table tbody tr:hover {
-            background: #fcfcfe;
+        .courses-table tbody tr {
+            background: #ffffff;
+            transition: background 0.2s ease;
         }
+
+            .courses-table tbody tr:hover {
+                background: #f8f9fc;
+            }
+
+    /* رمز المقرر */
 
     .courses-code {
         display: inline-block;
@@ -167,6 +208,8 @@
         direction: ltr;
     }
 
+    /* الساعات */
+
     .courses-hours {
         display: inline-block;
         background: #f8f2e7;
@@ -177,6 +220,7 @@
     }
 
     /* سعر الساعة */
+
     .courses-price {
         display: inline-block;
         background: #eaf5ee;
@@ -197,6 +241,8 @@
         white-space: nowrap;
     }
 
+    /* الفصل الدراسي */
+
     .courses-semester-note {
         background: #fff9ed;
         color: #826329;
@@ -207,19 +253,30 @@
         line-height: 1.8;
     }
 
+    /* أزرار الإجراءات */
+
     .courses-actions {
         display: flex;
         gap: 8px;
         flex-wrap: wrap;
+        align-items: center;
     }
 
     .courses-action-link {
-        padding: 7px 11px;
-        border-radius: 7px;
+        padding: 9px 13px;
+        border-radius: 9px;
         text-decoration: none;
         font-size: 13px;
+        font-weight: 600;
         background: #eef2f8;
-        color: #304661;
+        color: #16263f;
+        border: 1px solid transparent;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        white-space: nowrap;
+        transition: 0.2s;
     }
 
         .courses-action-link:hover {
@@ -227,15 +284,28 @@
             color: #16263f;
         }
 
+    .courses-action-edit {
+        background: #c8a66a;
+        color: #16263f;
+    }
+
+        .courses-action-edit:hover {
+            background: #b79557;
+            color: #16263f;
+        }
+
     .courses-action-delete {
         background: #fff0ee;
         color: #b42318;
+        border: 1px solid #f5c9c5;
     }
 
         .courses-action-delete:hover {
             background: #ffe1dc;
             color: #912018;
         }
+
+    /* لا توجد نتائج */
 
     .courses-empty {
         padding: 45px 20px;
@@ -250,7 +320,10 @@
             margin-bottom: 12px;
         }
 
+    /* الشاشات الصغيرة */
+
     @@media (max-width: 800px) {
+
         .courses-stats {
             grid-template-columns: 1fr;
         }
@@ -259,11 +332,25 @@
             min-width: 900px;
         }
     }
+
+    @@media (max-width: 600px) {
+
+        .courses-filters {
+            width: 100%;
+        }
+
+            .courses-filters select,
+            .courses-filters input {
+                width: 100%;
+            }
+    }
+
 </style>
 
 <div class="courses-page" dir="rtl">
 
     <!-- عنوان الصفحة -->
+
     <div class="courses-header">
 
         <div>
@@ -289,9 +376,11 @@
     </div>
 
     <!-- بطاقات الإحصائيات -->
+
     <div class="courses-stats">
 
         <div class="courses-stat-card">
+
             <div class="courses-stat-label">
                 إجمالي المقررات
             </div>
@@ -299,9 +388,11 @@
             <div class="courses-stat-value">
                 @totalCourses
             </div>
+
         </div>
 
         <div class="courses-stat-card">
+
             <div class="courses-stat-label">
                 مجموع الساعات المعتمدة
             </div>
@@ -309,9 +400,11 @@
             <div class="courses-stat-value">
                 @totalHours
             </div>
+
         </div>
 
         <div class="courses-stat-card">
+
             <div class="courses-stat-label">
                 الأقسام المرتبطة بالمقررات
             </div>
@@ -319,11 +412,13 @@
             <div class="courses-stat-value">
                 @totalDepartments
             </div>
+
         </div>
 
     </div>
 
-    <!-- توضيح الفصل المعتمد لأسعار الساعات -->
+    <!-- الفصل الدراسي -->
+
     <div class="courses-semester-note">
 
         @if (activeSemester != null)
@@ -333,7 +428,9 @@
             <strong>أسعار الساعات المعروضة تخص الفصل:</strong>
 
             @activeSemester.Name
+
             <span> - </span>
+
             @activeSemester.AcademicYear
         }
         else
@@ -351,25 +448,49 @@
     </div>
 
     <!-- جدول المقررات -->
+
     <div class="courses-table-card">
 
         <div class="courses-table-header">
 
             <h3>قائمة المقررات</h3>
 
-            <input type="search"
-                   id="courseSearch"
-                   class="courses-search"
-                   placeholder="ابحث عن مقرر أو رمز أو قسم..." />
+            <div class="courses-filters">
+
+                <!-- فلترة الأقسام -->
+
+                <select id="departmentFilter">
+
+                    <option value="">
+                        جميع الأقسام
+                    </option>
+
+                    @foreach (var department in departments)
+                    {
+                        <option value="@department.Id">
+                            @department.Name
+                        </option>
+                    }
+
+                </select>
+
+                <!-- البحث -->
+
+                <input type="search"
+                       id="courseSearch"
+                       class="courses-search"
+                       placeholder="ابحث عن مقرر أو رمز أو قسم..." />
+
+            </div>
 
         </div>
 
         <div style="overflow-x:auto;">
 
-            <table class="courses-table"
-                   id="coursesTable">
+            <table class="courses-table" id="coursesTable">
 
                 <thead>
+
                     <tr>
                         <th>رمز المقرر</th>
                         <th>اسم المقرر</th>
@@ -378,6 +499,7 @@
                         <th>سعر الساعة</th>
                         <th>الإجراءات</th>
                     </tr>
+
                 </thead>
 
                 <tbody>
@@ -388,9 +510,11 @@
                             course.DepartmentId,
                             out decimal pricePerHour);
 
-                        <tr class="course-data-row">
+                        <tr class="course-data-row"
+                            data-department-id="@course.DepartmentId">
 
                             <!-- رمز المقرر -->
+
                             <td>
                                 <span class="courses-code">
                                     @course.Code
@@ -398,16 +522,19 @@
                             </td>
 
                             <!-- اسم المقرر -->
+
                             <td>
                                 <strong>@course.Name</strong>
                             </td>
 
                             <!-- القسم -->
+
                             <td>
                                 @(course.Department?.Name ?? "غير محدد")
                             </td>
 
-                            <!-- الساعات المعتمدة -->
+                            <!-- الساعات -->
+
                             <td>
                                 <span class="courses-hours">
                                     @course.CreditHours ساعات
@@ -415,6 +542,7 @@
                             </td>
 
                             <!-- سعر الساعة -->
+
                             <td>
 
                                 @if (hasPrice)
@@ -434,6 +562,7 @@
                             </td>
 
                             <!-- الإجراءات -->
+
                             <td>
 
                                 <div class="courses-actions">
@@ -442,7 +571,10 @@
                                        asp-action="Details"
                                        asp-route-id="@course.Id"
                                        class="courses-action-link">
-                                        تفاصيل
+
+                                        <i class="bi bi-eye"></i>
+                                        عرض التفاصيل
+
                                     </a>
 
                                     @if (isAdmin)
@@ -450,15 +582,21 @@
                                         <a asp-controller="Courses"
                                            asp-action="Edit"
                                            asp-route-id="@course.Id"
-                                           class="courses-action-link">
+                                           class="courses-action-link courses-action-edit">
+
+                                            <i class="bi bi-pencil-square"></i>
                                             تعديل
+
                                         </a>
 
                                         <a asp-controller="Courses"
                                            asp-action="Delete"
                                            asp-route-id="@course.Id"
                                            class="courses-action-link courses-action-delete">
+
+                                            <i class="bi bi-trash"></i>
                                             حذف
+
                                         </a>
                                     }
 
@@ -476,15 +614,20 @@
             @if (!courses.Any())
             {
                 <div class="courses-empty">
+
                     <i class="bi bi-journal-x"></i>
+
                     لا توجد مقررات دراسية مسجلة حاليًا.
+
                 </div>
             }
 
             <div id="noSearchResults"
                  class="courses-empty"
                  style="display:none;">
-                لا توجد مقررات مطابقة للبحث.
+
+                لا توجد مقررات مطابقة للبحث أو القسم المحدد.
+
             </div>
 
         </div>
@@ -493,11 +636,17 @@
 
 </div>
 
+<!-- البحث والفلترة -->
+
 <script>
+
     document.addEventListener("DOMContentLoaded", function () {
 
         const searchInput =
             document.getElementById("courseSearch");
+
+        const departmentFilter =
+            document.getElementById("departmentFilter");
 
         const rows =
             document.querySelectorAll(".course-data-row");
@@ -505,33 +654,63 @@
         const noResults =
             document.getElementById("noSearchResults");
 
-        if (!searchInput) return;
+        function filterCourses() {
 
-        searchInput.addEventListener("input", function () {
+            const searchTerm =
+                searchInput.value.trim().toLowerCase();
 
-            const term = this.value.trim().toLowerCase();
+            const selectedDepartment =
+                departmentFilter.value;
 
             let visibleCount = 0;
 
             rows.forEach(function (row) {
 
-                const text = row.textContent.toLowerCase();
+                const rowText =
+                    row.textContent.toLowerCase();
 
-                const matches = text.includes(term);
+                const departmentId =
+                    row.getAttribute("data-department-id");
 
-                row.style.display = matches ? "" : "none";
+                const matchesSearch =
+                    rowText.includes(searchTerm);
 
-                if (matches) {
+                const matchesDepartment =
+                    selectedDepartment === "" ||
+                    departmentId === selectedDepartment;
+
+                const showRow =
+                    matchesSearch && matchesDepartment;
+
+                row.style.display = showRow ? "" : "none";
+
+                if (showRow) {
                     visibleCount++;
                 }
+
             });
 
             if (noResults) {
+
                 noResults.style.display =
                     rows.length > 0 && visibleCount === 0
                         ? "block"
                         : "none";
+
             }
-        });
+
+        }
+
+        searchInput.addEventListener(
+            "input",
+            filterCourses
+        );
+
+        departmentFilter.addEventListener(
+            "change",
+            filterCourses
+        );
+
     });
+
 </script>

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -28,7 +29,16 @@ namespace StudentAffairsManagementSystem.Controllers
                 .OrderBy(c => c.Name)
                 .ToListAsync();
 
-            // الفصل الدراسي الفعّال المعتمد
+            // جلب جميع الأقسام الفعالة تلقائياً
+            var departments = await _context.Departments
+                .AsNoTracking()
+                .Where(d => d.IsActive)
+                .OrderBy(d => d.Name)
+                .ToListAsync();
+
+            ViewBag.Departments = departments;
+
+            // الفصل الدراسي الفعّال
             var activeSemester = await _context.Semesters
                 .AsNoTracking()
                 .Where(s => s.IsActive)
@@ -37,7 +47,7 @@ namespace StudentAffairsManagementSystem.Controllers
 
             ViewBag.ActiveSemester = activeSemester;
 
-            // ربط سعر الساعة بالقسم والفصل الفعّال
+            // أسعار الساعات حسب القسم والفصل الفعّال
             var hourPrices = new Dictionary<long, decimal>();
 
             if (activeSemester != null)
@@ -52,8 +62,6 @@ namespace StudentAffairsManagementSystem.Controllers
                     })
                     .ToListAsync();
 
-                // في حال وجود سجلات مكررة قديمة،
-                // نأخذ أول سعر لكل قسم دون تعطيل الصفحة.
                 hourPrices = prices
                     .GroupBy(h => h.DepartmentId)
                     .ToDictionary(
@@ -144,8 +152,7 @@ namespace StudentAffairsManagementSystem.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(long id)
         {
-            var course = await _context.Courses
-                .FindAsync(id);
+            var course = await _context.Courses.FindAsync(id);
 
             if (course == null)
                 return NotFound();
@@ -182,8 +189,7 @@ namespace StudentAffairsManagementSystem.Controllers
                 return View(model);
             }
 
-            var course = await _context.Courses
-                .FindAsync(id);
+            var course = await _context.Courses.FindAsync(id);
 
             if (course == null)
                 return NotFound();
@@ -236,13 +242,11 @@ namespace StudentAffairsManagementSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
-            var course = await _context.Courses
-                .FindAsync(id);
+            var course = await _context.Courses.FindAsync(id);
 
             if (course == null)
                 return NotFound();
 
-            // منع حذف مقرر مرتبط بطرح دراسي
             bool hasOfferings = await _context.CourseOfferings
                 .AnyAsync(o => o.CourseId == id);
 

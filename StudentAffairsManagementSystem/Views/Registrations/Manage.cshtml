@@ -1,0 +1,635 @@
+﻿@model List<StudentAffairsManagementSystem.Models.Registration>
+
+@{
+    ViewData["Title"] = "إدارة التسجيلات";
+
+    string search = ViewBag.Search as string ?? "";
+    string status = ViewBag.Status as string ?? "";
+
+    int total = ViewBag.TotalRegistrations is int t ? t : Model.Count;
+    int registered = ViewBag.RegisteredCount is int r
+        ? r
+        : Model.Count(x => x.Status == "Registered");
+    int cancelled = ViewBag.CancelledCount is int c
+        ? c
+        : Model.Count(x => x.Status == "Cancelled");
+}
+
+<style>
+    .manage-page {
+        direction: rtl;
+        color: #16263f;
+    }
+
+    .manage-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin-bottom: 25px;
+    }
+
+        .manage-header h2 {
+            font-size: 25px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .manage-header p {
+            color: #78869a;
+            margin-bottom: 0;
+        }
+
+    .manage-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        background: #c8a66a;
+        color: #16263f;
+        padding: 11px 19px;
+        border-radius: 9px;
+        font-weight: 700;
+        text-decoration: none;
+        border: none;
+    }
+
+        .manage-btn:hover {
+            background: #b79557;
+            color: #16263f;
+        }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 18px;
+        margin-bottom: 24px;
+    }
+
+    .stat-card {
+        background: white;
+        border: 1px solid #e5eaf2;
+        border-radius: 13px;
+        padding: 22px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        box-shadow: 0 3px 12px rgba(20,40,70,.04);
+    }
+
+    .stat-icon {
+        width: 52px;
+        height: 52px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        background: #eef2f8;
+        color: #16263f;
+        flex-shrink: 0;
+    }
+
+        .stat-icon.success {
+            background: #e8f6ee;
+            color: #218653;
+        }
+
+        .stat-icon.cancelled {
+            background: #fff0ec;
+            color: #bf5543;
+        }
+
+    .stat-card .stat-label {
+        color: #7b8797;
+        font-size: 13px;
+        margin-bottom: 6px;
+    }
+
+    .stat-card .stat-value {
+        font-size: 27px;
+        font-weight: 700;
+        line-height: 1.2;
+    }
+
+    .manage-panel {
+        background: white;
+        border: 1px solid #e5eaf2;
+        border-radius: 14px;
+        overflow: hidden;
+        box-shadow: 0 3px 12px rgba(20,40,70,.04);
+    }
+
+    .manage-panel-title {
+        background: #16263f;
+        color: white;
+        padding: 18px 22px;
+        font-size: 17px;
+        font-weight: 700;
+    }
+
+    .manage-panel-body {
+        padding: 24px;
+    }
+
+    .filter-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 2fr) minmax(180px, 1fr) auto;
+        gap: 15px;
+        align-items: end;
+    }
+
+        .filter-grid label {
+            display: block;
+            margin-bottom: 9px;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .filter-grid .form-control,
+        .filter-grid .form-select {
+            border: 1px solid #dce3ee;
+            border-radius: 9px;
+            min-height: 45px;
+            color: #16263f;
+        }
+
+            .filter-grid .form-control:focus,
+            .filter-grid .form-select:focus {
+                border-color: #c8a66a;
+                box-shadow: 0 0 0 .2rem rgba(200,166,106,.15);
+            }
+
+    .filter-actions {
+        display: flex;
+        gap: 9px;
+    }
+
+    .reset-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        padding: 10px 16px;
+        min-height: 45px;
+        border: 1px solid #dce3ee;
+        border-radius: 9px;
+        background: white;
+        color: #42536c;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
+        .reset-btn:hover {
+            background: #f4f6fa;
+            color: #16263f;
+        }
+
+    .table-container {
+        overflow-x: auto;
+    }
+
+    .registrations-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 950px;
+        margin-bottom: 0;
+    }
+
+        .registrations-table thead {
+            background: #f3f6fb;
+        }
+
+        .registrations-table th {
+            color: #42536c;
+            padding: 16px 13px;
+            font-size: 13px;
+            font-weight: 700;
+            white-space: nowrap;
+            text-align: right;
+        }
+
+        .registrations-table td {
+            padding: 16px 13px;
+            border-top: 1px solid #edf0f5;
+            vertical-align: middle;
+            font-size: 13px;
+        }
+
+        .registrations-table tbody tr:hover {
+            background: #fafbfd;
+        }
+
+    .student-name {
+        font-weight: 700;
+        margin-bottom: 5px;
+    }
+
+    .secondary-text {
+        color: #7b8797;
+        font-size: 12px;
+    }
+
+    .status-badge {
+        display: inline-block;
+        border-radius: 20px;
+        padding: 7px 13px;
+        font-size: 12px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .status-registered {
+        background: #e8f6ee;
+        color: #218653;
+    }
+
+    .status-cancelled {
+        background: #fff0ec;
+        color: #bf5543;
+    }
+
+    .status-other {
+        background: #edf0f5;
+        color: #52627a;
+    }
+
+    .table-actions {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        flex-wrap: wrap;
+    }
+
+    .action-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border: 1px solid #dce3ee;
+        border-radius: 7px;
+        padding: 7px 10px;
+        color: #16263f;
+        background: white;
+        text-decoration: none;
+        font-size: 12px;
+        white-space: nowrap;
+    }
+
+        .action-link:hover {
+            background: #f3f6fb;
+            color: #16263f;
+        }
+
+    .empty-state {
+        text-align: center;
+        padding: 55px 20px;
+        color: #7b8797;
+    }
+
+        .empty-state i {
+            display: block;
+            font-size: 45px;
+            color: #b8c3d2;
+            margin-bottom: 15px;
+        }
+
+    .results-footer {
+        border-top: 1px solid #edf0f5;
+        padding: 15px 22px;
+        color: #7b8797;
+        font-size: 13px;
+    }
+
+    @@media (max-width: 900px) {
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .filter-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .filter-actions {
+            flex-wrap: wrap;
+        }
+    }
+</style>
+
+<div class="container-fluid py-4 manage-page">
+
+    <div class="manage-header">
+        <div>
+            <h2>إدارة التسجيلات الدراسية</h2>
+            <p>
+                استعراض تسجيلات الطلاب في المقررات الدراسية
+                والبحث فيها ومتابعة حالاتها.
+            </p>
+        </div>
+
+        <a asp-controller="Registrations"
+           asp-action="Index"
+           class="manage-btn">
+            <i class="bi bi-plus-circle"></i>
+            تسجيل مقرر لطالب
+        </a>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success" role="alert">
+            @TempData["Success"]
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger" role="alert">
+            @TempData["Error"]
+        </div>
+    }
+
+    <div class="stats-grid">
+
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="bi bi-collection"></i>
+            </div>
+
+            <div>
+                <div class="stat-label">إجمالي نتائج البحث</div>
+                <div class="stat-value">@total</div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon success">
+                <i class="bi bi-check-circle"></i>
+            </div>
+
+            <div>
+                <div class="stat-label">التسجيلات الفعالة ضمن النتائج</div>
+                <div class="stat-value">@registered</div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon cancelled">
+                <i class="bi bi-x-circle"></i>
+            </div>
+
+            <div>
+                <div class="stat-label">التسجيلات الملغاة ضمن النتائج</div>
+                <div class="stat-value">@cancelled</div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="manage-panel mb-4">
+
+        <div class="manage-panel-title">
+            <i class="bi bi-search ms-2"></i>
+            البحث والتصفية
+        </div>
+
+        <div class="manage-panel-body">
+
+            <form asp-controller="Registrations"
+                  asp-action="Manage"
+                  method="get">
+
+                <div class="filter-grid">
+
+                    <div>
+                        <label for="search">
+                            البحث عن تسجيل
+                        </label>
+
+                        <input type="text"
+                               id="search"
+                               name="search"
+                               value="@search"
+                               class="form-control"
+                               placeholder="الرقم الجامعي أو اسم الطالب أو المقرر أو رمزه" />
+                    </div>
+
+                    <div>
+                        <label for="status">
+                            حالة التسجيل
+                        </label>
+
+                        <select id="status"
+                                name="status"
+                                class="form-select">
+
+                            <option value=""
+                                    selected="@(string.IsNullOrEmpty(status))">
+                                جميع الحالات
+                            </option>
+
+                            <option value="Registered"
+                                    selected="@(status == "Registered")">
+                                مسجل
+                            </option>
+
+                            <option value="Cancelled"
+                                    selected="@(status == "Cancelled")">
+                                ملغى
+                            </option>
+
+                        </select>
+                    </div>
+
+                    <div class="filter-actions">
+
+                        <button type="submit"
+                                class="manage-btn">
+                            <i class="bi bi-search"></i>
+                            بحث
+                        </button>
+
+                        <a asp-controller="Registrations"
+                           asp-action="Manage"
+                           class="reset-btn">
+                            <i class="bi bi-arrow-counterclockwise"></i>
+                            إعادة تعيين
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+    <div class="manage-panel">
+
+        <div class="manage-panel-title">
+            <i class="bi bi-card-list ms-2"></i>
+            سجل التسجيلات الدراسية
+        </div>
+
+        <div class="table-container">
+
+            @if (Model.Count > 0)
+            {
+                <table class="registrations-table">
+
+                    <thead>
+                        <tr>
+                            <th>الطالب</th>
+                            <th>الرقم الجامعي</th>
+                            <th>المقرر الدراسي</th>
+                            <th>رمز المقرر</th>
+                            <th>الفصل الدراسي</th>
+                            <th>تاريخ التسجيل</th>
+                            <th>الحالة</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        @foreach (var item in Model)
+                        {
+                            var student = item.Student;
+                            var offering = item.CourseOffering;
+                            var course = offering?.Course;
+                            var semester = offering?.Semester;
+
+                            string studentName = student == null
+                                ? "غير متاح"
+                                : string.Join(" ", new[]
+                                {
+                                    student.FirstName,
+                                    student.FatherName,
+                                    student.LastName
+                                }.Where(x => !string.IsNullOrWhiteSpace(x)));
+
+                            <tr>
+
+                                <td>
+                                    <div class="student-name">
+                                        @studentName
+                                    </div>
+                                </td>
+
+                                <td>
+                                    @(student?.UniversityNumber ?? "—")
+                                </td>
+
+                                <td>
+                                    @(course?.Name ?? "—")
+                                </td>
+
+                                <td>
+                                    @(course?.Code ?? "—")
+                                </td>
+
+                                <td>
+                                    @if (semester != null)
+                                    {
+                                        <div>
+                                            @semester.Name
+                                        </div>
+
+                                        <div class="secondary-text">
+                                            @semester.AcademicYear
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <span>—</span>
+                                    }
+                                </td>
+
+                                <td>
+                                    @item.RegisteredAt.ToLocalTime().ToString("yyyy/MM/dd")
+                                </td>
+
+                                <td>
+                                    @if (item.Status == "Registered")
+                                    {
+                                        <span class="status-badge status-registered">
+                                            مسجل
+                                        </span>
+                                    }
+                                    else if (item.Status == "Cancelled")
+                                    {
+                                        <span class="status-badge status-cancelled">
+                                            ملغى
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="status-badge status-other">
+                                            @item.Status
+                                        </span>
+                                    }
+                                </td>
+
+                                <td>
+                                    <div class="table-actions">
+
+                                        <a asp-controller="Registrations"
+                                           asp-action="Details"
+                                           asp-route-id="@item.Id"
+                                           class="action-link">
+
+                                            <i class="bi bi-eye"></i>
+                                            التفاصيل
+
+                                        </a>
+
+                                        @if (student != null && !student.IsDeleted)
+                                        {
+                                            <a asp-controller="Registrations"
+                                               asp-action="StudentCourses"
+                                               asp-route-universityNumber="@student.UniversityNumber"
+                                               class="action-link">
+
+                                                <i class="bi bi-journal-text"></i>
+                                                مقررات الطالب
+
+                                            </a>
+                                        }
+
+                                    </div>
+                                </td>
+
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+            }
+            else
+            {
+                <div class="empty-state">
+
+                    <i class="bi bi-inbox"></i>
+
+                    <h5>لا توجد تسجيلات مطابقة</h5>
+
+                    <p>
+                        لا توجد تسجيلات مطابقة لمعايير البحث المحددة،
+                        أو لم تُسجَّل أي مقررات دراسية بعد.
+                    </p>
+
+                </div>
+            }
+
+        </div>
+
+        <div class="results-footer">
+            عدد السجلات المعروضة: @Model.Count
+        </div>
+
+    </div>
+
+</div>

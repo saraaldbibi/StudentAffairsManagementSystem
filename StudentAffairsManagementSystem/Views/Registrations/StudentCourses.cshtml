@@ -1,0 +1,862 @@
+﻿@model StudentAffairsManagementSystem.Models.Student
+
+@using StudentAffairsManagementSystem.Models
+@using System.Text.Json
+
+@{
+    ViewData["Title"] = "إدارة مقررات الطالب";
+
+    var semester = ViewBag.ActiveSemester as Semester;
+
+    var registrations = ViewBag.Registrations
+        as List<Registration> ?? new List<Registration>();
+
+    var offerings = ViewBag.Offerings
+        as List<CourseOffering> ?? new List<CourseOffering>();
+
+    var registeredCounts = ViewBag.RegisteredCounts
+        as Dictionary<long, int> ?? new Dictionary<long, int>();
+
+    bool registrationOpen =
+        ViewBag.IsRegistrationOpen is bool value && value;
+
+    decimal? pricePerHour =
+        ViewBag.PricePerHour is decimal price ? price : null;
+
+    int totalHours =
+        ViewBag.TotalHours is int hours ? hours : 0;
+
+    decimal? estimatedFees =
+        ViewBag.EstimatedFees is decimal fees ? fees : null;
+
+    var activeRegistrations = registrations
+        .Where(r => r.Status == "Registered")
+        .ToList();
+
+    var registeredCourseIds = activeRegistrations
+        .Select(r => r.CourseOffering.CourseId)
+        .ToHashSet();
+
+    string fullName = string.Join(" ", new[]
+    {
+        Model.FirstName,
+        Model.FatherName,
+        Model.LastName
+    }.Where(x => !string.IsNullOrWhiteSpace(x)));
+
+    var offeringOptions = offerings.Select(o =>
+    {
+        int registeredCount =
+            registeredCounts.GetValueOrDefault(o.Id);
+
+        int remainingSeats = Math.Max(
+            0,
+            o.Capacity - registeredCount);
+
+        return new
+        {
+            id = o.Id,
+            name = o.Course.Name,
+            code = o.Course.Code,
+            hours = o.Course.CreditHours,
+            remainingSeats,
+            alreadyRegistered =
+                registeredCourseIds.Contains(o.CourseId)
+        };
+    }).ToList();
+
+    string offeringsJson = JsonSerializer.Serialize(
+        offeringOptions,
+        new JsonSerializerOptions
+        {
+            PropertyNamingPolicy =
+                JsonNamingPolicy.CamelCase
+        });
+}
+
+<style>
+    .student-management-page {
+        direction: rtl;
+        color: #142d4e;
+    }
+
+    .student-page-heading {
+        margin-bottom: 24px;
+    }
+
+        .student-page-heading h2 {
+            color: #142d4e;
+            font-size: 27px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .student-page-heading p {
+            color: #718096;
+            margin-bottom: 0;
+        }
+
+    .student-management-card {
+        background: #fff;
+        border: 1px solid #e2e7ee;
+        border-radius: 12px;
+        overflow: hidden;
+        margin-bottom: 24px;
+        box-shadow: 0 3px 12px rgba(20,45,78,.04);
+    }
+
+    .student-card-heading {
+        background: #142d4e;
+        color: #fff;
+        padding: 16px 22px;
+        font-size: 17px;
+        font-weight: 700;
+    }
+
+    .student-card-content {
+        padding: 24px;
+    }
+
+    .student-info-label {
+        font-size: 13px;
+        color: #718096;
+        margin-bottom: 7px;
+    }
+
+    .student-info-value {
+        font-weight: 700;
+        font-size: 16px;
+    }
+
+    .student-field-label {
+        font-weight: 700;
+        margin-bottom: 9px;
+        display: block;
+    }
+
+    .student-field {
+        width: 100%;
+        min-height: 46px;
+        padding: 10px 14px;
+        border: 1px solid #d6dee9;
+        border-radius: 8px;
+        background: #fff;
+        color: #142d4e;
+    }
+
+        .student-field:focus {
+            outline: none;
+            border-color: #c9a24d;
+            box-shadow: 0 0 0 3px rgba(201,162,77,.14);
+        }
+
+        .student-field:disabled {
+            background: #f2f4f7;
+        }
+
+    .student-primary-button {
+        background: #c9a24d;
+        color: #142d4e;
+        border: none;
+        border-radius: 8px;
+        padding: 11px 24px;
+        font-weight: 800;
+        min-height: 45px;
+    }
+
+        .student-primary-button:hover:not(:disabled) {
+            background: #b99343;
+        }
+
+        .student-primary-button:disabled {
+            background: #e7e9ed;
+            color: #7b8492;
+        }
+
+    .student-course-preview {
+        background: #f8f9fc;
+        border: 1px solid #e2e7ee;
+        border-radius: 9px;
+        padding: 17px;
+        margin-top: 20px;
+    }
+
+    .student-summary-card {
+        background: #fff;
+        border: 1px solid #e2e7ee;
+        border-top: 3px solid #c9a24d;
+        border-radius: 10px;
+        padding: 20px;
+        height: 100%;
+    }
+
+    .student-summary-label {
+        font-size: 13px;
+        color: #718096;
+        margin-bottom: 8px;
+    }
+
+    .student-summary-value {
+        font-size: 24px;
+        font-weight: 800;
+        color: #142d4e;
+    }
+
+    .student-table-wrapper {
+        overflow-x: auto;
+    }
+
+    .student-registration-table {
+        width: 100%;
+        min-width: 900px;
+        border-collapse: collapse;
+        text-align: right;
+    }
+
+        .student-registration-table th {
+            background: #f1f4f8;
+            color: #142d4e;
+            padding: 14px;
+            font-weight: 800;
+            font-size: 13px;
+            border-bottom: 2px solid #dbe2eb;
+            white-space: nowrap;
+        }
+
+        .student-registration-table td {
+            padding: 15px 14px;
+            border-bottom: 1px solid #e9edf2;
+            vertical-align: middle;
+        }
+
+        .student-registration-table tbody tr:nth-child(even) {
+            background: #f8f9fb;
+        }
+
+        .student-registration-table tbody tr:hover {
+            background: #f1f4f8;
+        }
+
+    .student-course-code {
+        display: inline-block;
+        background: #edf1f7;
+        color: #354b69;
+        border-radius: 6px;
+        padding: 5px 9px;
+        font-weight: 700;
+    }
+
+    .student-status-badge {
+        display: inline-block;
+        border-radius: 6px;
+        padding: 6px 10px;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+        .student-status-badge.registered {
+            background: #e8f5ee;
+            color: #176a42;
+        }
+
+        .student-status-badge.cancelled {
+            background: #f0f1f4;
+            color: #6c7480;
+        }
+
+    .student-cancel-button {
+        background: #fff1f0;
+        color: #b13c35;
+        border: 1px solid #edceca;
+        border-radius: 7px;
+        padding: 8px 13px;
+        font-weight: 700;
+    }
+
+    .student-reactivate-button {
+        background: #e8f5ee;
+        color: #176a42;
+        border: 1px solid #b9dfca;
+        border-radius: 7px;
+        padding: 8px 13px;
+        font-weight: 700;
+    }
+
+    .student-empty-state {
+        padding: 28px;
+        text-align: center;
+        color: #718096;
+    }
+</style>
+
+<div class="container-fluid py-4 student-management-page">
+
+    <!-- عنوان الصفحة -->
+    <div class="d-flex justify-content-between
+        align-items-center flex-wrap gap-3
+        student-page-heading">
+
+        <div>
+            <h2>إدارة مقررات الطالب</h2>
+            <p>
+                عرض بيانات الطالب وإدارة تسجيل المقررات الدراسية
+            </p>
+        </div>
+
+        <a asp-controller="Registrations"
+           asp-action="Index"
+           class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-right"></i>
+            العودة إلى البحث عن الطلاب
+        </a>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["Success"]
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["Error"]
+        </div>
+    }
+
+    <!-- بيانات الطالب -->
+    <div class="student-management-card">
+
+        <div class="student-card-heading">
+            <i class="bi bi-person-vcard"></i>
+            البيانات الأكاديمية للطالب
+        </div>
+
+        <div class="student-card-content">
+            <div class="row g-4">
+
+                <div class="col-md-6 col-lg-3">
+                    <div class="student-info-label">
+                        الاسم الكامل
+                    </div>
+                    <div class="student-info-value">
+                        @fullName
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-3">
+                    <div class="student-info-label">
+                        الرقم الجامعي
+                    </div>
+                    <div class="student-info-value">
+                        @Model.UniversityNumber
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-3">
+                    <div class="student-info-label">
+                        الكلية
+                    </div>
+                    <div class="student-info-value">
+                        @(Model.Department?.Faculty?.Name ?? "غير محددة")
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-3">
+                    <div class="student-info-label">
+                        القسم الأكاديمي
+                    </div>
+                    <div class="student-info-value">
+                        @(Model.Department?.Name ?? "غير محدد")
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- الفصل وفترة التسجيل -->
+    <div class="alert @(registrationOpen
+         ? "alert-success"
+         : "alert-warning") mb-4">
+
+        <strong>
+            @(registrationOpen
+                ? "تسجيل المقررات متاح حاليًا"
+                : "تسجيل المقررات غير متاح حاليًا")
+        </strong>
+
+        @if (semester != null)
+        {
+            <div class="mt-2">
+                الفصل الدراسي:
+                <strong>
+                    @semester.Name - @semester.AcademicYear
+                </strong>
+            </div>
+
+            @if (semester.RegistrationStartDate.HasValue &&
+                 semester.RegistrationEndDate.HasValue)
+            {
+                <div class="mt-1">
+                    فترة التسجيل:
+                    @semester.RegistrationStartDate.Value.ToString("yyyy/MM/dd HH:mm")
+                    -
+                    @semester.RegistrationEndDate.Value.ToString("yyyy/MM/dd HH:mm")
+                </div>
+            }
+        }
+        else
+        {
+            <div class="mt-2">
+                لا يوجد فصل دراسي فعّال.
+            </div>
+        }
+    </div>
+
+    <!-- إضافة مقرر -->
+    <div class="student-management-card">
+
+        <div class="student-card-heading">
+            <i class="bi bi-plus-circle"></i>
+            تسجيل مقرر دراسي
+        </div>
+
+        <div class="student-card-content">
+
+            <form asp-controller="Registrations"
+                  asp-action="Create"
+                  method="post"
+                  id="registrationForm">
+
+                @Html.AntiForgeryToken()
+
+                <input type="hidden"
+                       name="StudentId"
+                       value="@Model.Id" />
+
+                <div class="row g-3">
+
+                    <div class="col-md-6">
+                        <label for="CourseOfferingId"
+                               class="student-field-label">
+                            المقرر الدراسي
+                        </label>
+
+                        <select id="CourseOfferingId"
+                                name="CourseOfferingId"
+                                class="student-field"
+                                required>
+                            <option value="">
+                                -- اختر المقرر الدراسي --
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="courseSearch"
+                               class="student-field-label">
+                            البحث عن مقرر
+                        </label>
+
+                        <input type="search"
+                               id="courseSearch"
+                               class="student-field"
+                               placeholder="البحث باسم المقرر أو رمزه"
+                               autocomplete="off" />
+                        <div id="courseSearchStatus"
+                             class="small text-muted mt-2"
+                             role="status"
+                             aria-live="polite"></div>
+                    </div>
+
+                </div>
+
+                <!-- تفاصيل المقرر -->
+                <div class="student-course-preview"
+                     id="coursePreview"
+                     style="display:none;">
+
+                    <div class="row g-3">
+
+                        <div class="col-md-4">
+                            <div class="student-info-label">
+                                رمز المقرر
+                            </div>
+                            <strong id="previewCode">—</strong>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="student-info-label">
+                                الساعات المعتمدة
+                            </div>
+                            <strong id="previewHours">—</strong>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="student-info-label">
+                                المقاعد المتاحة
+                            </div>
+                            <strong id="previewSeats">—</strong>
+                        </div>
+
+                    </div>
+
+                    <div id="courseMessage"
+                         class="small mt-3"></div>
+
+                </div>
+
+                <div class="d-flex justify-content-end mt-4">
+
+                    <button type="submit"
+                            id="registerButton"
+                            class="student-primary-button"
+                            disabled>
+                        <i class="bi bi-plus-circle"></i>
+                        تسجيل المقرر
+                    </button>
+
+                </div>
+
+            </form>
+
+            @if (!offerings.Any())
+            {
+                <div class="student-empty-state">
+                    لا توجد مقررات مطروحة لقسم الطالب
+                    في الفصل الدراسي الحالي.
+                </div>
+            }
+
+        </div>
+    </div>
+
+    <!-- الملخص -->
+    <div class="row g-3 mb-4">
+
+        <div class="col-md-4">
+            <div class="student-summary-card">
+                <div class="student-summary-label">
+                    عدد المقررات المسجلة
+                </div>
+                <div class="student-summary-value">
+                    @activeRegistrations.Count
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="student-summary-card">
+                <div class="student-summary-label">
+                    مجموع الساعات المعتمدة
+                </div>
+                <div class="student-summary-value">
+                    @totalHours
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="student-summary-card">
+                <div class="student-summary-label">
+                    إجمالي الرسوم
+                </div>
+                <div class="student-summary-value">
+                    @(estimatedFees.HasValue
+                        ? estimatedFees.Value.ToString("N2")
+                        : "غير محددة")
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- المقررات المسجلة -->
+    <div class="student-management-card">
+
+        <div class="student-card-heading">
+            <i class="bi bi-journal-check"></i>
+            المقررات المسجلة
+            (@activeRegistrations.Count)
+        </div>
+
+        <div class="student-card-content">
+
+            @if (!registrations.Any())
+            {
+                <div class="student-empty-state">
+                    لا توجد تسجيلات للطالب في الفصل الدراسي الحالي.
+                </div>
+            }
+            else
+            {
+                <div class="student-table-wrapper">
+
+                    <table class="student-registration-table">
+
+                        <thead>
+                            <tr>
+                                <th>اسم المقرر</th>
+                                <th>رمز المقرر</th>
+                                <th>الساعات</th>
+                                <th>سعر الساعة</th>
+                                <th>تكلفة المقرر</th>
+                                <th>تاريخ التسجيل</th>
+                                <th>الحالة</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            @foreach (var registration in registrations)
+                            {
+                                var course =
+                                    registration.CourseOffering.Course;
+
+                                bool isRegistered =
+                                    registration.Status == "Registered";
+
+                                decimal? courseCost =
+                                    pricePerHour.HasValue
+                                    ? course.CreditHours *
+                                      pricePerHour.Value
+                                    : null;
+
+                                <tr>
+
+                                    <td>
+                                        <strong>@course.Name</strong>
+                                    </td>
+
+                                    <td>
+                                        <span class="student-course-code">
+                                            @course.Code
+                                        </span>
+                                    </td>
+
+                                    <td>@course.CreditHours</td>
+
+                                    <td>
+                                        @(pricePerHour.HasValue
+                                            ? pricePerHour.Value.ToString("N2")
+                                            : "غير محدد")
+                                    </td>
+
+                                    <td>
+                                        @(courseCost.HasValue
+                                            ? courseCost.Value.ToString("N2")
+                                            : "غير محددة")
+                                    </td>
+
+                                    <td>
+                                        @registration.RegisteredAt.ToString("yyyy/MM/dd")
+                                    </td>
+
+                                    <td>
+                                        <span class="student-status-badge
+                                            @(isRegistered
+  ? "registered"
+  : "cancelled")">
+
+                                            @(isRegistered
+                                                ? "مسجل"
+                                                : "ملغى")
+
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        @if (isRegistered)
+                                        {
+                                            <form asp-controller="Registrations"
+                                                  asp-action="Cancel"
+                                                  asp-route-id="@registration.Id"
+                                                  method="post"
+                                                  onsubmit="return confirm('هل تريد إلغاء تسجيل هذا المقرر؟');">
+
+                                                @Html.AntiForgeryToken()
+
+                                                <button type="submit"
+                                                        class="student-cancel-button">
+                                                    إلغاء التسجيل
+                                                </button>
+
+                                            </form>
+                                        }
+                                        else if (registrationOpen)
+                                        {
+                                            <form asp-controller="Registrations"
+                                                  asp-action="Reactivate"
+                                                  asp-route-id="@registration.Id"
+                                                  method="post">
+
+                                                @Html.AntiForgeryToken()
+
+                                                <button type="submit"
+                                                        class="student-reactivate-button">
+                                                    إعادة التفعيل
+                                                </button>
+
+                                            </form>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted small">
+                                                غير متاح
+                                            </span>
+                                        }
+                                    </td>
+
+                                </tr>
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+            }
+
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const offerings = @Html.Raw(offeringsJson);
+            const registrationOpen = @(registrationOpen ? "true" : "false");
+
+            const courseSelect = document.getElementById("CourseOfferingId");
+            const searchInput = document.getElementById("courseSearch");
+            const searchStatus = document.getElementById("courseSearchStatus");
+            const registerButton = document.getElementById("registerButton");
+            const preview = document.getElementById("coursePreview");
+            const previewCode = document.getElementById("previewCode");
+            const previewHours = document.getElementById("previewHours");
+            const previewSeats = document.getElementById("previewSeats");
+            const courseMessage = document.getElementById("courseMessage");
+            const form = document.getElementById("registrationForm");
+
+            function normalize(text) {
+                return String(text ?? "")
+                    .normalize("NFKC")
+                    .replace(/[\u064B-\u065F\u0670]/g, "")
+                    .replace(/[أإآ]/g, "ا")
+                    .replace(/ى/g, "ي")
+                    .replace(/ة/g, "ه")
+                    .replace(/\s+/g, " ")
+                    .trim()
+                    .toLocaleLowerCase();
+            }
+
+            function updateSelection() {
+                const selected = offerings.find(
+                    o => String(o.id) === courseSelect.value
+                );
+
+                registerButton.disabled = true;
+
+                if (!selected) {
+                    preview.style.display = "none";
+                    return;
+                }
+
+                preview.style.display = "block";
+                previewCode.textContent = selected.code;
+                previewHours.textContent = selected.hours;
+                previewSeats.textContent = selected.remainingSeats;
+                courseMessage.className = "small mt-3";
+
+                if (!registrationOpen) {
+                    courseMessage.textContent =
+                        "فترة تسجيل المقررات غير متاحة حاليًا.";
+                    courseMessage.classList.add("text-danger");
+                } else if (selected.alreadyRegistered) {
+                    courseMessage.textContent =
+                        "الطالب مسجل في هذا المقرر مسبقًا.";
+                    courseMessage.classList.add("text-warning");
+                } else if (selected.remainingSeats <= 0) {
+                    courseMessage.textContent =
+                        "لا توجد مقاعد شاغرة في هذا المقرر.";
+                    courseMessage.classList.add("text-danger");
+                } else {
+                    courseMessage.textContent = "المقرر متاح للتسجيل.";
+                    courseMessage.classList.add("text-success");
+                    registerButton.disabled = false;
+                }
+            }
+
+            function filterCourses() {
+                const term = normalize(searchInput.value);
+                const previousValue = courseSelect.value;
+
+                const filtered = offerings.filter(course =>
+                    normalize(course.name).includes(term) ||
+                    normalize(course.code).includes(term)
+                );
+
+                courseSelect.replaceChildren();
+
+                const placeholder = document.createElement("option");
+                placeholder.value = "";
+                placeholder.textContent = "-- اختر المقرر الدراسي --";
+                courseSelect.appendChild(placeholder);
+
+                for (const course of filtered) {
+                    const option = document.createElement("option");
+                    option.value = String(course.id);
+                    option.textContent = course.name + " - " + course.code;
+
+                    if (course.alreadyRegistered) {
+                        option.textContent += " (مسجل مسبقًا)";
+                    } else if (course.remainingSeats <= 0) {
+                        option.textContent += " (لا توجد مقاعد)";
+                    }
+
+                    courseSelect.appendChild(option);
+                }
+
+                if (filtered.length === 0) {
+                    placeholder.textContent = "-- لا توجد مقررات مطابقة --";
+                    courseSelect.disabled = true;
+                    searchStatus.textContent = term
+                        ? "لا توجد مقررات مطابقة للبحث ضمن الشعب المطروحة لقسم الطالب في الفصل الحالي."
+                        : "لا توجد مقررات مطروحة لقسم الطالب في الفصل الحالي.";
+                } else {
+                    courseSelect.disabled = false;
+                    searchStatus.textContent = term
+                        ? "عدد المقررات المطابقة: " + filtered.length
+                        : "عدد المقررات المتاحة للعرض: " + filtered.length;
+
+                    if (filtered.some(c => String(c.id) === previousValue)) {
+                        courseSelect.value = previousValue;
+                    } else if (term && filtered.length === 1) {
+                        // عند وجود نتيجة واحدة، نعرضها مباشرة دون الحاجة إلى فتح القائمة.
+                        courseSelect.value = String(filtered[0].id);
+                    } else {
+                        courseSelect.value = "";
+                    }
+                }
+
+                updateSelection();
+            }
+
+            courseSelect.addEventListener("change", updateSelection);
+            searchInput.addEventListener("input", filterCourses);
+
+            form.addEventListener("submit", function (event) {
+                updateSelection();
+                if (registerButton.disabled) {
+                    event.preventDefault();
+                }
+            });
+
+            filterCourses();
+        });
+    </script>
+}

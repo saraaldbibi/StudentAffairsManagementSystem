@@ -1,6 +1,8 @@
-﻿using System;
+﻿
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -56,7 +58,7 @@ namespace StudentAffairsManagementSystem.Controllers
         // ==========================================
         private IActionResult RedirectByRole(string role)
         {
-            // المدير
+            // المدير: دون تغيير
             if (role == "Admin")
             {
                 return RedirectToAction(
@@ -64,15 +66,15 @@ namespace StudentAffairsManagementSystem.Controllers
                     "AdminDashboard");
             }
 
-            // الموظف
+            // الموظف: فتح إدارة التسجيلات تلقائيًا
             if (role == "Employee")
             {
                 return RedirectToAction(
-                    "Index",
+                    "Manage",
                     "Registrations");
             }
 
-            // الطالب
+            // الطالب: دون تغيير
             if (role == "Student")
             {
                 return RedirectToAction(
@@ -91,7 +93,7 @@ namespace StudentAffairsManagementSystem.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Login()
         {
-            // إذا كان المستخدم مسجل الدخول مسبقاً
+            // إذا كان المستخدم مسجل الدخول مسبقًا
             if (User.Identity?.IsAuthenticated == true)
             {
                 var currentUser =
@@ -176,7 +178,7 @@ namespace StudentAffairsManagementSystem.Controllers
             {
                 ModelState.AddModelError(
                     string.Empty,
-                    "الحساب مقفل مؤقتاً بسبب " +
+                    "الحساب مقفل مؤقتًا بسبب " +
                     "محاولات دخول متكررة");
 
                 return View(model);
@@ -208,7 +210,7 @@ namespace StudentAffairsManagementSystem.Controllers
             var identityRoles =
                 await _userManager.GetRolesAsync(user);
 
-            // يجب أن يمتلك الحساب دوراً واحداً فقط
+            // يجب أن يمتلك الحساب دورًا واحدًا فقط
             if (identityRoles.Count != 1 ||
                 !AllowedRoles.Contains(identityRoles[0]))
             {

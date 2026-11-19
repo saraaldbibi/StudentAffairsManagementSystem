@@ -1,5 +1,6 @@
 ﻿
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
@@ -20,28 +21,240 @@ namespace StudentAffairsManagementSystem.Controllers
         private const string Registered = "Registered";
         private const string Cancelled = "Cancelled";
 
-        public RegistrationsController(ApplicationDbContext context)
+        public RegistrationsController(
+            ApplicationDbContext context)
         {
             _context = context;
         }
 
-        // عرض جميع التسجيلات، بما فيها التسجيلات الملغاة
-        public async Task<IActionResult> Index()
+        // ==========================================
+        // التحقق من فترة التسجيل المعتمدة
+        // ==========================================
+        private static bool IsRegistrationOpen(
+            Semester? semester)
         {
-            var registrations = await _context.Registrations
+            if (semester == null ||
+                !semester.IsActive ||
+                !semester.IsRegistrationOpen ||
+                !semester.RegistrationStartDate.HasValue ||
+                !semester.RegistrationEndDate.HasValue)
+            {
+                return false;
+            }
+
+            // يجب أن يتوافق توقيت الخادم مع توقيت الجامعة
+            DateTime now = DateTime.Now;
+
+            return now >= semester.RegistrationStartDate.Value &&
+                   now <= semester.RegistrationEndDate.Value;
+        }
+
+        // ==========================================
+        // الحصول على الفصل الدراسي الفعال
+        // ==========================================
+        private async Task<Semester?> GetActiveSemesterAsync()
+        {
+            return await _context.Semesters
+                .AsNoTracking()
+                .Where(s => s.IsActive)
+                .OrderByDescending(s => s.StartDate)
+                .FirstOrDefaultAsync();
+        }
+
+        // ==========================================
+        // تسجيل المقررات: البحث عن الطالب
+        // GET: /Registrations
+        // ==========================================
+        [HttpGet]
+        public IActionResult Index()
+        {
+            return View();
+        }
+
+        // ==========================================
+        // إدارة التسجيلات: صفحة مستقلة
+        // GET: /Registrations/Manage
+        // ==========================================
+        [HttpGet]
+        public async Task<IActionResult> Manage(
+            string? search,
+            string? status)
+        {
+            search = search?.Trim();
+            status = status?.Trim();
+
+            var query = _context.Registrations
                 .Include(r => r.Student)
                 .Include(r => r.CourseOffering)
                     .ThenInclude(o => o.Course)
                 .Include(r => r.CourseOffering)
                     .ThenInclude(o => o.Semester)
                 .AsNoTracking()
+                .AsQueryable();
+
+            // البحث بالرقم الجامعي أو اسم الطالب أو المقرر
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                query = query.Where(r =>
+                    r.Student.UniversityNumber.Contains(search) ||
+                    r.Student.FirstName.Contains(search) ||
+                    r.Student.LastName.Contains(search) ||
+                    r.CourseOffering.Course.Name.Contains(search) ||
+                    r.CourseOffering.Course.Code.Contains(search));
+            }
+
+            // التصفية حسب حالة التسجيل
+            if (status == Registered || status == Cancelled)
+            {
+                query = query.Where(r => r.Status == status);
+            }
+
+            var registrations = await query
                 .OrderByDescending(r => r.RegisteredAt)
+                .ThenBy(r => r.Student.UniversityNumber)
                 .ToListAsync();
+
+            ViewBag.Search = search;
+            ViewBag.Status = status;
+
+            // الإحصائيات تخص نتائج البحث الحالية
+            ViewBag.TotalRegistrations = registrations.Count;
+
+            ViewBag.RegisteredCount = registrations.Count(
+                r => r.Status == Registered);
+
+            ViewBag.CancelledCount = registrations.Count(
+                r => r.Status == Cancelled);
 
             return View(registrations);
         }
 
-        // عرض تفاصيل تسجيل
+        // ==========================================
+        // صفحة إدارة مقررات طالب محدد
+        // GET: /Registrations/StudentCourses
+        // ==========================================
+        [HttpGet]
+        public async Task<IActionResult> StudentCourses(
+            string? universityNumber)
+        {
+            universityNumber = universityNumber?.Trim();
+
+            if (string.IsNullOrWhiteSpace(universityNumber))
+            {
+                TempData["Error"] =
+                    "يرجى إدخال الرقم الجامعي للطالب.";
+
+                return RedirectToAction(nameof(Index));
+            }
+
+            var student = await _context.Students
+                .Include(s => s.Department)
+                    .ThenInclude(d => d.Faculty)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(s =>
+                    s.UniversityNumber == universityNumber &&
+                    !s.IsDeleted);
+
+            if (student == null)
+            {
+                TempData["Error"] =
+                    "لم يتم العثور على طالب بهذا الرقم الجامعي.";
+
+                return RedirectToAction(nameof(Index));
+            }
+
+            var activeSemester =
+                await GetActiveSemesterAsync();
+
+            var registrations = new List<Registration>();
+            var offerings = new List<CourseOffering>();
+            var registeredCounts = new Dictionary<long, int>();
+
+            decimal? pricePerHour = null;
+
+            if (activeSemester != null)
+            {
+                registrations = await _context.Registrations
+                    .Include(r => r.CourseOffering)
+                        .ThenInclude(o => o.Course)
+                    .Include(r => r.CourseOffering)
+                        .ThenInclude(o => o.Semester)
+                    .AsNoTracking()
+                    .Where(r =>
+                        r.StudentId == student.Id &&
+                        r.CourseOffering.SemesterId ==
+                            activeSemester.Id)
+                    .OrderBy(r => r.CourseOffering.Course.Name)
+                    .ToListAsync();
+
+                offerings = await _context.CourseOfferings
+                    .Include(o => o.Course)
+                    .Include(o => o.Semester)
+                    .AsNoTracking()
+                    .Where(o =>
+                        o.SemesterId == activeSemester.Id &&
+                        o.Course.DepartmentId ==
+                            student.DepartmentId)
+                    .OrderBy(o => o.Course.Name)
+                    .ToListAsync();
+
+                var offeringIds = offerings
+                    .Select(o => o.Id)
+                    .ToList();
+
+                registeredCounts = await _context.Registrations
+                    .AsNoTracking()
+                    .Where(r =>
+                        offeringIds.Contains(r.CourseOfferingId) &&
+                        r.Status == Registered)
+                    .GroupBy(r => r.CourseOfferingId)
+                    .Select(g => new
+                    {
+                        OfferingId = g.Key,
+                        Count = g.Count()
+                    })
+                    .ToDictionaryAsync(
+                        x => x.OfferingId,
+                        x => x.Count);
+
+                pricePerHour = await _context.HourPrices
+                    .AsNoTracking()
+                    .Where(h =>
+                        h.DepartmentId == student.DepartmentId &&
+                        h.SemesterId == activeSemester.Id)
+                    .Select(h => (decimal?)h.PricePerHour)
+                    .FirstOrDefaultAsync();
+            }
+
+            var activeRegistrations = registrations
+                .Where(r => r.Status == Registered)
+                .ToList();
+
+            int totalHours = activeRegistrations.Sum(r =>
+                r.CourseOffering.Course.CreditHours);
+
+            ViewBag.ActiveSemester = activeSemester;
+            ViewBag.Registrations = registrations;
+            ViewBag.Offerings = offerings;
+            ViewBag.RegisteredCounts = registeredCounts;
+
+            ViewBag.IsRegistrationOpen =
+                IsRegistrationOpen(activeSemester);
+
+            ViewBag.PricePerHour = pricePerHour;
+            ViewBag.TotalHours = totalHours;
+
+            ViewBag.EstimatedFees = pricePerHour.HasValue
+                ? totalHours * pricePerHour.Value
+                : (decimal?)null;
+
+            return View(student);
+        }
+
+        // ==========================================
+        // تفاصيل تسجيل محدد
+        // ==========================================
+        [HttpGet]
         public async Task<IActionResult> Details(long id)
         {
             var registration = await _context.Registrations
@@ -59,7 +272,9 @@ namespace StudentAffairsManagementSystem.Controllers
             return View(registration);
         }
 
-        // فتح صفحة تسجيل طالب بمقرر
+        // ==========================================
+        // صفحة الإضافة القديمة
+        // ==========================================
         [HttpGet]
         public async Task<IActionResult> Create()
         {
@@ -68,201 +283,208 @@ namespace StudentAffairsManagementSystem.Controllers
             return View(new Registration());
         }
 
-        // تسجيل طالب بمقرر ضمن فصل فعال
+        // ==========================================
+        // تسجيل مقرر للطالب
+        // ==========================================
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(
             [Bind("StudentId,CourseOfferingId")]
             Registration model)
         {
-            // الخصائص المرتبطة لا تأتي من النموذج
             ModelState.Remove(nameof(Registration.Student));
             ModelState.Remove(nameof(Registration.CourseOffering));
-
-            // التاريخ والحالة يحددهما السيرفر
             ModelState.Remove(nameof(Registration.RegisteredAt));
             ModelState.Remove(nameof(Registration.Status));
 
-            if (!ModelState.IsValid)
-            {
-                await LoadLists();
-                return View(model);
-            }
-
-            // التحقق من الطالب
-            bool studentExists = await _context.Students
-                .AnyAsync(s =>
+            string? universityNumber = await _context.Students
+                .AsNoTracking()
+                .Where(s =>
                     s.Id == model.StudentId &&
-                    !s.IsDeleted);
+                    !s.IsDeleted)
+                .Select(s => s.UniversityNumber)
+                .FirstOrDefaultAsync();
 
-            if (!studentExists)
+            IActionResult ReturnToPage()
             {
-                ModelState.AddModelError(
-                    nameof(Registration.StudentId),
-                    "الطالب غير موجود أو محذوف من النظام.");
-            }
+                if (!string.IsNullOrWhiteSpace(universityNumber))
+                {
+                    return RedirectToAction(
+                        nameof(StudentCourses),
+                        new { universityNumber });
+                }
 
-            // التحقق من وجود الطرح ضمن فصل فعال
-            bool offeringExists = await _context.CourseOfferings
-                .AnyAsync(o =>
-                    o.Id == model.CourseOfferingId &&
-                    o.Semester.IsActive);
-
-            if (!offeringExists)
-            {
-                ModelState.AddModelError(
-                    nameof(Registration.CourseOfferingId),
-                    "المقرر المطروح غير موجود أو أن فصله الدراسي غير فعال.");
+                return RedirectToAction(nameof(Index));
             }
 
             if (!ModelState.IsValid)
             {
-                await LoadLists();
-                return View(model);
+                TempData["Error"] =
+                    "بيانات التسجيل غير صحيحة.";
+
+                return ReturnToPage();
             }
 
             try
             {
-                // حماية فحص السعة والتسجيل من العمليات المتزامنة
                 await using var transaction =
                     await _context.Database.BeginTransactionAsync(
                         IsolationLevel.Serializable);
 
-                // إعادة التحقق داخل المعاملة
-                bool validStudent = await _context.Students
-                    .AnyAsync(s =>
+                var student = await _context.Students
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(s =>
                         s.Id == model.StudentId &&
                         !s.IsDeleted);
 
-                if (!validStudent)
+                if (student == null)
                 {
-                    ModelState.AddModelError(
-                        nameof(Registration.StudentId),
-                        "الطالب غير موجود أو محذوف من النظام.");
+                    TempData["Error"] =
+                        "الطالب غير موجود أو محذوف من النظام.";
 
-                    await transaction.RollbackAsync();
-                    await LoadLists();
-                    return View(model);
+                    return ReturnToPage();
                 }
 
                 var offering = await _context.CourseOfferings
+                    .Include(o => o.Course)
                     .Include(o => o.Semester)
                     .FirstOrDefaultAsync(o =>
                         o.Id == model.CourseOfferingId);
 
-                if (offering == null || !offering.Semester.IsActive)
+                if (offering == null)
                 {
-                    ModelState.AddModelError(
-                        nameof(Registration.CourseOfferingId),
-                        "التسجيل متاح فقط في المقررات المطروحة ضمن فصل فعال.");
+                    TempData["Error"] =
+                        "المقرر المطروح غير موجود.";
 
-                    await transaction.RollbackAsync();
-                    await LoadLists();
-                    return View(model);
+                    return ReturnToPage();
                 }
 
-                // البحث عن تسجيل سابق لنفس الطالب والطرح
-                var existingRegistration =
-                    await _context.Registrations
-                        .FirstOrDefaultAsync(r =>
-                            r.StudentId == model.StudentId &&
-                            r.CourseOfferingId == model.CourseOfferingId);
+                var activeSemester =
+                    await GetActiveSemesterAsync();
 
-                if (existingRegistration != null &&
-                    existingRegistration.Status == Registered)
+                if (activeSemester == null ||
+                    offering.SemesterId != activeSemester.Id)
                 {
-                    ModelState.AddModelError(
-                        string.Empty,
-                        "الطالب مسجل مسبقًا بهذا المقرر المطروح.");
+                    TempData["Error"] =
+                        "يمكن تسجيل مقررات الفصل الدراسي الحالي فقط.";
 
-                    await transaction.RollbackAsync();
-                    await LoadLists();
-                    return View(model);
+                    return ReturnToPage();
                 }
 
-                // رفض الحالات غير المعروفة
-                if (existingRegistration != null &&
-                    existingRegistration.Status != Cancelled)
+                // منع التسجيل خارج الفترة المحددة
+                if (!IsRegistrationOpen(offering.Semester))
                 {
-                    ModelState.AddModelError(
-                        string.Empty,
-                        "حالة التسجيل السابقة غير معروفة.");
+                    TempData["Error"] =
+                        "فترة تسجيل المقررات غير متاحة حاليًا.";
 
-                    await transaction.RollbackAsync();
-                    await LoadLists();
-                    return View(model);
+                    return ReturnToPage();
                 }
 
-                // حساب التسجيلات الفعالة فقط
+                // التحقق من القسم الدراسي
+                if (offering.Course.DepartmentId !=
+                    student.DepartmentId)
+                {
+                    TempData["Error"] =
+                        "المقرر المختار غير تابع للقسم الدراسي للطالب.";
+
+                    return ReturnToPage();
+                }
+
+                // منع تسجيل المقرر نفسه في أكثر من شعبة
+                bool alreadyRegistered =
+                    await _context.Registrations.AnyAsync(r =>
+                        r.StudentId == student.Id &&
+                        r.Status == Registered &&
+                        r.CourseOffering.CourseId ==
+                            offering.CourseId &&
+                        r.CourseOffering.SemesterId ==
+                            offering.SemesterId);
+
+                if (alreadyRegistered)
+                {
+                    TempData["Error"] =
+                        "الطالب مسجل في هذا المقرر مسبقًا.";
+
+                    return ReturnToPage();
+                }
+
+                // التحقق من المقاعد المتاحة
                 int registeredCount =
                     await _context.Registrations.CountAsync(r =>
-                        r.CourseOfferingId == model.CourseOfferingId &&
+                        r.CourseOfferingId == offering.Id &&
                         r.Status == Registered);
 
-                if (registeredCount >= offering.Capacity)
+                if (offering.Capacity <= 0 ||
+                    registeredCount >= offering.Capacity)
                 {
-                    ModelState.AddModelError(
-                        string.Empty,
-                        "لا توجد مقاعد شاغرة في هذا المقرر المطروح.");
+                    TempData["Error"] =
+                        "لا توجد مقاعد شاغرة في هذا المقرر.";
 
-                    await transaction.RollbackAsync();
-                    await LoadLists();
-                    return View(model);
+                    return ReturnToPage();
                 }
+
+                // إعادة تفعيل سجل ملغى أو إنشاء سجل جديد
+                var existingRegistration =
+                    await _context.Registrations.FirstOrDefaultAsync(r =>
+                        r.StudentId == student.Id &&
+                        r.CourseOfferingId == offering.Id);
 
                 if (existingRegistration != null)
                 {
-                    // إعادة تفعيل تسجيل ملغى
+                    if (existingRegistration.Status != Cancelled)
+                    {
+                        TempData["Error"] =
+                            "لا يمكن تسجيل المقرر بسبب حالة تسجيل سابقة.";
+
+                        return ReturnToPage();
+                    }
+
                     existingRegistration.Status = Registered;
-                    existingRegistration.RegisteredAt = DateTime.UtcNow;
+                    existingRegistration.RegisteredAt =
+                        DateTime.UtcNow;
                 }
                 else
                 {
-                    // إنشاء تسجيل جديد
-                    var registration = new Registration
+                    _context.Registrations.Add(new Registration
                     {
-                        StudentId = model.StudentId,
-                        CourseOfferingId = model.CourseOfferingId,
+                        StudentId = student.Id,
+                        CourseOfferingId = offering.Id,
                         RegisteredAt = DateTime.UtcNow,
                         Status = Registered
-                    };
-
-                    _context.Registrations.Add(registration);
+                    });
                 }
 
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
 
                 TempData["Success"] =
-                    "تم تسجيل الطالب في المقرر بنجاح.";
-
-                return RedirectToAction(nameof(Index));
+                    "تم تسجيل المقرر للطالب بنجاح.";
             }
             catch (DbUpdateException)
             {
-                ModelState.AddModelError(
-                    string.Empty,
-                    "تعذر حفظ التسجيل بسبب تعارض في البيانات. يرجى المحاولة مجددًا.");
+                TempData["Error"] =
+                    "تعذر حفظ التسجيل بسبب تعارض في البيانات.";
             }
             catch (Exception ex) when (
                 ex is InvalidOperationException ||
                 ex is Microsoft.Data.SqlClient.SqlException)
             {
-                ModelState.AddModelError(
-                    string.Empty,
-                    "تعذر إتمام التسجيل حاليًا بسبب تعارض أو مشكلة في قاعدة البيانات. يرجى المحاولة مجددًا.");
+                TempData["Error"] =
+                    "تعذر إتمام التسجيل حاليًا. يرجى المحاولة مجددًا.";
             }
 
-            await LoadLists();
-            return View(model);
+            return ReturnToPage();
         }
 
-        // إلغاء تسجيل طالب مع الاحتفاظ بالسجل
+        // ==========================================
+        // إلغاء التسجيل مع الاحتفاظ بالسجل
+        // ==========================================
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Cancel(long id)
         {
             var registration = await _context.Registrations
+                .Include(r => r.Student)
                 .FirstOrDefaultAsync(r => r.Id == id);
 
             if (registration == null)
@@ -271,12 +493,17 @@ namespace StudentAffairsManagementSystem.Controllers
             if (registration.Status != Registered)
             {
                 TempData["Error"] =
-                    "هذا التسجيل غير فعال أو ملغى مسبقًا.";
+                    "هذا التسجيل ملغى مسبقًا.";
 
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(
+                    nameof(StudentCourses),
+                    new
+                    {
+                        universityNumber =
+                            registration.Student.UniversityNumber
+                    });
             }
 
-            // الإلغاء لا يحذف السجل الأكاديمي
             registration.Status = Cancelled;
 
             try
@@ -284,22 +511,32 @@ namespace StudentAffairsManagementSystem.Controllers
                 await _context.SaveChangesAsync();
 
                 TempData["Success"] =
-                    "تم إلغاء تسجيل الطالب مع الاحتفاظ بالسجل.";
+                    "تم إلغاء تسجيل المقرر مع الاحتفاظ بالسجل.";
             }
             catch (DbUpdateException)
             {
                 TempData["Error"] =
-                    "تعذر إلغاء التسجيل. يرجى المحاولة مجددًا.";
+                    "تعذر إلغاء تسجيل المقرر.";
             }
 
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(
+                nameof(StudentCourses),
+                new
+                {
+                    universityNumber =
+                        registration.Student.UniversityNumber
+                });
         }
 
-        // إعادة تفعيل تسجيل ملغى ضمن فصل فعال
+        // ==========================================
+        // إعادة تفعيل تسجيل ملغى
+        // ==========================================
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Reactivate(long id)
         {
+            string? universityNumber = null;
+
             try
             {
                 await using var transaction =
@@ -309,69 +546,91 @@ namespace StudentAffairsManagementSystem.Controllers
                 var registration = await _context.Registrations
                     .Include(r => r.Student)
                     .Include(r => r.CourseOffering)
+                        .ThenInclude(o => o.Course)
+                    .Include(r => r.CourseOffering)
                         .ThenInclude(o => o.Semester)
                     .FirstOrDefaultAsync(r => r.Id == id);
 
                 if (registration == null)
-                {
-                    await transaction.RollbackAsync();
                     return NotFound();
-                }
+
+                universityNumber =
+                    registration.Student.UniversityNumber;
 
                 if (registration.Status != Cancelled)
                 {
                     TempData["Error"] =
                         "يمكن إعادة تفعيل التسجيلات الملغاة فقط.";
-
-                    await transaction.RollbackAsync();
-                    return RedirectToAction(nameof(Index));
                 }
-
-                // منع إعادة تفعيل تسجيل طالب محذوف
-                if (registration.Student.IsDeleted)
+                else if (registration.Student.IsDeleted)
                 {
                     TempData["Error"] =
-                        "لا يمكن إعادة تفعيل تسجيل طالب محذوف من النظام.";
-
-                    await transaction.RollbackAsync();
-                    return RedirectToAction(nameof(Index));
+                        "لا يمكن إعادة تفعيل تسجيل طالب محذوف.";
                 }
-
-                var offering = registration.CourseOffering;
-
-                // السماح بإعادة التفعيل فقط في فصل فعال
-                if (!offering.Semester.IsActive)
+                else
                 {
-                    TempData["Error"] =
-                        "لا يمكن إعادة تفعيل التسجيل لأن الفصل الدراسي غير فعال.";
+                    var offering = registration.CourseOffering;
 
-                    await transaction.RollbackAsync();
-                    return RedirectToAction(nameof(Index));
+                    var activeSemester =
+                        await GetActiveSemesterAsync();
+
+                    if (activeSemester == null ||
+                        offering.SemesterId != activeSemester.Id ||
+                        !IsRegistrationOpen(offering.Semester))
+                    {
+                        TempData["Error"] =
+                            "إعادة التفعيل غير متاحة خارج فترة التسجيل.";
+                    }
+                    else if (offering.Course.DepartmentId !=
+                             registration.Student.DepartmentId)
+                    {
+                        TempData["Error"] =
+                            "المقرر غير تابع للقسم الدراسي للطالب.";
+                    }
+                    else
+                    {
+                        bool duplicateExists =
+                            await _context.Registrations.AnyAsync(r =>
+                                r.Id != registration.Id &&
+                                r.StudentId ==
+                                    registration.StudentId &&
+                                r.Status == Registered &&
+                                r.CourseOffering.CourseId ==
+                                    offering.CourseId &&
+                                r.CourseOffering.SemesterId ==
+                                    offering.SemesterId);
+
+                        int registeredCount =
+                            await _context.Registrations.CountAsync(r =>
+                                r.CourseOfferingId ==
+                                    registration.CourseOfferingId &&
+                                r.Status == Registered);
+
+                        if (duplicateExists)
+                        {
+                            TempData["Error"] =
+                                "الطالب مسجل في هذا المقرر في شعبة أخرى.";
+                        }
+                        else if (offering.Capacity <= 0 ||
+                                 registeredCount >= offering.Capacity)
+                        {
+                            TempData["Error"] =
+                                "لا توجد مقاعد شاغرة لإعادة التفعيل.";
+                        }
+                        else
+                        {
+                            registration.Status = Registered;
+                            registration.RegisteredAt =
+                                DateTime.UtcNow;
+
+                            await _context.SaveChangesAsync();
+                            await transaction.CommitAsync();
+
+                            TempData["Success"] =
+                                "تمت إعادة تفعيل التسجيل بنجاح.";
+                        }
+                    }
                 }
-
-                int registeredCount =
-                    await _context.Registrations.CountAsync(r =>
-                        r.CourseOfferingId ==
-                            registration.CourseOfferingId &&
-                        r.Status == Registered);
-
-                if (registeredCount >= offering.Capacity)
-                {
-                    TempData["Error"] =
-                        "لا توجد مقاعد شاغرة لإعادة تفعيل التسجيل.";
-
-                    await transaction.RollbackAsync();
-                    return RedirectToAction(nameof(Index));
-                }
-
-                registration.Status = Registered;
-                registration.RegisteredAt = DateTime.UtcNow;
-
-                await _context.SaveChangesAsync();
-                await transaction.CommitAsync();
-
-                TempData["Success"] =
-                    "تمت إعادة تفعيل تسجيل الطالب بنجاح.";
             }
             catch (DbUpdateException)
             {
@@ -383,30 +642,36 @@ namespace StudentAffairsManagementSystem.Controllers
                 ex is Microsoft.Data.SqlClient.SqlException)
             {
                 TempData["Error"] =
-                    "تعذرت إعادة التفعيل حاليًا. يرجى المحاولة مجددًا.";
+                    "تعذرت إعادة التفعيل حاليًا.";
+            }
+
+            if (!string.IsNullOrWhiteSpace(universityNumber))
+            {
+                return RedirectToAction(
+                    nameof(StudentCourses),
+                    new { universityNumber });
             }
 
             return RedirectToAction(nameof(Index));
         }
 
-        // تجهيز قوائم الطلاب والمقررات المطروحة
+        // ==========================================
+        // تجهيز قوائم صفحة الإضافة القديمة
+        // ==========================================
         private async Task LoadLists()
         {
-            // الطلاب غير المحذوفين فقط
             var students = await _context.Students
                 .AsNoTracking()
                 .Where(s => !s.IsDeleted)
                 .OrderBy(s => s.UniversityNumber)
                 .ToListAsync();
 
-            // المقررات المطروحة ضمن الفصول الفعالة فقط
             var offerings = await _context.CourseOfferings
                 .Include(o => o.Course)
                 .Include(o => o.Semester)
                 .AsNoTracking()
                 .Where(o => o.Semester.IsActive)
                 .OrderBy(o => o.Course.Name)
-                .ThenBy(o => o.Semester.StartDate)
                 .ToListAsync();
 
             ViewBag.StudentId = new SelectList(
