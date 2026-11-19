@@ -1,0 +1,422 @@
+﻿@model StudentAffairsManagementSystem.Models.Student
+
+@using StudentAffairsManagementSystem.Models
+
+@{
+    ViewData["Title"] = "بوابة الطالب";
+
+    var activeSemester = ViewBag.ActiveSemester as Semester;
+
+    var registrations =
+        ViewBag.CurrentRegistrations as List<Registration>
+        ?? new List<Registration>();
+
+    int creditHours = ViewBag.CurrentCreditHours ?? 0;
+
+    decimal? pricePerHour = ViewBag.PricePerHour;
+
+    decimal? estimatedFees = ViewBag.EstimatedFees;
+
+    string fullName =
+        $"{Model.FirstName} {Model.FatherName} {Model.LastName}";
+}
+
+<style>
+    .student-portal {
+        direction: rtl;
+        color: #14263f;
+        padding: 20px 0;
+    }
+
+    .portal-header {
+        background: #14263f;
+        color: white;
+        padding: 30px;
+        border-radius: 16px;
+        border-bottom: 4px solid #c9a66b;
+        margin-bottom: 25px;
+    }
+
+        .portal-header h2 {
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+
+        .portal-header p {
+            color: #d8dfeb;
+            margin: 0;
+        }
+
+    .portal-number {
+        display: inline-block;
+        background: rgba(201,166,107,.18);
+        color: #e8c98d;
+        padding: 8px 15px;
+        border-radius: 8px;
+        margin-top: 15px;
+        direction: ltr;
+    }
+
+    .portal-section-title {
+        font-size: 19px;
+        font-weight: 800;
+        margin: 25px 0 17px;
+        border-right: 4px solid #c9a66b;
+        padding-right: 12px;
+    }
+
+    .portal-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+    }
+
+    .portal-card {
+        background: white;
+        border: 1px solid #e5eaf0;
+        border-radius: 13px;
+        padding: 20px;
+        box-shadow: 0 3px 12px rgba(0,0,0,.03);
+    }
+
+    .portal-card-label {
+        color: #718096;
+        font-size: 13px;
+        margin-bottom: 10px;
+    }
+
+    .portal-card-value {
+        font-size: 21px;
+        font-weight: 800;
+        color: #14263f;
+    }
+
+    .portal-card-icon {
+        color: #c9a66b;
+        font-size: 25px;
+        margin-bottom: 12px;
+    }
+
+    .portal-info {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 15px;
+    }
+
+    .portal-info-item {
+        background: #f8f9fc;
+        padding: 15px;
+        border-radius: 9px;
+    }
+
+        .portal-info-item small {
+            color: #718096;
+            display: block;
+            margin-bottom: 7px;
+        }
+
+        .portal-info-item strong {
+            color: #14263f;
+        }
+
+    .portal-table-card {
+        background: white;
+        border: 1px solid #e5eaf0;
+        border-radius: 13px;
+        overflow: hidden;
+        margin-top: 15px;
+    }
+
+    .portal-table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: right;
+    }
+
+        .portal-table th {
+            background: #14263f;
+            color: white;
+            padding: 15px;
+            white-space: nowrap;
+        }
+
+        .portal-table td {
+            padding: 15px;
+            border-bottom: 1px solid #edf0f5;
+        }
+
+    .portal-empty {
+        text-align: center;
+        padding: 35px 15px;
+        color: #718096;
+    }
+
+    .portal-fees {
+        border-right: 4px solid #c9a66b;
+    }
+
+    .portal-note {
+        background: #fff9ed;
+        color: #765b2c;
+        border: 1px solid #efdfbd;
+        border-radius: 10px;
+        padding: 15px;
+        margin-top: 15px;
+        font-size: 14px;
+    }
+
+    @@media(max-width: 750px) {
+        .portal-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .portal-info {
+            grid-template-columns: 1fr;
+        }
+
+        .portal-table-card {
+            overflow-x: auto;
+        }
+    }
+</style>
+
+<div class="student-portal">
+
+    <!-- الترحيب -->
+    <div class="portal-header">
+
+        <h2>
+            <i class="bi bi-mortarboard-fill"></i>
+            أهلاً بك، @fullName
+        </h2>
+
+        <p>
+            مرحباً بك في بوابة الطالب الإلكترونية
+            للجامعة الدولية للعلوم والنهضة
+        </p>
+
+        <div class="portal-number">
+            <i class="bi bi-person-badge"></i>
+            @Model.UniversityNumber
+        </div>
+
+    </div>
+
+    <!-- الإحصائيات -->
+    <h3 class="portal-section-title">
+        ملخص الفصل الدراسي
+    </h3>
+
+    <div class="portal-grid">
+
+        <div class="portal-card">
+            <div class="portal-card-icon">
+                <i class="bi bi-book"></i>
+            </div>
+
+            <div class="portal-card-label">
+                المقررات المسجلة
+            </div>
+
+            <div class="portal-card-value">
+                @registrations.Count
+            </div>
+        </div>
+
+        <div class="portal-card">
+            <div class="portal-card-icon">
+                <i class="bi bi-clock"></i>
+            </div>
+
+            <div class="portal-card-label">
+                مجموع الساعات
+            </div>
+
+            <div class="portal-card-value">
+                @creditHours
+            </div>
+        </div>
+
+        <div class="portal-card">
+            <div class="portal-card-icon">
+                <i class="bi bi-calendar-check"></i>
+            </div>
+
+            <div class="portal-card-label">
+                الفصل الفعّال
+            </div>
+
+            <div class="portal-card-value"
+                 style="font-size:17px;">
+                @(activeSemester?.Name ?? "لا يوجد فصل فعال")
+            </div>
+        </div>
+
+    </div>
+
+    <!-- البيانات الشخصية -->
+    <h3 class="portal-section-title">
+        <i class="bi bi-person-vcard"></i>
+        معلوماتي الشخصية
+    </h3>
+
+    <div class="portal-card">
+
+        <div class="portal-info">
+
+            <div class="portal-info-item">
+                <small>الاسم الكامل</small>
+                <strong>@fullName</strong>
+            </div>
+
+            <div class="portal-info-item">
+                <small>الرقم الجامعي</small>
+                <strong>@Model.UniversityNumber</strong>
+            </div>
+
+            <div class="portal-info-item">
+                <small>القسم</small>
+                <strong>@(Model.Department?.Name ?? "غير محدد")</strong>
+            </div>
+
+            <div class="portal-info-item">
+                <small>فصل القبول</small>
+                <strong>@(Model.AdmissionSemester?.Name ?? "غير محدد")</strong>
+            </div>
+
+            <div class="portal-info-item">
+                <small>رقم الهاتف</small>
+                <strong>@Model.Phone</strong>
+            </div>
+
+            <div class="portal-info-item">
+                <small>الحالة الدراسية</small>
+                <strong>@Model.Status</strong>
+            </div>
+
+            <div class="portal-info-item">
+                <small>الجنسية</small>
+                <strong>@Model.Nationality</strong>
+            </div>
+
+            <div class="portal-info-item">
+                <small>المحافظة</small>
+                <strong>@Model.Governorate</strong>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- المقررات -->
+    <h3 class="portal-section-title">
+        <i class="bi bi-journal-bookmark"></i>
+        مقرراتي في الفصل الحالي
+    </h3>
+
+    <div class="portal-table-card">
+
+        @if (activeSemester == null)
+        {
+            <div class="portal-empty">
+                لا يوجد فصل دراسي فعّال حالياً.
+            </div>
+        }
+        else if (!registrations.Any())
+        {
+            <div class="portal-empty">
+                <i class="bi bi-journal-x"
+                   style="font-size:35px;color:#c9a66b;"></i>
+
+                <p>لم يتم تسجيل أي مقرر في الفصل الحالي.</p>
+            </div>
+        }
+        else
+        {
+            <table class="portal-table">
+
+                <thead>
+                    <tr>
+                        <th>المقرر</th>
+                        <th>عدد الساعات</th>
+                        <th>الفصل الدراسي</th>
+                        <th>حالة التسجيل</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    @foreach (var registration in registrations)
+                    {
+                        <tr>
+                            <td>
+                                @registration.CourseOffering.Course.Name
+                            </td>
+
+                            <td>
+                                @registration.CourseOffering.Course.CreditHours
+                            </td>
+
+                            <td>
+                                @registration.CourseOffering.Semester.Name
+                            </td>
+
+                            <td>
+                                <span style="color:#18845b;font-weight:700;">
+                                    مسجل
+                                </span>
+                            </td>
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+        }
+
+    </div>
+
+    <!-- الرسوم -->
+    <h3 class="portal-section-title">
+        <i class="bi bi-wallet2"></i>
+        الرسوم الدراسية التقديرية
+    </h3>
+
+    <div class="portal-card portal-fees">
+
+        <div class="portal-info">
+
+            <div class="portal-info-item">
+                <small>سعر الساعة المعتمدة</small>
+
+                <strong>
+                    @(pricePerHour.HasValue
+                        ? pricePerHour.Value.ToString("N2") + " "
+                        : "غير محدد")
+                </strong>
+            </div>
+
+            <div class="portal-info-item">
+                <small>إجمالي الرسوم التقديرية</small>
+
+                <strong>
+                    @(estimatedFees.HasValue
+                        ? estimatedFees.Value.ToString("N2")
+                        : "غير متوفر")
+                </strong>
+            </div>
+
+        </div>
+
+        <div class="portal-note">
+            <i class="bi bi-info-circle"></i>
+
+            المبلغ المعروض تقديري، ويُحسب بناءً على
+            عدد الساعات المسجلة وسعر الساعة في القسم
+            والفصل الدراسي الفعّال. لا يمثل هذا المبلغ
+            رصيداً مدفوعاً أو متبقياً.
+        </div>
+
+    </div>
+
+</div>

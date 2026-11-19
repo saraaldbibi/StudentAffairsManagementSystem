@@ -45,7 +45,10 @@ namespace StudentAffairsManagementSystem.Controllers
         [HttpGet]
         public IActionResult Create()
         {
-            return View(new Semester());
+            return View(new Semester
+            {
+                IsRegistrationOpen = false
+            });
         }
 
         // حفظ فصل دراسي جديد
@@ -55,14 +58,15 @@ namespace StudentAffairsManagementSystem.Controllers
         public async Task<IActionResult> Create(
             [Bind(
                 "SemesterNumber,Name,AcademicYear," +
-                "StartDate,EndDate,IsActive")]
+                "StartDate,EndDate,IsActive," +
+                "RegistrationStartDate,RegistrationEndDate," +
+                "IsRegistrationOpen")]
             Semester semester)
         {
             NormalizeSemester(semester);
 
             ValidateSemester(semester);
 
-            // منع تكرار رقم الفصل ضمن نفس السنة الدراسية
             await ValidateUniqueSemester(
                 semester,
                 excludedId: null);
@@ -74,6 +78,9 @@ namespace StudentAffairsManagementSystem.Controllers
 
             await _context.SaveChangesAsync();
 
+            TempData["Success"] =
+                "تمت إضافة الفصل الدراسي بنجاح.";
+
             return RedirectToAction(nameof(Index));
         }
 
@@ -83,7 +90,8 @@ namespace StudentAffairsManagementSystem.Controllers
         public async Task<IActionResult> Edit(long id)
         {
             var semester = await _context.Semesters
-                .FindAsync(id);
+                .AsNoTracking()
+                .FirstOrDefaultAsync(s => s.Id == id);
 
             if (semester == null)
                 return NotFound();
@@ -99,7 +107,9 @@ namespace StudentAffairsManagementSystem.Controllers
             long id,
             [Bind(
                 "Id,SemesterNumber,Name,AcademicYear," +
-                "StartDate,EndDate,IsActive")]
+                "StartDate,EndDate,IsActive," +
+                "RegistrationStartDate,RegistrationEndDate," +
+                "IsRegistrationOpen")]
             Semester model)
         {
             if (id != model.Id)
@@ -129,7 +139,20 @@ namespace StudentAffairsManagementSystem.Controllers
             semester.EndDate = model.EndDate;
             semester.IsActive = model.IsActive;
 
+            // إعدادات تسجيل المقررات
+            semester.RegistrationStartDate =
+                model.RegistrationStartDate;
+
+            semester.RegistrationEndDate =
+                model.RegistrationEndDate;
+
+            semester.IsRegistrationOpen =
+                model.IsRegistrationOpen;
+
             await _context.SaveChangesAsync();
+
+            TempData["Success"] =
+                "تم تعديل الفصل وإعدادات التسجيل بنجاح.";
 
             return RedirectToAction(nameof(Index));
         }
@@ -161,22 +184,18 @@ namespace StudentAffairsManagementSystem.Controllers
             if (semester == null)
                 return NotFound();
 
-            // منع حذف فصل مرتبط بقبول طلاب
             bool hasAdmissionStudents =
                 await _context.Students.AnyAsync(s =>
                     s.AdmissionSemesterId == id);
 
-            // منع حذف فصل مرتبط بتخرج طلاب
             bool hasGraduationStudents =
                 await _context.Students.AnyAsync(s =>
                     s.GraduationSemesterId == id);
 
-            // منع حذف فصل مرتبط بمقررات مطروحة
             bool hasOfferings =
                 await _context.CourseOfferings.AnyAsync(o =>
                     o.SemesterId == id);
 
-            // منع حذف فصل مرتبط بأسعار ساعات
             bool hasHourPrices =
                 await _context.HourPrices.AnyAsync(h =>
                     h.SemesterId == id);
@@ -212,15 +231,16 @@ namespace StudentAffairsManagementSystem.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // إزالة المسافات الزائدة من النصوص
+        // إزالة المسافات الزائدة
         private static void NormalizeSemester(Semester semester)
         {
             semester.Name = semester.Name?.Trim() ?? "";
+
             semester.AcademicYear =
                 semester.AcademicYear?.Trim() ?? "";
         }
 
-        // التحقق من صحة بيانات الفصل
+        // التحقق من صحة بيانات الفصل وفترة التسجيل
         private void ValidateSemester(Semester semester)
         {
             if (semester.SemesterNumber <= 0)
@@ -265,6 +285,44 @@ namespace StudentAffairsManagementSystem.Controllers
                 ModelState.AddModelError(
                     nameof(Semester.EndDate),
                     "تاريخ نهاية الفصل لازم يكون بعد تاريخ البداية");
+            }
+
+            // إذا تم تحديد تاريخ واحد، يجب تحديد الآخر
+            if (semester.RegistrationStartDate.HasValue !=
+                semester.RegistrationEndDate.HasValue)
+            {
+                ModelState.AddModelError(
+                    nameof(Semester.RegistrationEndDate),
+                    "يجب تحديد تاريخ بداية التسجيل ونهايته معاً");
+            }
+
+            // التحقق من ترتيب فترة التسجيل
+            if (semester.RegistrationStartDate.HasValue &&
+                semester.RegistrationEndDate.HasValue &&
+                semester.RegistrationEndDate.Value <=
+                semester.RegistrationStartDate.Value)
+            {
+                ModelState.AddModelError(
+                    nameof(Semester.RegistrationEndDate),
+                    "نهاية فترة التسجيل يجب أن تكون بعد بدايتها");
+            }
+
+            // منع فتح التسجيل لفصل غير فعال
+            if (semester.IsRegistrationOpen && !semester.IsActive)
+            {
+                ModelState.AddModelError(
+                    nameof(Semester.IsRegistrationOpen),
+                    "لا يمكن فتح التسجيل لفصل دراسي غير فعّال");
+            }
+
+            // منع فتح التسجيل دون تحديد الفترة
+            if (semester.IsRegistrationOpen &&
+                (!semester.RegistrationStartDate.HasValue ||
+                 !semester.RegistrationEndDate.HasValue))
+            {
+                ModelState.AddModelError(
+                    nameof(Semester.IsRegistrationOpen),
+                    "يجب تحديد بداية ونهاية فترة التسجيل قبل فتحه");
             }
         }
 

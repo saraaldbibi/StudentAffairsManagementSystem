@@ -1,5 +1,4 @@
-﻿
-@model StudentAffairsManagementSystem.Models.Semester
+﻿@model StudentAffairsManagementSystem.Models.Semester
 
 @{
     ViewData["Title"] = "تعديل الفصل الدراسي";
@@ -16,7 +15,7 @@
             </h2>
 
             <p class="text-muted mb-0">
-                تعديل بيانات الفصل الدراسي والعام الأكاديمي
+                تعديل بيانات الفصل الدراسي والتحكم بفترة تسجيل المقررات
             </p>
         </div>
 
@@ -35,6 +34,7 @@
              style="background:#142d4e; color:white;">
 
             <h5 class="mb-0">
+                <i class="bi bi-calendar3"></i>
                 بيانات الفصل الدراسي
             </h5>
 
@@ -49,7 +49,6 @@
 
                 @Html.AntiForgeryToken()
 
-                <!-- رقم الفصل المخزن -->
                 <input type="hidden" asp-for="Id" />
 
                 <!-- رسائل التحقق -->
@@ -115,6 +114,7 @@
                 <!-- مواعيد الفصل -->
                 <h5 class="mb-3"
                     style="color:#142d4e; font-weight:700;">
+                    <i class="bi bi-calendar-range"></i>
                     مواعيد الفصل الدراسي
                 </h5>
 
@@ -172,15 +172,149 @@
 
                             <label asp-for="IsActive"
                                    class="form-check-label fw-bold">
-                                الفصل الدراسي فعال
+                                الفصل الدراسي فعّال
                             </label>
 
                         </div>
 
                         <small class="text-muted d-block mt-2">
-                            يمكن تفعيل الفصل الدراسي أو تعطيله
-                            حسب الحاجة.
+                            تفعيل الفصل الدراسي لا يعني فتح تسجيل المقررات.
+                            فتح التسجيل يتم بشكل مستقل من القسم التالي.
                         </small>
+
+                    </div>
+
+                </div>
+
+                <!-- ====================================== -->
+                <!-- التحكم بفترة تسجيل المقررات -->
+                <!-- ====================================== -->
+
+                <div class="card mb-4"
+                     style="border:1px solid #d9c397; border-radius:12px; overflow:hidden;">
+
+                    <div class="card-header py-3"
+                         style="background:#142d4e; color:white;">
+
+                        <h5 class="mb-0 fw-bold">
+                            <i class="bi bi-journal-plus"
+                               style="color:#c9a24d;"></i>
+
+                            التحكم بفترة تسجيل المقررات
+                        </h5>
+
+                    </div>
+
+                    <div class="card-body p-4">
+
+                        <p class="text-muted mb-4">
+                            من هنا تحدد إدارة الجامعة المدة التي
+                            يُسمح خلالها للطلاب بتسجيل المقررات.
+                            خارج هذه المدة، يجب أن يكون التسجيل مغلقًا.
+                        </p>
+
+                        <!-- بداية ونهاية التسجيل -->
+                        <div class="row g-3 mb-4">
+
+                            <div class="col-md-6">
+
+                                <label asp-for="RegistrationStartDate"
+                                       class="form-label fw-bold">
+                                    <i class="bi bi-calendar-plus"></i>
+                                    بداية فترة التسجيل
+                                </label>
+
+                                <input asp-for="RegistrationStartDate"
+                                       type="datetime-local"
+                                       asp-format="{0:yyyy-MM-ddTHH:mm}"
+                                       class="form-control"
+                                       dir="ltr" />
+
+                                <span asp-validation-for="RegistrationStartDate"
+                                      class="text-danger"></span>
+
+                                <small class="text-muted d-block mt-2">
+                                    حدد تاريخ وساعة بدء التسجيل.
+                                </small>
+
+                            </div>
+
+                            <div class="col-md-6">
+
+                                <label asp-for="RegistrationEndDate"
+                                       class="form-label fw-bold">
+                                    <i class="bi bi-calendar-x"></i>
+                                    نهاية فترة التسجيل
+                                </label>
+
+                                <input asp-for="RegistrationEndDate"
+                                       type="datetime-local"
+                                       asp-format="{0:yyyy-MM-ddTHH:mm}"
+                                       class="form-control"
+                                       dir="ltr" />
+
+                                <span asp-validation-for="RegistrationEndDate"
+                                      class="text-danger"></span>
+
+                                <small class="text-muted d-block mt-2">
+                                    حدد تاريخ وساعة انتهاء التسجيل.
+                                </small>
+
+                            </div>
+
+                        </div>
+
+                        <!-- فتح أو إغلاق التسجيل -->
+                        <div class="p-3"
+                             style="background:#f7f9fc;
+                            border:1px solid #e3e8f0;
+                            border-radius:10px;">
+
+                            <div class="form-check form-switch">
+
+                                <input asp-for="IsRegistrationOpen"
+                                       class="form-check-input"
+                                       type="checkbox"
+                                       role="switch" />
+
+                                <label asp-for="IsRegistrationOpen"
+                                       class="form-check-label fw-bold"
+                                       style="color:#142d4e;">
+                                    السماح للطلاب بتسجيل المقررات
+                                </label>
+
+                            </div>
+
+                            <span asp-validation-for="IsRegistrationOpen"
+                                  class="text-danger"></span>
+
+                            <small class="text-muted d-block mt-2">
+                                عند تفعيل هذا الخيار، يُسمح بالتسجيل
+                                فقط إذا كان الفصل فعّالًا والوقت الحالي
+                                ضمن الفترة المحددة، بعد تطبيق التحقق
+                                في بوابة الطالب.
+                            </small>
+
+                        </div>
+
+                        <!-- ملاحظة -->
+                        <div class="alert mt-4 mb-0"
+                             style="background:#fff8e8;
+                            border:1px solid #ead7a6;
+                            color:#775b29;">
+
+                            <i class="bi bi-info-circle"></i>
+
+                            <strong>ملاحظة:</strong>
+
+                            يجب تحديد تاريخ بداية ونهاية التسجيل
+                            قبل تفعيل السماح بالتسجيل.
+
+                            يمكن للإدارة إغلاق التسجيل في أي وقت
+                            بإلغاء تفعيل الخيار، حتى لو لم تنتهِ
+                            الفترة المحددة بعد.
+
+                        </div>
 
                     </div>
 
@@ -191,15 +325,22 @@
 
                     <button type="submit"
                             class="btn px-5 py-2"
-                            style="background:#c9a24d; color:#142d4e; font-weight:800;">
+                            style="background:#c9a24d;
+                        color:#142d4e;
+                        font-weight:800;">
+
+                        <i class="bi bi-check-circle"></i>
                         حفظ التعديلات
+
                     </button>
 
                     <a asp-controller="Semesters"
                        asp-action="Details"
                        asp-route-id="@Model.Id"
                        class="btn btn-outline-secondary px-4 py-2">
+
                         إلغاء
+
                     </a>
 
                 </div>

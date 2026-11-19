@@ -1,8 +1,26 @@
-﻿
-@model StudentAffairsManagementSystem.Models.HourPrice
+﻿@model StudentAffairsManagementSystem.Models.HourPrice
+
+@using Microsoft.AspNetCore.Mvc.Rendering
+@using System.Text.Json
 
 @{
     ViewData["Title"] = "إضافة سعر ساعة دراسية";
+
+    var faculties = ViewBag.Faculties as IEnumerable<SelectListItem>
+        ?? Enumerable.Empty<SelectListItem>();
+
+    var departments = ViewBag.DepartmentsWithFaculties
+        as IEnumerable<StudentAffairsManagementSystem.Models.Department>
+        ?? Enumerable.Empty<StudentAffairsManagementSystem.Models.Department>();
+
+    var departmentData = departments.Select(d => new
+    {
+        id = d.Id,
+        name = d.Name,
+        facultyId = d.FacultyId
+    }).ToList();
+
+    var departmentJson = JsonSerializer.Serialize(departmentData);
 }
 
 <div class="container-fluid py-4" dir="rtl">
@@ -16,7 +34,7 @@
             </h2>
 
             <p class="text-muted mb-0">
-                تحديد سعر الساعة الدراسية لقسم ضمن فصل دراسي
+                تحديد سعر الساعة الدراسية لقسم ضمن كلية وفصل دراسي
             </p>
         </div>
 
@@ -52,26 +70,68 @@
                 <div asp-validation-summary="All"
                      class="text-danger mb-3"></div>
 
-                <!-- اختيار القسم -->
-                <div class="mb-4">
+                <!-- اختيار الكلية والقسم -->
+                <div class="row g-3 mb-4">
 
-                    <label asp-for="DepartmentId"
-                           class="form-label fw-bold">
-                        القسم الدراسي
-                    </label>
+                    <!-- الكلية -->
+                    <div class="col-md-6">
 
-                    <select asp-for="DepartmentId"
-                            asp-items="ViewBag.DepartmentId"
-                            class="form-select">
+                        <label for="FacultyId"
+                               class="form-label fw-bold">
+                            الكلية
+                        </label>
 
-                        <option value="">
-                            -- اختاروا القسم الدراسي --
-                        </option>
+                        <select id="FacultyId"
+                                class="form-select"
+                                required>
 
-                    </select>
+                            <option value="">
+                                -- اختاروا الكلية --
+                            </option>
 
-                    <span asp-validation-for="DepartmentId"
-                          class="text-danger"></span>
+                            @foreach (var faculty in faculties)
+                            {
+                                <option value="@faculty.Value">
+                                    @faculty.Text
+                                </option>
+                            }
+
+                        </select>
+
+                        <small class="text-muted d-block mt-2">
+                            اختاروا الكلية لعرض أقسامها.
+                        </small>
+
+                    </div>
+
+                    <!-- القسم الدراسي -->
+                    <div class="col-md-6">
+
+                        <label asp-for="DepartmentId"
+                               class="form-label fw-bold">
+                            القسم الدراسي
+                        </label>
+
+                        <select asp-for="DepartmentId"
+                                id="DepartmentId"
+                                class="form-select"
+                                required
+                                disabled>
+
+                            <option value="">
+                                -- اختاروا الكلية أولًا --
+                            </option>
+
+                        </select>
+
+                        <span asp-validation-for="DepartmentId"
+                              class="text-danger"></span>
+
+                        <small class="text-muted d-block mt-2">
+                            تظهر الأقسام التابعة للكلية المختارة فقط.
+                        </small>
+
+                    </div>
 
                 </div>
 
@@ -158,5 +218,91 @@
 </div>
 
 @section Scripts {
+
     <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const facultiesSelect =
+                document.getElementById("FacultyId");
+
+            const departmentsSelect =
+                document.getElementById("DepartmentId");
+
+            const departments = @Html.Raw(departmentJson);
+
+            const previouslySelectedDepartment =
+                "@Model.DepartmentId";
+
+            function loadDepartments(selectedDepartmentId = "") {
+
+                const facultyId = facultiesSelect.value;
+
+                departmentsSelect.innerHTML = "";
+
+                const defaultOption = document.createElement("option");
+                defaultOption.value = "";
+
+                if (!facultyId) {
+                    defaultOption.textContent =
+                        "-- اختاروا الكلية أولًا --";
+
+                    departmentsSelect.appendChild(defaultOption);
+                    departmentsSelect.disabled = true;
+                    return;
+                }
+
+                const filteredDepartments = departments.filter(
+                    d => String(d.facultyId) === String(facultyId)
+                );
+
+                defaultOption.textContent =
+                    filteredDepartments.length > 0
+                        ? "-- اختاروا القسم الدراسي --"
+                        : "-- لا توجد أقسام في هذه الكلية --";
+
+                departmentsSelect.appendChild(defaultOption);
+
+                filteredDepartments.forEach(function (department) {
+
+                    const option = document.createElement("option");
+
+                    option.value = department.id;
+                    option.textContent = department.name;
+
+                    if (String(department.id) ===
+                        String(selectedDepartmentId)) {
+                        option.selected = true;
+                    }
+
+                    departmentsSelect.appendChild(option);
+                });
+
+                departmentsSelect.disabled =
+                    filteredDepartments.length === 0;
+            }
+
+            facultiesSelect.addEventListener("change", function () {
+                loadDepartments();
+            });
+
+            // استرجاع اختيار القسم عند وجود خطأ في النموذج
+            if (previouslySelectedDepartment &&
+                previouslySelectedDepartment !== "0") {
+
+                const selectedDepartment = departments.find(
+                    d => String(d.id) ===
+                        String(previouslySelectedDepartment)
+                );
+
+                if (selectedDepartment) {
+                    facultiesSelect.value =
+                        String(selectedDepartment.facultyId);
+
+                    loadDepartments(previouslySelectedDepartment);
+                }
+            }
+        });
+    </script>
 }

@@ -1,0 +1,498 @@
+﻿@using StudentAffairsManagementSystem.Models
+
+@{
+    ViewData["Title"] = "الرسوم الجامعية";
+
+    var student = ViewBag.Student as Student;
+
+    var activeSemester = ViewBag.ActiveSemester as Semester;
+
+    var registrations =
+        ViewBag.Registrations as List<Registration>
+        ?? new List<Registration>();
+
+    decimal? pricePerHour = ViewBag.PricePerHour == null
+        ? null
+        : (decimal?)ViewBag.PricePerHour;
+
+    decimal? estimatedFees = ViewBag.EstimatedFees == null
+        ? null
+        : (decimal?)ViewBag.EstimatedFees;
+
+    int totalHours = registrations.Sum(r =>
+        r.CourseOffering.Course.CreditHours);
+
+    string studentName = student == null
+        ? "الطالب"
+        : $"{student.FirstName} {student.FatherName} {student.LastName}";
+}
+
+<style>
+    .fees-page {
+        direction: rtl;
+        color: #16263f;
+    }
+
+    .fees-header {
+        background: #16263f;
+        color: white;
+        border-radius: 16px;
+        border-bottom: 4px solid #c8a66a;
+        padding: 30px;
+        margin-bottom: 25px;
+    }
+
+        .fees-header h2 {
+            font-size: 25px;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+
+        .fees-header p {
+            color: #d5dfeb;
+            margin-bottom: 0;
+        }
+
+    .fees-student {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 20px;
+    }
+
+        .fees-student span {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid rgba(200,166,106,.4);
+            background: rgba(200,166,106,.13);
+            color: #f2d9a8;
+            padding: 9px 15px;
+            border-radius: 9px;
+            font-size: 13px;
+        }
+
+    .fees-title {
+        font-size: 19px;
+        font-weight: 800;
+        border-right: 4px solid #c8a66a;
+        padding-right: 12px;
+        margin: 28px 0 17px;
+    }
+
+    .fees-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+    }
+
+    .fees-card {
+        background: white;
+        border: 1px solid #e5eaf2;
+        border-radius: 14px;
+        padding: 22px;
+        box-shadow: 0 3px 12px rgba(20,40,70,.04);
+    }
+
+    .fees-icon {
+        width: 46px;
+        height: 46px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        background: #f8f0e2;
+        color: #a17b3f;
+        font-size: 23px;
+        margin-bottom: 14px;
+    }
+
+    .fees-label {
+        font-size: 14px;
+        color: #718096;
+        margin-bottom: 10px;
+    }
+
+    .fees-value {
+        font-size: 25px;
+        font-weight: 800;
+        color: #16263f;
+        overflow-wrap: anywhere;
+    }
+
+    .fees-card-highlight {
+        border-top: 4px solid #c8a66a;
+    }
+
+        .fees-card-highlight .fees-value {
+            color: #a17b3f;
+        }
+
+    .fees-table-wrapper {
+        background: white;
+        border: 1px solid #e5eaf2;
+        border-radius: 14px;
+        overflow-x: auto;
+    }
+
+    .fees-table {
+        width: 100%;
+        min-width: 650px;
+        border-collapse: collapse;
+        text-align: right;
+    }
+
+        .fees-table th {
+            background: #16263f;
+            color: white;
+            padding: 16px;
+            white-space: nowrap;
+        }
+
+        .fees-table td {
+            padding: 16px;
+            border-bottom: 1px solid #edf0f5;
+        }
+
+        .fees-table tbody tr:hover {
+            background: #fafbfd;
+        }
+
+        .fees-table tfoot td {
+            background: #f8f9fc;
+            font-weight: 800;
+        }
+
+    .fees-empty {
+        text-align: center;
+        padding: 40px 20px;
+        color: #718096;
+    }
+
+        .fees-empty i {
+            display: block;
+            font-size: 38px;
+            color: #c8a66a;
+            margin-bottom: 12px;
+        }
+
+    .fees-note {
+        background: #fff9ec;
+        color: #755a2d;
+        border: 1px solid #efdfbb;
+        border-radius: 11px;
+        padding: 18px;
+        margin-top: 22px;
+        line-height: 1.9;
+    }
+
+    .fees-actions {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 22px;
+    }
+
+    .fees-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        text-decoration: none;
+        padding: 12px 20px;
+        border-radius: 10px;
+        font-weight: 700;
+        background: #c8a66a;
+        color: #16263f;
+    }
+
+        .fees-button:hover {
+            background: #b79557;
+            color: #16263f;
+        }
+
+    .fees-button-secondary {
+        background: white;
+        border: 1px solid #dfe5ed;
+        color: #16263f;
+    }
+
+        .fees-button-secondary:hover {
+            background: #f4f6fa;
+            color: #16263f;
+        }
+
+    @@media (max-width: 750px) {
+        .fees-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .fees-header {
+            padding: 22px;
+        }
+    }
+</style>
+
+<div class="fees-page">
+
+    <div class="fees-header">
+
+        <h2>
+            <i class="bi bi-wallet2"></i>
+            الرسوم الجامعية
+        </h2>
+
+        <p>
+            تفاصيل الرسوم الدراسية التقديرية
+            بناءً على مقرراتك المسجلة في الفصل الحالي.
+        </p>
+
+        <div class="fees-student">
+
+            <span>
+                <i class="bi bi-person"></i>
+                @studentName
+            </span>
+
+            @if (student != null)
+            {
+                <span>
+                    <i class="bi bi-person-badge"></i>
+                    @student.UniversityNumber
+                </span>
+            }
+
+            @if (activeSemester != null)
+            {
+                <span>
+                    <i class="bi bi-calendar3"></i>
+                    @activeSemester.Name
+                    - @activeSemester.AcademicYear
+                </span>
+            }
+
+        </div>
+
+    </div>
+
+    @if (activeSemester == null)
+    {
+        <div class="fees-empty fees-card">
+            <i class="bi bi-calendar-x"></i>
+
+            <h4>لا يوجد فصل دراسي فعّال حاليًا</h4>
+
+            <p>
+                لا يمكن عرض رسوم الفصل الحالي
+                حتى يتم تفعيل فصل دراسي.
+            </p>
+        </div>
+    }
+    else
+    {
+        <h3 class="fees-title">
+            <i class="bi bi-graph-up"></i>
+            ملخص الرسوم الدراسية
+        </h3>
+
+        <div class="fees-grid">
+
+            <div class="fees-card">
+                <div class="fees-icon">
+                    <i class="bi bi-book"></i>
+                </div>
+
+                <div class="fees-label">
+                    المقررات المسجلة
+                </div>
+
+                <div class="fees-value">
+                    @registrations.Count
+                </div>
+            </div>
+
+            <div class="fees-card">
+                <div class="fees-icon">
+                    <i class="bi bi-clock-history"></i>
+                </div>
+
+                <div class="fees-label">
+                    مجموع الساعات المعتمدة
+                </div>
+
+                <div class="fees-value">
+                    @totalHours
+                </div>
+            </div>
+
+            <div class="fees-card">
+                <div class="fees-icon">
+                    <i class="bi bi-cash-coin"></i>
+                </div>
+
+                <div class="fees-label">
+                    سعر الساعة المعتمدة
+                </div>
+
+                <div class="fees-value">
+                    @(pricePerHour.HasValue
+                        ? pricePerHour.Value.ToString("N2")
+                        : "غير محدد")
+                </div>
+            </div>
+
+        </div>
+
+        <h3 class="fees-title">
+            <i class="bi bi-receipt"></i>
+            تفاصيل رسوم المقررات
+        </h3>
+
+        <div class="fees-table-wrapper">
+
+            @if (!registrations.Any())
+            {
+                <div class="fees-empty">
+                    <i class="bi bi-journal-x"></i>
+
+                    <h4>لا توجد مقررات مسجلة</h4>
+
+                    <p>
+                        لم تسجل أي مقرر في الفصل الحالي،
+                        لذلك لا توجد رسوم مقررات
+                        محتسبة حتى الآن.
+                    </p>
+                </div>
+            }
+            else
+            {
+                <table class="fees-table">
+
+                    <thead>
+                        <tr>
+                            <th>المقرر</th>
+                            <th>عدد الساعات</th>
+                            <th>سعر الساعة</th>
+                            <th>رسوم المقرر</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        @foreach (var registration in registrations)
+                        {
+                            int courseHours =
+                                registration.CourseOffering.Course.CreditHours;
+
+                            decimal? courseFee = pricePerHour.HasValue
+                                ? courseHours * pricePerHour.Value
+                                : null;
+
+                            <tr>
+                                <td>
+                                    @registration.CourseOffering.Course.Name
+                                </td>
+
+                                <td>
+                                    @courseHours
+                                </td>
+
+                                <td>
+                                    @(pricePerHour.HasValue
+                                        ? pricePerHour.Value.ToString("N2")
+                                        : "غير محدد")
+                                </td>
+
+                                <td>
+                                    @(courseFee.HasValue
+                                        ? courseFee.Value.ToString("N2")
+                                        : "غير متوفر")
+                                </td>
+                            </tr>
+                        }
+
+                    </tbody>
+
+                    <tfoot>
+                        <tr>
+                            <td>الإجمالي</td>
+
+                            <td>@totalHours ساعة</td>
+
+                            <td>—</td>
+
+                            <td>
+                                @(estimatedFees.HasValue
+                                    ? estimatedFees.Value.ToString("N2")
+                                    : "غير متوفر")
+                            </td>
+                        </tr>
+                    </tfoot>
+
+                </table>
+            }
+
+        </div>
+
+        <h3 class="fees-title">
+            <i class="bi bi-calculator"></i>
+            إجمالي الرسوم التقديرية
+        </h3>
+
+        <div class="fees-card fees-card-highlight">
+
+            <div class="fees-label">
+                إجمالي رسوم المقررات المسجلة
+                في الفصل الحالي
+            </div>
+
+            <div class="fees-value">
+                @(estimatedFees.HasValue
+                    ? estimatedFees.Value.ToString("N2")
+                    : "غير متوفر")
+            </div>
+
+            <p class="text-muted mt-3 mb-0">
+                يتم الحساب بضرب مجموع الساعات
+                المعتمدة في سعر الساعة المحدد لقسمك
+                والفصل الدراسي الحالي.
+            </p>
+
+        </div>
+
+        <div class="fees-note">
+            <i class="bi bi-info-circle"></i>
+
+            <strong>تنبيه مهم:</strong>
+
+            هذه الرسوم تقديرية وتعتمد على المقررات
+            المسجلة حاليًا وسعر الساعة المعتمد.
+
+            لا تشمل هذه الصفحة المبالغ المدفوعة
+            أو الرصيد المتبقي، لأن نظام تسجيل الدفعات
+            لم يُضف إلى قاعدة البيانات بعد.
+
+            إذا لم يكن سعر الساعة محددًا،
+            فستظهر الرسوم على أنها غير متوفرة،
+            بدل عرض مبلغ غير صحيح.
+        </div>
+
+        <div class="fees-actions">
+
+            <a asp-controller="StudentDashboard"
+               asp-action="Courses"
+               class="fees-button">
+                <i class="bi bi-journal-plus"></i>
+                تسجيل المقررات
+            </a>
+
+            <a asp-controller="StudentDashboard"
+               asp-action="Index"
+               class="fees-button fees-button-secondary">
+                <i class="bi bi-arrow-right"></i>
+                العودة إلى بوابة الطالب
+            </a>
+
+        </div>
+    }
+
+</div>

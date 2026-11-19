@@ -5,7 +5,9 @@ namespace StudentAffairsManagementSystem.ViewModels
 {
     public class CreateStudentViewModel
     {
+        // ==========================================
         // معلومات الطالب الأساسية
+        // ==========================================
 
         [Required(ErrorMessage = "اسم الطالب مطلوب")]
         public string FirstName { get; set; } = string.Empty;
@@ -19,18 +21,24 @@ namespace StudentAffairsManagementSystem.ViewModels
         [Required(ErrorMessage = "الكنية مطلوبة")]
         public string LastName { get; set; } = string.Empty;
 
+        // ==========================================
         // القسم وفصل القبول
+        // ==========================================
 
-        [Required(ErrorMessage = "القسم مطلوب")]
+        [Range(1, long.MaxValue,
+            ErrorMessage = "يرجى اختيار القسم")]
         public long DepartmentId { get; set; }
 
-        [Required(ErrorMessage = "فصل القبول مطلوب")]
+        [Range(1, long.MaxValue,
+            ErrorMessage = "يرجى اختيار فصل القبول")]
         public long AdmissionSemesterId { get; set; }
 
         // فصل التخرج اختياري
         public long? GraduationSemesterId { get; set; }
 
+        // ==========================================
         // معلومات التواصل
+        // ==========================================
 
         public string Phone { get; set; } = string.Empty;
 
@@ -38,7 +46,9 @@ namespace StudentAffairsManagementSystem.ViewModels
 
         public string Governorate { get; set; } = string.Empty;
 
+        // ==========================================
         // المعلومات الشخصية
+        // ==========================================
 
         [DataType(DataType.Date)]
         public DateTime BirthDate { get; set; }
@@ -49,13 +59,17 @@ namespace StudentAffairsManagementSystem.ViewModels
 
         public string Nationality { get; set; } = string.Empty;
 
+        // ==========================================
         // الحالة الدراسية
+        // ==========================================
 
         public string Status { get; set; } = string.Empty;
 
         public decimal? GraduationAverage { get; set; }
 
+        // ==========================================
         // صور ووثائق الطالب
+        // ==========================================
 
         public string? PersonalImage { get; set; }
 
@@ -63,7 +77,9 @@ namespace StudentAffairsManagementSystem.ViewModels
 
         public string? CertificateImage { get; set; }
 
+        // ==========================================
         // بيانات حساب الطالب
+        // ==========================================
 
         [Required(ErrorMessage = "كلمة المرور مطلوبة")]
         [DataType(DataType.Password)]

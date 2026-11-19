@@ -1,20 +1,31 @@
-﻿
-@model IEnumerable<StudentAffairsManagementSystem.Models.Course>
+﻿@model IEnumerable<StudentAffairsManagementSystem.Models.Course>
+
+@using StudentAffairsManagementSystem.Models
 
 @{
     ViewData["Title"] = "المقررات الدراسية";
 
     var courses = Model?.ToList()
-        ?? new List<StudentAffairsManagementSystem.Models.Course>();
+        ?? new List<Course>();
 
     var totalCourses = courses.Count;
+
     var totalHours = courses.Sum(c => c.CreditHours);
+
     var totalDepartments = courses
         .Select(c => c.DepartmentId)
         .Distinct()
         .Count();
 
     var isAdmin = User.IsInRole("Admin");
+
+    // الفصل الدراسي الفعّال
+    var activeSemester = ViewBag.ActiveSemester as Semester;
+
+    // أسعار الساعات حسب القسم في الفصل الفعّال
+    var hourPrices = ViewBag.HourPrices
+        as Dictionary<long, decimal>
+        ?? new Dictionary<long, decimal>();
 }
 
 <style>
@@ -31,16 +42,16 @@
         margin-bottom: 25px;
     }
 
-    .courses-header h2 {
-        font-size: 25px;
-        font-weight: bold;
-        margin-bottom: 8px;
-    }
+        .courses-header h2 {
+            font-size: 25px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
 
-    .courses-header p {
-        color: #718096;
-        margin: 0;
-    }
+        .courses-header p {
+            color: #718096;
+            margin: 0;
+        }
 
     .courses-add-btn {
         background: #c8a66a;
@@ -54,10 +65,10 @@
         gap: 9px;
     }
 
-    .courses-add-btn:hover {
-        background: #b79557;
-        color: #16263f;
-    }
+        .courses-add-btn:hover {
+            background: #b79557;
+            color: #16263f;
+        }
 
     .courses-stats {
         display: grid;
@@ -103,11 +114,11 @@
         border-bottom: 1px solid #e5eaf2;
     }
 
-    .courses-table-header h3 {
-        margin: 0;
-        font-size: 19px;
-        font-weight: bold;
-    }
+        .courses-table-header h3 {
+            margin: 0;
+            font-size: 19px;
+            font-weight: bold;
+        }
 
     .courses-search {
         width: 280px;
@@ -118,33 +129,33 @@
         outline: none;
     }
 
-    .courses-search:focus {
-        border-color: #c8a66a;
-    }
+        .courses-search:focus {
+            border-color: #c8a66a;
+        }
 
     .courses-table {
         width: 100%;
         border-collapse: collapse;
     }
 
-    .courses-table th {
-        background: #f8f9fc;
-        color: #42536c;
-        padding: 17px;
-        text-align: right;
-        font-size: 13px;
-        white-space: nowrap;
-    }
+        .courses-table th {
+            background: #f8f9fc;
+            color: #42536c;
+            padding: 17px;
+            text-align: right;
+            font-size: 13px;
+            white-space: nowrap;
+        }
 
-    .courses-table td {
-        padding: 17px;
-        border-top: 1px solid #edf0f5;
-        vertical-align: middle;
-    }
+        .courses-table td {
+            padding: 17px;
+            border-top: 1px solid #edf0f5;
+            vertical-align: middle;
+        }
 
-    .courses-table tbody tr:hover {
-        background: #fcfcfe;
-    }
+        .courses-table tbody tr:hover {
+            background: #fcfcfe;
+        }
 
     .courses-code {
         display: inline-block;
@@ -162,6 +173,38 @@
         color: #8b6b37;
         border-radius: 7px;
         padding: 6px 12px;
+        white-space: nowrap;
+    }
+
+    /* سعر الساعة */
+    .courses-price {
+        display: inline-block;
+        background: #eaf5ee;
+        color: #217348;
+        border-radius: 7px;
+        padding: 7px 12px;
+        font-weight: bold;
+        white-space: nowrap;
+    }
+
+    .courses-price-missing {
+        display: inline-block;
+        background: #f0f1f4;
+        color: #718096;
+        border-radius: 7px;
+        padding: 7px 12px;
+        font-size: 13px;
+        white-space: nowrap;
+    }
+
+    .courses-semester-note {
+        background: #fff9ed;
+        color: #826329;
+        border: 1px solid #efdfbb;
+        border-radius: 10px;
+        padding: 13px 17px;
+        margin-bottom: 20px;
+        line-height: 1.8;
     }
 
     .courses-actions {
@@ -179,20 +222,20 @@
         color: #304661;
     }
 
-    .courses-action-link:hover {
-        background: #dfe7f2;
-        color: #16263f;
-    }
+        .courses-action-link:hover {
+            background: #dfe7f2;
+            color: #16263f;
+        }
 
     .courses-action-delete {
         background: #fff0ee;
         color: #b42318;
     }
 
-    .courses-action-delete:hover {
-        background: #ffe1dc;
-        color: #912018;
-    }
+        .courses-action-delete:hover {
+            background: #ffe1dc;
+            color: #912018;
+        }
 
     .courses-empty {
         padding: 45px 20px;
@@ -200,12 +243,12 @@
         color: #718096;
     }
 
-    .courses-empty i {
-        display: block;
-        font-size: 40px;
-        color: #c8a66a;
-        margin-bottom: 12px;
-    }
+        .courses-empty i {
+            display: block;
+            font-size: 40px;
+            color: #c8a66a;
+            margin-bottom: 12px;
+        }
 
     @@media (max-width: 800px) {
         .courses-stats {
@@ -213,16 +256,19 @@
         }
 
         .courses-table {
-            min-width: 750px;
+            min-width: 900px;
         }
     }
 </style>
 
-<div class="courses-page">
+<div class="courses-page" dir="rtl">
 
+    <!-- عنوان الصفحة -->
     <div class="courses-header">
+
         <div>
             <h2>إدارة المقررات الدراسية</h2>
+
             <p>
                 عرض المقررات الأكاديمية المسجلة في النظام.
             </p>
@@ -233,18 +279,23 @@
             <a asp-controller="Courses"
                asp-action="Create"
                class="courses-add-btn">
+
                 <i class="bi bi-plus-circle"></i>
                 إضافة مقرر جديد
+
             </a>
         }
+
     </div>
 
+    <!-- بطاقات الإحصائيات -->
     <div class="courses-stats">
 
         <div class="courses-stat-card">
             <div class="courses-stat-label">
                 إجمالي المقررات
             </div>
+
             <div class="courses-stat-value">
                 @totalCourses
             </div>
@@ -254,6 +305,7 @@
             <div class="courses-stat-label">
                 مجموع الساعات المعتمدة
             </div>
+
             <div class="courses-stat-value">
                 @totalHours
             </div>
@@ -263,6 +315,7 @@
             <div class="courses-stat-label">
                 الأقسام المرتبطة بالمقررات
             </div>
+
             <div class="courses-stat-value">
                 @totalDepartments
             </div>
@@ -270,15 +323,45 @@
 
     </div>
 
+    <!-- توضيح الفصل المعتمد لأسعار الساعات -->
+    <div class="courses-semester-note">
+
+        @if (activeSemester != null)
+        {
+            <i class="bi bi-calendar3"></i>
+
+            <strong>أسعار الساعات المعروضة تخص الفصل:</strong>
+
+            @activeSemester.Name
+            <span> - </span>
+            @activeSemester.AcademicYear
+        }
+        else
+        {
+            <i class="bi bi-exclamation-circle"></i>
+
+            <strong>لا يوجد فصل دراسي فعّال حاليًا.</strong>
+
+            <span>
+                سيتم عرض سعر الساعة على أنه غير محدد
+                حتى يتم تفعيل فصل دراسي وتسجيل أسعار الساعات له.
+            </span>
+        }
+
+    </div>
+
+    <!-- جدول المقررات -->
     <div class="courses-table-card">
 
         <div class="courses-table-header">
+
             <h3>قائمة المقررات</h3>
 
             <input type="search"
                    id="courseSearch"
                    class="courses-search"
                    placeholder="ابحث عن مقرر أو رمز أو قسم..." />
+
         </div>
 
         <div style="overflow-x:auto;">
@@ -292,6 +375,7 @@
                         <th>اسم المقرر</th>
                         <th>القسم الأكاديمي</th>
                         <th>الساعات المعتمدة</th>
+                        <th>سعر الساعة</th>
                         <th>الإجراءات</th>
                     </tr>
                 </thead>
@@ -300,29 +384,58 @@
 
                     @foreach (var course in courses)
                     {
+                        bool hasPrice = hourPrices.TryGetValue(
+                            course.DepartmentId,
+                            out decimal pricePerHour);
+
                         <tr class="course-data-row">
 
+                            <!-- رمز المقرر -->
                             <td>
                                 <span class="courses-code">
                                     @course.Code
                                 </span>
                             </td>
 
+                            <!-- اسم المقرر -->
                             <td>
                                 <strong>@course.Name</strong>
                             </td>
 
+                            <!-- القسم -->
                             <td>
                                 @(course.Department?.Name ?? "غير محدد")
                             </td>
 
+                            <!-- الساعات المعتمدة -->
                             <td>
                                 <span class="courses-hours">
                                     @course.CreditHours ساعات
                                 </span>
                             </td>
 
+                            <!-- سعر الساعة -->
                             <td>
+
+                                @if (hasPrice)
+                                {
+                                    <span class="courses-price"
+                                          dir="ltr">
+                                        @pricePerHour.ToString("N2")
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="courses-price-missing">
+                                        غير محدد
+                                    </span>
+                                }
+
+                            </td>
+
+                            <!-- الإجراءات -->
+                            <td>
+
                                 <div class="courses-actions">
 
                                     <a asp-controller="Courses"
@@ -350,19 +463,21 @@
                                     }
 
                                 </div>
+
                             </td>
 
                         </tr>
                     }
 
                 </tbody>
+
             </table>
 
             @if (!courses.Any())
             {
                 <div class="courses-empty">
                     <i class="bi bi-journal-x"></i>
-                    لا توجد مقررات دراسية مسجلة حالياً.
+                    لا توجد مقررات دراسية مسجلة حاليًا.
                 </div>
             }
 
@@ -380,23 +495,35 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        const searchInput = document.getElementById("courseSearch");
-        const rows = document.querySelectorAll(".course-data-row");
-        const noResults = document.getElementById("noSearchResults");
+
+        const searchInput =
+            document.getElementById("courseSearch");
+
+        const rows =
+            document.querySelectorAll(".course-data-row");
+
+        const noResults =
+            document.getElementById("noSearchResults");
 
         if (!searchInput) return;
 
         searchInput.addEventListener("input", function () {
+
             const term = this.value.trim().toLowerCase();
+
             let visibleCount = 0;
 
             rows.forEach(function (row) {
+
                 const text = row.textContent.toLowerCase();
+
                 const matches = text.includes(term);
 
                 row.style.display = matches ? "" : "none";
 
-                if (matches) visibleCount++;
+                if (matches) {
+                    visibleCount++;
+                }
             });
 
             if (noResults) {

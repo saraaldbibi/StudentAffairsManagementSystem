@@ -537,9 +537,18 @@ namespace StudentAffairsManagementSystem.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("IsRegistrationOpen")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("RegistrationEndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("RegistrationStartDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("SemesterNumber")
                         .HasColumnType("int");

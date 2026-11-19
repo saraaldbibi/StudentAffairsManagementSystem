@@ -1,5 +1,4 @@
-﻿
-@model StudentAffairsManagementSystem.ViewModels.CreateStudentViewModel
+﻿@model StudentAffairsManagementSystem.ViewModels.CreateStudentViewModel
 
 @{
     ViewData["Title"] = "إضافة طالب جديد";
@@ -29,16 +28,16 @@
         border-bottom: 4px solid #c9a66b;
     }
 
-    .student-create-header h2 {
-        font-size: 25px;
-        font-weight: 700;
-        margin-bottom: 8px;
-    }
+        .student-create-header h2 {
+            font-size: 25px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
 
-    .student-create-header p {
-        color: #d6dce6;
-        margin: 0;
-    }
+        .student-create-header p {
+            color: #d6dce6;
+            margin: 0;
+        }
 
     .student-create-card {
         background: white;
@@ -54,9 +53,9 @@
         border-bottom: 1px solid #e9edf3;
     }
 
-    .student-section:last-of-type {
-        border-bottom: none;
-    }
+        .student-section:last-of-type {
+            border-bottom: none;
+        }
 
     .student-section-title {
         font-size: 18px;
@@ -79,9 +78,9 @@
         gap: 8px;
     }
 
-    .student-form-field.full-width {
-        grid-column: 1 / -1;
-    }
+        .student-form-field.full-width {
+            grid-column: 1 / -1;
+        }
 
     .student-form-label {
         font-size: 14px;
@@ -99,20 +98,38 @@
         font-size: 14px;
     }
 
-    .student-form-input:focus {
-        outline: none;
-        border-color: #c9a66b;
-        box-shadow: 0 0 0 3px rgba(201,166,107,0.15);
-    }
+        .student-form-input:focus {
+            outline: none;
+            border-color: #c9a66b;
+            box-shadow: 0 0 0 3px rgba(201,166,107,0.15);
+        }
 
     .student-form-error {
         color: #b42318;
         font-size: 13px;
     }
 
-    .student-form-hint {
-        color: #718096;
-        font-size: 12px;
+    .student-validation-summary {
+        background: #fff5f5;
+        border: 1px solid #f3c5c5;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 22px;
+        color: #b42318;
+    }
+
+        .student-validation-summary:empty {
+            display: none;
+        }
+
+    .student-form-note {
+        background: #f7f9fc;
+        border-right: 4px solid #c9a66b;
+        padding: 15px 18px;
+        border-radius: 8px;
+        color: #526174;
+        font-size: 14px;
+        margin-bottom: 25px;
     }
 
     .student-form-actions {
@@ -132,9 +149,9 @@
         cursor: pointer;
     }
 
-    .student-save-btn:hover {
-        background: #b99555;
-    }
+        .student-save-btn:hover {
+            background: #b99555;
+        }
 
     .student-cancel-btn {
         background: #edf1f7;
@@ -143,16 +160,6 @@
         padding: 13px 25px;
         text-decoration: none;
         font-weight: 600;
-    }
-
-    .student-form-note {
-        background: #f7f9fc;
-        border-right: 4px solid #c9a66b;
-        padding: 15px 18px;
-        border-radius: 8px;
-        color: #526174;
-        font-size: 14px;
-        margin-bottom: 25px;
     }
 
     @@media (max-width: 700px) {
@@ -196,10 +203,8 @@
               asp-action="Create"
               method="post">
 
-            @Html.AntiForgeryToken()
-
-            <div asp-validation-summary="ModelOnly"
-                 class="student-form-error"></div>
+            <div asp-validation-summary="All"
+                 class="student-validation-summary"></div>
 
             <!-- البيانات الأساسية -->
             <div class="student-section">
@@ -266,11 +271,12 @@
                     <div class="student-form-field">
                         <label asp-for="BirthDate"
                                class="student-form-label">
-                            تاريخ الميلاد
+                            تاريخ الميلاد *
                         </label>
 
                         <input asp-for="BirthDate"
                                type="date"
+                               required
                                class="student-form-input" />
 
                         <span asp-validation-for="BirthDate"
@@ -342,9 +348,7 @@
                         <select asp-for="DepartmentId"
                                 class="student-form-input">
 
-                            <option value="0">
-                                -- اختر القسم --
-                            </option>
+                            <option value="0">-- اختر القسم --</option>
 
                             @foreach (var department in departments)
                             {
@@ -367,9 +371,7 @@
                         <select asp-for="AdmissionSemesterId"
                                 class="student-form-input">
 
-                            <option value="0">
-                                -- اختر فصل القبول --
-                            </option>
+                            <option value="0">-- اختر فصل القبول --</option>
 
                             @foreach (var semester in semesters)
                             {
@@ -392,9 +394,7 @@
                         <select asp-for="GraduationSemesterId"
                                 class="student-form-input">
 
-                            <option value="">
-                                -- لم يتخرج بعد --
-                            </option>
+                            <option value="">-- لم يتخرج بعد --</option>
 
                             @foreach (var semester in semesters)
                             {
@@ -600,6 +600,7 @@
                 </div>
             </div>
 
+            <!-- أزرار الحفظ والإلغاء -->
             <div class="student-form-actions">
 
                 <button type="submit"

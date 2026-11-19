@@ -17,7 +17,9 @@ namespace StudentAffairsManagementSystem.Controllers
             _context = context;
         }
 
+        // ==========================================
         // عرض جميع أسعار الساعات
+        // ==========================================
         public async Task<IActionResult> Index()
         {
             var hourPrices = await _context.HourPrices
@@ -31,7 +33,9 @@ namespace StudentAffairsManagementSystem.Controllers
             return View(hourPrices);
         }
 
+        // ==========================================
         // عرض تفاصيل سعر ساعة
+        // ==========================================
         public async Task<IActionResult> Details(long id)
         {
             var hourPrice = await _context.HourPrices
@@ -46,7 +50,9 @@ namespace StudentAffairsManagementSystem.Controllers
             return View(hourPrice);
         }
 
+        // ==========================================
         // فتح صفحة إضافة سعر ساعة
+        // ==========================================
         [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<IActionResult> Create()
@@ -56,7 +62,9 @@ namespace StudentAffairsManagementSystem.Controllers
             return View(new HourPrice());
         }
 
+        // ==========================================
         // حفظ سعر ساعة جديد
+        // ==========================================
         [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -64,7 +72,6 @@ namespace StudentAffairsManagementSystem.Controllers
             [Bind("DepartmentId,SemesterId,PricePerHour")]
             HourPrice hourPrice)
         {
-            // الخصائص المرتبطة لا تُرسل من النموذج
             ModelState.Remove(nameof(HourPrice.Department));
             ModelState.Remove(nameof(HourPrice.Semester));
 
@@ -86,16 +93,20 @@ namespace StudentAffairsManagementSystem.Controllers
             {
                 ModelState.AddModelError(
                     string.Empty,
-                    "تعذر حفظ سعر الساعة. تحققوا من البيانات وحاولوا مجدداً.");
+                    "تعذر حفظ سعر الساعة. تحققوا من البيانات وحاولوا مجددًا.");
 
                 await LoadLists();
                 return View(hourPrice);
             }
 
+            TempData["Success"] = "تمت إضافة سعر الساعة بنجاح.";
+
             return RedirectToAction(nameof(Index));
         }
 
+        // ==========================================
         // فتح صفحة تعديل سعر الساعة
+        // ==========================================
         [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<IActionResult> Edit(long id)
@@ -111,7 +122,9 @@ namespace StudentAffairsManagementSystem.Controllers
             return View(hourPrice);
         }
 
-        // حفظ التعديلات
+        // ==========================================
+        // حفظ تعديلات سعر الساعة
+        // ==========================================
         [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -152,16 +165,20 @@ namespace StudentAffairsManagementSystem.Controllers
             {
                 ModelState.AddModelError(
                     string.Empty,
-                    "تعذر حفظ التعديلات. تحققوا من البيانات وحاولوا مجدداً.");
+                    "تعذر حفظ التعديلات. تحققوا من البيانات وحاولوا مجددًا.");
 
                 await LoadLists();
                 return View(model);
             }
 
+            TempData["Success"] = "تم تعديل سعر الساعة بنجاح.";
+
             return RedirectToAction(nameof(Index));
         }
 
+        // ==========================================
         // فتح صفحة تأكيد الحذف
+        // ==========================================
         [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<IActionResult> Delete(long id)
@@ -178,7 +195,9 @@ namespace StudentAffairsManagementSystem.Controllers
             return View(hourPrice);
         }
 
+        // ==========================================
         // تنفيذ الحذف
+        // ==========================================
         [Authorize(Roles = "Admin")]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
@@ -199,29 +218,34 @@ namespace StudentAffairsManagementSystem.Controllers
             catch (DbUpdateException)
             {
                 TempData["Error"] =
-                    "تعذر حذف سعر الساعة لأنه قد يكون مرتبطاً ببيانات أخرى.";
+                    "تعذر حذف سعر الساعة لأنه قد يكون مرتبطًا ببيانات أخرى.";
 
                 return RedirectToAction(nameof(Index));
             }
 
+            TempData["Success"] = "تم حذف سعر الساعة بنجاح.";
+
             return RedirectToAction(nameof(Index));
         }
 
+        // ==========================================
         // التحقق من صحة بيانات سعر الساعة
+        // ==========================================
         private async Task ValidateHourPrice(
             HourPrice hourPrice,
             long? currentId = null)
         {
-            // التأكد من وجود القسم
+            // القسم لازم يكون موجودًا ومرتبطًا بكلية موجودة
             bool departmentExists =
                 await _context.Departments.AnyAsync(d =>
-                    d.Id == hourPrice.DepartmentId);
+                    d.Id == hourPrice.DepartmentId &&
+                    d.Faculty != null);
 
             if (!departmentExists)
             {
                 ModelState.AddModelError(
                     nameof(HourPrice.DepartmentId),
-                    "القسم المختار غير موجود");
+                    "القسم المختار غير موجود أو غير مرتبط بكلية صحيحة.");
             }
 
             // التأكد من وجود الفصل الدراسي
@@ -233,7 +257,7 @@ namespace StudentAffairsManagementSystem.Controllers
             {
                 ModelState.AddModelError(
                     nameof(HourPrice.SemesterId),
-                    "الفصل الدراسي المختار غير موجود");
+                    "الفصل الدراسي المختار غير موجود.");
             }
 
             // السعر يجب أن يكون أكبر من صفر
@@ -241,38 +265,67 @@ namespace StudentAffairsManagementSystem.Controllers
             {
                 ModelState.AddModelError(
                     nameof(HourPrice.PricePerHour),
-                    "سعر الساعة لازم يكون أكبر من صفر");
+                    "سعر الساعة لازم يكون أكبر من صفر.");
             }
 
-            // منع تسجيل سعرين لنفس القسم والفصل
-            bool duplicateExists =
-                await _context.HourPrices.AnyAsync(h =>
-                    h.DepartmentId == hourPrice.DepartmentId &&
-                    h.SemesterId == hourPrice.SemesterId &&
-                    (!currentId.HasValue ||
-                     h.Id != currentId.Value));
-
-            if (duplicateExists)
+            // منع تكرار السعر لنفس القسم والفصل
+            if (departmentExists && semesterExists)
             {
-                ModelState.AddModelError(
-                    nameof(HourPrice.SemesterId),
-                    "يوجد سعر ساعة مسجل لهذا القسم في نفس الفصل");
+                bool duplicateExists =
+                    await _context.HourPrices.AnyAsync(h =>
+                        h.DepartmentId == hourPrice.DepartmentId &&
+                        h.SemesterId == hourPrice.SemesterId &&
+                        (!currentId.HasValue ||
+                         h.Id != currentId.Value));
+
+                if (duplicateExists)
+                {
+                    ModelState.AddModelError(
+                        nameof(HourPrice.SemesterId),
+                        "يوجد سعر ساعة مسجل لهذا القسم في نفس الفصل الدراسي.");
+                }
             }
         }
 
-        // تجهيز قوائم الأقسام والفصول
+        // ==========================================
+        // تجهيز قوائم الكليات والأقسام والفصول
+        // ==========================================
         private async Task LoadLists()
         {
+            // جلب الكليات الحقيقية من قاعدة البيانات
+            var faculties = await _context.Faculties
+                .AsNoTracking()
+                .OrderBy(f => f.Name)
+                .ToListAsync();
+
+            // جلب الأقسام وربط كل قسم بكليته
             var departments = await _context.Departments
                 .AsNoTracking()
+                .Include(d => d.Faculty)
                 .OrderBy(d => d.Name)
                 .ToListAsync();
 
+            // جلب الفصول الدراسية
             var semesters = await _context.Semesters
                 .AsNoTracking()
                 .OrderByDescending(s => s.StartDate)
                 .ToListAsync();
 
+            // قائمة الكليات لصفحة الإضافة
+            ViewBag.Faculties = faculties
+                .Select(f => new SelectListItem
+                {
+                    Value = f.Id.ToString(),
+                    Text = f.Name
+                })
+                .ToList();
+
+            // الأقسام مع FacultyId
+            // تستخدمها JavaScript لتصفية الأقسام حسب الكلية
+            ViewBag.DepartmentsWithFaculties = departments;
+
+            // الإبقاء على القائمة القديمة
+            // حتى تستمر صفحة التعديل الحالية بالعمل
             ViewBag.DepartmentId = new SelectList(
                 departments,
                 "Id",

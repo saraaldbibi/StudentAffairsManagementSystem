@@ -1,5 +1,4 @@
-﻿
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -19,7 +18,7 @@ namespace StudentAffairsManagementSystem.Controllers
         }
 
         // ==========================================
-        // عرض جميع المقررات الدراسية
+        // عرض جميع المقررات الدراسية مع أسعار الساعات
         // ==========================================
         public async Task<IActionResult> Index()
         {
@@ -28,6 +27,41 @@ namespace StudentAffairsManagementSystem.Controllers
                 .AsNoTracking()
                 .OrderBy(c => c.Name)
                 .ToListAsync();
+
+            // الفصل الدراسي الفعّال المعتمد
+            var activeSemester = await _context.Semesters
+                .AsNoTracking()
+                .Where(s => s.IsActive)
+                .OrderByDescending(s => s.StartDate)
+                .FirstOrDefaultAsync();
+
+            ViewBag.ActiveSemester = activeSemester;
+
+            // ربط سعر الساعة بالقسم والفصل الفعّال
+            var hourPrices = new Dictionary<long, decimal>();
+
+            if (activeSemester != null)
+            {
+                var prices = await _context.HourPrices
+                    .AsNoTracking()
+                    .Where(h => h.SemesterId == activeSemester.Id)
+                    .Select(h => new
+                    {
+                        h.DepartmentId,
+                        h.PricePerHour
+                    })
+                    .ToListAsync();
+
+                // في حال وجود سجلات مكررة قديمة،
+                // نأخذ أول سعر لكل قسم دون تعطيل الصفحة.
+                hourPrices = prices
+                    .GroupBy(h => h.DepartmentId)
+                    .ToDictionary(
+                        g => g.Key,
+                        g => g.First().PricePerHour);
+            }
+
+            ViewBag.HourPrices = hourPrices;
 
             return View(courses);
         }
@@ -44,9 +78,7 @@ namespace StudentAffairsManagementSystem.Controllers
                 .FirstOrDefaultAsync(c => c.Id == id);
 
             if (course == null)
-            {
                 return NotFound();
-            }
 
             return View(course);
         }
@@ -96,7 +128,7 @@ namespace StudentAffairsManagementSystem.Controllers
             {
                 ModelState.AddModelError(
                     string.Empty,
-                    "تعذر حفظ المقرر. تحققوا من الرمز والقسم وحاولوا مجدداً.");
+                    "تعذر حفظ المقرر. تحققوا من الرمز والقسم وحاولوا مجددًا.");
 
                 await LoadDepartments();
                 return View(course);
@@ -116,9 +148,7 @@ namespace StudentAffairsManagementSystem.Controllers
                 .FindAsync(id);
 
             if (course == null)
-            {
                 return NotFound();
-            }
 
             await LoadDepartments();
 
@@ -137,9 +167,7 @@ namespace StudentAffairsManagementSystem.Controllers
             Course model)
         {
             if (id != model.Id)
-            {
                 return NotFound();
-            }
 
             ModelState.Remove(nameof(Course.Department));
 
@@ -158,9 +186,7 @@ namespace StudentAffairsManagementSystem.Controllers
                 .FindAsync(id);
 
             if (course == null)
-            {
                 return NotFound();
-            }
 
             course.Name = model.Name;
             course.Code = model.Code;
@@ -175,7 +201,7 @@ namespace StudentAffairsManagementSystem.Controllers
             {
                 ModelState.AddModelError(
                     string.Empty,
-                    "تعذر حفظ التعديلات. تحققوا من البيانات وحاولوا مجدداً.");
+                    "تعذر حفظ التعديلات. تحققوا من البيانات وحاولوا مجددًا.");
 
                 await LoadDepartments();
                 return View(model);
@@ -197,9 +223,7 @@ namespace StudentAffairsManagementSystem.Controllers
                 .FirstOrDefaultAsync(c => c.Id == id);
 
             if (course == null)
-            {
                 return NotFound();
-            }
 
             return View(course);
         }
@@ -216,9 +240,7 @@ namespace StudentAffairsManagementSystem.Controllers
                 .FindAsync(id);
 
             if (course == null)
-            {
                 return NotFound();
-            }
 
             // منع حذف مقرر مرتبط بطرح دراسي
             bool hasOfferings = await _context.CourseOfferings
@@ -241,7 +263,7 @@ namespace StudentAffairsManagementSystem.Controllers
             catch (DbUpdateException)
             {
                 TempData["Error"] =
-                    "تعذر حذف المقرر لأنه قد يكون مرتبطاً ببيانات أخرى.";
+                    "تعذر حذف المقرر لأنه قد يكون مرتبطًا ببيانات أخرى.";
 
                 return RedirectToAction(nameof(Index));
             }
@@ -256,7 +278,6 @@ namespace StudentAffairsManagementSystem.Controllers
             Course course,
             long? currentCourseId = null)
         {
-            // التحقق من اسم المقرر
             if (string.IsNullOrWhiteSpace(course.Name))
             {
                 ModelState.AddModelError(
@@ -264,7 +285,6 @@ namespace StudentAffairsManagementSystem.Controllers
                     "اسم المقرر مطلوب");
             }
 
-            // التحقق من رمز المقرر
             if (string.IsNullOrWhiteSpace(course.Code))
             {
                 ModelState.AddModelError(
@@ -272,7 +292,6 @@ namespace StudentAffairsManagementSystem.Controllers
                     "رمز المقرر مطلوب");
             }
 
-            // التحقق من عدد الساعات
             if (course.CreditHours <= 0)
             {
                 ModelState.AddModelError(
@@ -280,7 +299,6 @@ namespace StudentAffairsManagementSystem.Controllers
                     "عدد الساعات لازم يكون أكبر من صفر");
             }
 
-            // التأكد من أن القسم موجود وفعّال
             bool departmentExists =
                 await _context.Departments.AnyAsync(d =>
                     d.Id == course.DepartmentId &&
@@ -307,13 +325,13 @@ namespace StudentAffairsManagementSystem.Controllers
                 {
                     ModelState.AddModelError(
                         nameof(Course.Code),
-                        "رمز المقرر مستخدم مسبقاً في نفس القسم");
+                        "رمز المقرر مستخدم مسبقًا في نفس القسم");
                 }
             }
         }
 
         // ==========================================
-        // تجهيز القائمة المنسدلة للأقسام الفعّالة
+        // تجهيز قائمة الأقسام الفعّالة
         // ==========================================
         private async Task LoadDepartments()
         {

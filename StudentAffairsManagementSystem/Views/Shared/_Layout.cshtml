@@ -1,5 +1,4 @@
-﻿
-@using Microsoft.AspNetCore.Identity
+﻿@using Microsoft.AspNetCore.Identity
 @using StudentAffairsManagementSystem.Models
 @inject UserManager<Account> UserManager
 
@@ -39,515 +38,499 @@
 
     <title>@pageTitle - الجامعة الدولية للعلوم والنهضة</title>
 
-    <!-- Bootstrap RTL -->
     <link rel="stylesheet"
           href="~/lib/bootstrap/dist/css/bootstrap.rtl.min.css" />
 
-    <!-- Bootstrap Icons -->
     <link rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
 
-    <!-- Project CSS -->
-    <link rel="stylesheet"
-          href="~/css/site.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
 
     <link rel="stylesheet"
           href="~/StudentAffairsManagementSystem.styles.css" />
 
     <style>
-        :root {
-            --navy: #16263f;
-            --navy-hover: #263d5e;
-            --gold: #c8a66a;
-            --background: #f5f7fb;
-            --border: #e5eaf2;
-        }
+            :root {
+                --navy: #16263f;
+                --navy-hover: #263d5e;
+                --gold: #c8a66a;
+                --background: #f5f7fb;
+                --border: #e5eaf2;
+            }
 
-        * {
-            box-sizing: border-box;
-        }
+            * {
+                box-sizing: border-box;
+            }
 
-        body {
-            margin: 0;
-            background: var(--background);
-            color: var(--navy);
-            font-family: Tahoma, Arial, sans-serif;
-        }
+            body {
+                margin: 0;
+                background: var(--background);
+                color: var(--navy);
+                font-family: Tahoma, Arial, sans-serif;
+            }
 
-        /* Main layout */
-
-        .app-layout {
-            display: flex;
-            min-height: 100vh;
-        }
-
-        /* Sidebar */
-
-        .app-sidebar {
-            width: 270px;
-            flex-shrink: 0;
-            min-height: 100vh;
-            background: var(--navy);
-            color: white;
-            padding: 22px 14px;
-        }
-
-        .brand-area {
-            text-align: center;
-            padding: 12px 8px 25px;
-            border-bottom: 1px solid #354660;
-            margin-bottom: 20px;
-        }
-
-        .brand-logo {
-            width: 95px;
-            height: 95px;
-            object-fit: contain;
-            background: white;
-            border-radius: 50%;
-            padding: 5px;
-            margin-bottom: 14px;
-        }
-
-        .brand-name {
-            color: white;
-            font-size: 17px;
-            font-weight: bold;
-            line-height: 1.8;
-            margin-bottom: 8px;
-        }
-
-        .brand-subtitle {
-            color: var(--gold);
-            font-size: 13px;
-        }
-
-        /* Sidebar links */
-
-        .menu-heading {
-            color: #aab8cb;
-            font-size: 12px;
-            margin: 22px 14px 10px;
-        }
-
-        .menu-link {
-            display: flex;
-            align-items: center;
-            gap: 13px;
-            padding: 13px 15px;
-            margin-bottom: 5px;
-            border-radius: 10px;
-            color: #e4ebf6;
-            text-decoration: none;
-            font-size: 14px;
-            transition: background .2s, color .2s;
-        }
-
-        .menu-link:hover {
-            background: var(--navy-hover);
-            color: white;
-        }
-
-        .menu-link.active {
-            background: #304661;
-            color: white;
-            border-right: 3px solid var(--gold);
-            font-weight: bold;
-        }
-
-        .menu-link i {
-            width: 24px;
-            font-size: 19px;
-            text-align: center;
-            color: var(--gold);
-            flex-shrink: 0;
-        }
-
-        /* Main content */
-
-        .app-main {
-            flex: 1;
-            min-width: 0;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* Top bar */
-
-        .app-topbar {
-            min-height: 85px;
-            background: white;
-            border-bottom: 1px solid var(--border);
-            padding: 18px 30px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 20px;
-        }
-
-        .page-title {
-            font-size: 20px;
-            font-weight: bold;
-            margin: 0;
-        }
-
-        .topbar-user {
-            display: flex;
-            align-items: center;
-            gap: 13px;
-        }
-
-        .user-avatar {
-            width: 43px;
-            height: 43px;
-            border-radius: 50%;
-            background: var(--gold);
-            color: var(--navy);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 18px;
-            flex-shrink: 0;
-        }
-
-        .user-details {
-            display: flex;
-            flex-direction: column;
-            gap: 3px;
-        }
-
-        .user-details small {
-            color: #7b8797;
-        }
-
-        .logout-button {
-            border: 1px solid #e2e7ef;
-            border-radius: 9px;
-            padding: 9px 13px;
-            background: white;
-            color: #42536c;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-        }
-
-        .logout-button:hover {
-            background: #fff3f1;
-            color: #b33b30;
-        }
-
-        .app-content {
-            flex: 1;
-            padding: 30px;
-        }
-
-        .app-footer {
-            text-align: center;
-            padding: 20px;
-            color: #8590a0;
-            font-size: 12px;
-        }
-
-        /* Shared cards */
-
-        .university-card {
-            background: white;
-            border: 1px solid var(--border);
-            border-radius: 15px;
-            padding: 24px;
-            box-shadow: 0 3px 12px rgba(20,40,70,.04);
-        }
-
-        .btn-university {
-            background: var(--gold);
-            color: var(--navy);
-            border: none;
-            border-radius: 9px;
-            padding: 10px 20px;
-            font-weight: bold;
-        }
-
-        .btn-university:hover {
-            background: #b79557;
-            color: var(--navy);
-        }
-
-        /* Responsive */
-
-        @@media (max-width: 850px) {
             .app-layout {
-                flex-direction: column;
+                display: flex;
+                min-height: 100vh;
             }
 
             .app-sidebar {
-                width: 100%;
-                min-height: auto;
+                width: 270px;
+                flex-shrink: 0;
+                min-height: 100vh;
+                background: var(--navy);
+                color: white;
+                padding: 22px 14px;
+            }
+
+            .brand-area {
+                text-align: center;
+                padding: 12px 8px 25px;
+                border-bottom: 1px solid #354660;
+                margin-bottom: 20px;
+            }
+
+            .brand-logo {
+                width: 95px;
+                height: 95px;
+                object-fit: contain;
+                background: white;
+                border-radius: 50%;
+                padding: 5px;
+                margin-bottom: 14px;
+            }
+
+            .brand-name {
+                color: white;
+                font-size: 17px;
+                font-weight: bold;
+                line-height: 1.8;
+                margin-bottom: 8px;
+            }
+
+            .brand-subtitle {
+                color: var(--gold);
+                font-size: 13px;
+            }
+
+            .menu-heading {
+                color: #aab8cb;
+                font-size: 12px;
+                margin: 22px 14px 10px;
+            }
+
+            .menu-link {
+                display: flex;
+                align-items: center;
+                gap: 13px;
+                padding: 13px 15px;
+                margin-bottom: 5px;
+                border-radius: 10px;
+                color: #e4ebf6;
+                text-decoration: none;
+                font-size: 14px;
+                transition: background .2s, color .2s;
+            }
+
+                .menu-link:hover {
+                    background: var(--navy-hover);
+                    color: white;
+                }
+
+                .menu-link.active {
+                    background: #304661;
+                    color: white;
+                    border-right: 3px solid var(--gold);
+                    font-weight: bold;
+                }
+
+                .menu-link i {
+                    width: 24px;
+                    font-size: 19px;
+                    text-align: center;
+                    color: var(--gold);
+                    flex-shrink: 0;
+                }
+
+            .app-main {
+                flex: 1;
+                min-width: 0;
+                display: flex;
+                flex-direction: column;
             }
 
             .app-topbar {
-                flex-wrap: wrap;
-                padding: 15px;
+                min-height: 85px;
+                background: white;
+                border-bottom: 1px solid var(--border);
+                padding: 18px 30px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 20px;
             }
 
-            .app-content {
-                padding: 15px;
+            .page-title {
+                font-size: 20px;
+                font-weight: bold;
+                margin: 0;
             }
 
             .topbar-user {
-                flex-wrap: wrap;
+                display: flex;
+                align-items: center;
+                gap: 13px;
             }
-        }
+
+            .user-avatar {
+                width: 43px;
+                height: 43px;
+                border-radius: 50%;
+                background: var(--gold);
+                color: var(--navy);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: bold;
+                font-size: 18px;
+                flex-shrink: 0;
+            }
+
+            .user-details {
+                display: flex;
+                flex-direction: column;
+                gap: 3px;
+            }
+
+                .user-details small {
+                    color: #7b8797;
+                }
+
+            .logout-button {
+                border: 1px solid #e2e7ef;
+                border-radius: 9px;
+                padding: 9px 13px;
+                background: white;
+                color: #42536c;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                cursor: pointer;
+            }
+
+                .logout-button:hover {
+                    background: #fff3f1;
+                    color: #b33b30;
+                }
+
+            .app-content {
+                flex: 1;
+                padding: 30px;
+            }
+
+            .app-footer {
+                text-align: center;
+                padding: 20px;
+                color: #8590a0;
+                font-size: 12px;
+            }
+
+            .university-card {
+                background: white;
+                border: 1px solid var(--border);
+                border-radius: 15px;
+                padding: 24px;
+                box-shadow: 0 3px 12px rgba(20,40,70,.04);
+            }
+
+            .btn-university {
+                background: var(--gold);
+                color: var(--navy);
+                border: none;
+                border-radius: 9px;
+                padding: 10px 20px;
+                font-weight: bold;
+            }
+
+                .btn-university:hover {
+                    background: #b79557;
+                    color: var(--navy);
+                }
+
+            @@media (max-width: 850px) {
+                .app-layout {
+                    flex-direction: column;
+                }
+
+                .app-sidebar {
+                    width: 100%;
+                    min-height: auto;
+                }
+
+                .app-topbar {
+                    flex-wrap: wrap;
+                    padding: 15px;
+                }
+
+                .app-content {
+                    padding: 15px;
+                }
+
+                .topbar-user {
+                    flex-wrap: wrap;
+                }
+            }
     </style>
 </head>
 
 <body>
 
-@if (isLoggedIn)
-{
-    <div class="app-layout">
+    @if (isLoggedIn)
+    {
+        <div class="app-layout">
 
-        <!-- Sidebar -->
+            <aside class="app-sidebar">
 
-        <aside class="app-sidebar">
+                <div class="brand-area">
 
-            <div class="brand-area">
+                    <img src="~/images/iusr-logo.jfif"
+                         class="brand-logo"
+                         alt="شعار الجامعة الدولية للعلوم والنهضة" />
 
-                <img src="~/images/iusr-logo.jfif"
-                     class="brand-logo"
-                     alt="شعار الجامعة الدولية للعلوم والنهضة" />
+                    <div class="brand-name">
+                        الجامعة الدولية للعلوم والنهضة
+                    </div>
 
-                <div class="brand-name">
+                    <div class="brand-subtitle">
+                        نظام إدارة شؤون الطلاب
+                    </div>
+
+                </div>
+
+                <nav aria-label="القائمة الرئيسية">
+
+                    @* قائمة المدير *@
+                    @if (isAdmin)
+                    {
+                        <div class="menu-heading">
+                            القائمة الرئيسية
+                        </div>
+
+                        <a asp-controller="AdminDashboard"
+                           asp-action="Index"
+                           class="@MenuClass("AdminDashboard")">
+                            <i class="bi bi-grid-1x2-fill"></i>
+                            <span>لوحة التحكم</span>
+                        </a>
+                    }
+
+                    @* قائمة الموظف *@
+                    @if (isEmployee && !isAdmin)
+                    {
+                        <div class="menu-heading">
+                            القائمة الرئيسية
+                        </div>
+
+                        <a asp-controller="Registrations"
+                           asp-action="Index"
+                           class="@MenuClass("Registrations")">
+                            <i class="bi bi-clipboard-check"></i>
+                            <span>إدارة التسجيلات</span>
+                        </a>
+                    }
+
+                    @* الشؤون الأكاديمية للمدير والموظف *@
+                    @if (isAdmin || isEmployee)
+                    {
+                        <div class="menu-heading">
+                            الشؤون الأكاديمية
+                        </div>
+
+                        <a asp-controller="Students"
+                           asp-action="Index"
+                           class="@MenuClass("Students")">
+                            <i class="bi bi-mortarboard"></i>
+                            <span>إدارة الطلاب</span>
+                        </a>
+
+                        <a asp-controller="Courses"
+                           asp-action="Index"
+                           class="@MenuClass("Courses")">
+                            <i class="bi bi-book"></i>
+                            <span>المقررات الدراسية</span>
+                        </a>
+
+                        <a asp-controller="Registrations"
+                           asp-action="Index"
+                           class="@MenuClass("Registrations")">
+                            <i class="bi bi-clipboard-check"></i>
+                            <span>تسجيل المقررات</span>
+                        </a>
+
+                        <a asp-controller="CourseOfferings"
+                           asp-action="Index"
+                           class="@MenuClass("CourseOfferings")">
+                            <i class="bi bi-collection"></i>
+                            <span>الشعب المطروحة</span>
+                        </a>
+                    }
+
+                    @* إدارة الجامعة للمدير فقط *@
+                    @if (isAdmin)
+                    {
+                        <div class="menu-heading">
+                            إدارة الجامعة
+                        </div>
+
+                        <a asp-controller="Employees"
+                           asp-action="Index"
+                           class="@MenuClass("Employees")">
+                            <i class="bi bi-people"></i>
+                            <span>إدارة الموظفين</span>
+                        </a>
+
+                        <a asp-controller="EmployeePermissions"
+                           asp-action="Index"
+                           class="@MenuClass("EmployeePermissions")">
+                            <i class="bi bi-shield-lock"></i>
+                            <span>صلاحيات الموظفين</span>
+                        </a>
+
+                        <a asp-controller="Faculties"
+                           asp-action="Index"
+                           class="@MenuClass("Faculties")">
+                            <i class="bi bi-bank"></i>
+                            <span>الكليات</span>
+                        </a>
+
+                        <a asp-controller="Departments"
+                           asp-action="Index"
+                           class="@MenuClass("Departments")">
+                            <i class="bi bi-diagram-3"></i>
+                            <span>الأقسام</span>
+                        </a>
+
+                        <a asp-controller="Semesters"
+                           asp-action="Index"
+                           class="@MenuClass("Semesters")">
+                            <i class="bi bi-calendar3"></i>
+                            <span>الفصول الدراسية</span>
+                        </a>
+
+                        <a asp-controller="HourPrices"
+                           asp-action="Index"
+                           class="@MenuClass("HourPrices")">
+                            <i class="bi bi-cash-stack"></i>
+                            <span>أسعار الساعات</span>
+                        </a>
+                    }
+
+                    @* خدمات الطالب فقط *@
+                    @if (isStudent)
+                    {
+                        <div class="menu-heading">
+                            خدمات الطالب
+                        </div>
+
+                        <a asp-controller="StudentDashboard"
+                           asp-action="Index"
+                           class="@MenuClass("StudentDashboard")">
+                            <i class="bi bi-person-circle"></i>
+                            <span>بوابة الطالب</span>
+                        </a>
+
+                        <a asp-controller="StudentDashboard"
+                           asp-action="Courses"
+                           class="menu-link">
+                            <i class="bi bi-journal-plus"></i>
+                            <span>تسجيل المقررات</span>
+                        </a>
+
+                        <a asp-controller="StudentDashboard"
+                           asp-action="Fees"
+                           class="menu-link">
+                            <i class="bi bi-wallet2"></i>
+                            <span>الرسوم الجامعية</span>
+                        </a>
+                    }
+
+                </nav>
+
+            </aside>
+
+            <div class="app-main">
+
+                <header class="app-topbar">
+
+                    <h1 class="page-title">
+                        @pageTitle
+                    </h1>
+
+                    <div class="topbar-user">
+
+                        <div class="user-avatar">
+                            @(displayName.Length > 0
+                                ? displayName.Substring(0, 1).ToUpper()
+                                : "م")
+                        </div>
+
+                        <div class="user-details">
+
+                            <strong>@displayName</strong>
+
+                            <small>
+                                @(isAdmin ? "مدير النظام" :
+                                  isEmployee ? "موظف" :
+                                  isStudent ? "طالب" : "مستخدم")
+                            </small>
+
+                        </div>
+
+                        <form asp-controller="Account"
+                              asp-action="Logout"
+                              method="post">
+
+                            @Html.AntiForgeryToken()
+
+                            <button type="submit"
+                                    class="logout-button">
+                                <i class="bi bi-box-arrow-left"></i>
+                                <span>تسجيل الخروج</span>
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                </header>
+
+                <main class="app-content">
+                    @RenderBody()
+                </main>
+
+                <footer class="app-footer">
+                    © @DateTime.Now.Year
                     الجامعة الدولية للعلوم والنهضة
-                </div>
-
-                <div class="brand-subtitle">
-                    نظام إدارة شؤون الطلاب
-                </div>
+                </footer>
 
             </div>
 
-            <nav aria-label="القائمة الرئيسية">
-
-                <div class="menu-heading">
-                    القائمة الرئيسية
-                </div>
-
-                @if (isAdmin)
-                {
-                    <a asp-controller="AdminDashboard"
-                       asp-action="Index"
-                       class="@MenuClass("AdminDashboard")">
-
-                        <i class="bi bi-grid-1x2-fill"></i>
-                        <span>لوحة التحكم</span>
-                    </a>
-                }
-                else
-                {
-                    <a asp-controller="Home"
-                       asp-action="Index"
-                       class="@MenuClass("Home")">
-
-                        <i class="bi bi-house-door"></i>
-                        <span>الرئيسية</span>
-                    </a>
-                }
-
-                @if (isAdmin || isEmployee)
-                {
-                    <div class="menu-heading">
-                        الشؤون الأكاديمية
-                    </div>
-
-                    <a asp-controller="Students"
-                       asp-action="Index"
-                       class="@MenuClass("Students")">
-
-                        <i class="bi bi-mortarboard"></i>
-                        <span>إدارة الطلاب</span>
-                    </a>
-
-                    <a asp-controller="Courses"
-                       asp-action="Index"
-                       class="@MenuClass("Courses")">
-
-                        <i class="bi bi-book"></i>
-                        <span>المقررات الدراسية</span>
-                    </a>
-
-                    <a asp-controller="Registrations"
-                       asp-action="Index"
-                       class="@MenuClass("Registrations")">
-
-                        <i class="bi bi-clipboard-check"></i>
-                        <span>تسجيل المقررات</span>
-                    </a>
-
-                    <a asp-controller="CourseOfferings"
-                       asp-action="Index"
-                       class="@MenuClass("CourseOfferings")">
-
-                        <i class="bi bi-collection"></i>
-                        <span>الشعب المطروحة</span>
-                    </a>
-                }
-
-                @if (isAdmin)
-                {
-                    <div class="menu-heading">
-                        إدارة الجامعة
-                    </div>
-
-                    <a asp-controller="Employees"
-                       asp-action="Index"
-                       class="@MenuClass("Employees")">
-
-                        <i class="bi bi-people"></i>
-                        <span>إدارة الموظفين</span>
-                    </a>
-
-                    <a asp-controller="EmployeePermissions"
-                       asp-action="Index"
-                       class="@MenuClass("EmployeePermissions")">
-
-                        <i class="bi bi-shield-lock"></i>
-                        <span>صلاحيات الموظفين</span>
-                    </a>
-
-                    <a asp-controller="Faculties"
-                       asp-action="Index"
-                       class="@MenuClass("Faculties")">
-
-                        <i class="bi bi-bank"></i>
-                        <span>الكليات</span>
-                    </a>
-
-                    <a asp-controller="Departments"
-                       asp-action="Index"
-                       class="@MenuClass("Departments")">
-
-                        <i class="bi bi-diagram-3"></i>
-                        <span>الأقسام</span>
-                    </a>
-
-                    <a asp-controller="Semesters"
-                       asp-action="Index"
-                       class="@MenuClass("Semesters")">
-
-                        <i class="bi bi-calendar3"></i>
-                        <span>الفصول الدراسية</span>
-                    </a>
-
-                    <a asp-controller="HourPrices"
-                       asp-action="Index"
-                       class="@MenuClass("HourPrices")">
-
-                        <i class="bi bi-cash-stack"></i>
-                        <span>أسعار الساعات</span>
-                    </a>
-                }
-
-                @if (isStudent)
-                {
-                    <div class="menu-heading">
-                        خدمات الطالب
-                    </div>
-
-                    <a asp-controller="Home"
-                       asp-action="Index"
-                       class="@MenuClass("Home")">
-
-                        <i class="bi bi-person-circle"></i>
-                        <span>بوابة الطالب</span>
-                    </a>
-                }
-
-            </nav>
-
-        </aside>
-
-        <!-- Main -->
-
-        <div class="app-main">
-
-            <!-- Top bar -->
-
-            <header class="app-topbar">
-
-                <h1 class="page-title">
-                    @pageTitle
-                </h1>
-
-                <div class="topbar-user">
-
-                    <div class="user-avatar">
-                        @(displayName.Length > 0
-                            ? displayName.Substring(0, 1).ToUpper()
-                            : "م")
-                    </div>
-
-                    <div class="user-details">
-
-                        <strong>@displayName</strong>
-
-                        <small>
-                            @(isAdmin ? "مدير النظام" :
-                              isEmployee ? "موظف" :
-                              isStudent ? "طالب" : "مستخدم")
-                        </small>
-
-                    </div>
-
-                    <form asp-controller="Account"
-                          asp-action="Logout"
-                          method="post">
-
-                        @Html.AntiForgeryToken()
-
-                        <button type="submit"
-                                class="logout-button">
-
-                            <i class="bi bi-box-arrow-left"></i>
-                            <span>تسجيل الخروج</span>
-
-                        </button>
-
-                    </form>
-
-                </div>
-
-            </header>
-
-            <!-- Page content -->
-
-            <main class="app-content">
-                @RenderBody()
-            </main>
-
-            <footer class="app-footer">
-                © @DateTime.Now.Year
-                الجامعة الدولية للعلوم والنهضة
-            </footer>
-
         </div>
-    </div>
-}
-else
-{
-    <main>
-        @RenderBody()
-    </main>
-}
+    }
+    else
+    {
+        <main>
+            @RenderBody()
+        </main>
+    }
 
-<script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
 
-<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 
-<script src="/js/site.js"></script>
+    <script src="~/js/site.js"></script>
 
-@await RenderSectionAsync("Scripts", required: false)
+    @await RenderSectionAsync("Scripts", required: false)
 
 </body>
 </html>

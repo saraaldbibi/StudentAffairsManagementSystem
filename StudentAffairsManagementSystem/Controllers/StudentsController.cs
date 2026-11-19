@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.Data;
 using System.Globalization;
 using System.Linq;
@@ -68,9 +67,7 @@ namespace StudentAffairsManagementSystem.Controllers
                 .FirstOrDefaultAsync(s => s.Id == id);
 
             if (student == null)
-            {
                 return NotFound();
-            }
 
             ViewBag.CanDeleteStudents =
                 await _permissionService.CanDeleteStudentsAsync(User);
@@ -85,6 +82,7 @@ namespace StudentAffairsManagementSystem.Controllers
         public async Task<IActionResult> Create()
         {
             await LoadStudentLists();
+
             return View(new CreateStudentViewModel());
         }
 
@@ -168,8 +166,8 @@ namespace StudentAffairsManagementSystem.Controllers
 
             string departmentCode = department!.Code;
 
-            // نحتسب أرقام الطلاب المحذوفين أيضًا
-            // حتى لا نعيد استخدام رقم جامعي قديم
+            // احتساب أرقام الطلاب المحذوفين أيضاً
+            // حتى لا يعاد استخدام رقم جامعي قديم
             var existingNumbers = await _context.Students
                 .Where(s => s.UniversityNumber.StartsWith(
                     departmentCode))
@@ -218,6 +216,7 @@ namespace StudentAffairsManagementSystem.Controllers
                 Role = "Student"
             };
 
+            // إنشاء حساب الطالب
             var createResult =
                 await _userManager.CreateAsync(
                     account,
@@ -238,6 +237,7 @@ namespace StudentAffairsManagementSystem.Controllers
                 return View(model);
             }
 
+            // إضافة دور Student
             var roleResult =
                 await _userManager.AddToRoleAsync(
                     account,
@@ -258,6 +258,7 @@ namespace StudentAffairsManagementSystem.Controllers
                 return View(model);
             }
 
+            // إنشاء سجل الطالب
             var student = new Student
             {
                 UniversityNumber = universityNumber,
@@ -300,7 +301,11 @@ namespace StudentAffairsManagementSystem.Controllers
             _context.Students.Add(student);
 
             await _context.SaveChangesAsync();
+
             await transaction.CommitAsync();
+
+            TempData["SuccessMessage"] =
+                "تمت إضافة الطالب وإنشاء حسابه بنجاح";
 
             return RedirectToAction(
                 nameof(Details),
@@ -309,7 +314,9 @@ namespace StudentAffairsManagementSystem.Controllers
 
         // ==========================================
         // فتح صفحة تعديل الطالب
+        // المدير فقط
         // ==========================================
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<IActionResult> Edit(long id)
         {
@@ -320,9 +327,7 @@ namespace StudentAffairsManagementSystem.Controllers
                     !s.IsDeleted);
 
             if (student == null)
-            {
                 return NotFound();
-            }
 
             var model = new EditStudentViewModel
             {
@@ -359,12 +364,15 @@ namespace StudentAffairsManagementSystem.Controllers
             };
 
             await LoadStudentLists();
+
             return View(model);
         }
 
         // ==========================================
-        // حفظ تعديل الطالب
+        // حفظ تعديلات الطالب
+        // المدير فقط
         // ==========================================
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(
@@ -372,9 +380,7 @@ namespace StudentAffairsManagementSystem.Controllers
             EditStudentViewModel model)
         {
             if (id != model.Id)
-            {
                 return NotFound();
-            }
 
             var student = await _context.Students
                 .FirstOrDefaultAsync(s =>
@@ -382,15 +388,15 @@ namespace StudentAffairsManagementSystem.Controllers
                     !s.IsDeleted);
 
             if (student == null)
-            {
                 return NotFound();
-            }
 
+            // الرقم الجامعي ثابت ولا يمكن تغييره
             model.UniversityNumber = student.UniversityNumber;
 
             ModelState.Remove(
                 nameof(EditStudentViewModel.UniversityNumber));
 
+            // التحقق من القسم
             bool departmentExists =
                 await _context.Departments.AnyAsync(d =>
                     d.Id == model.DepartmentId &&
@@ -403,6 +409,7 @@ namespace StudentAffairsManagementSystem.Controllers
                     "القسم غير موجود أو غير فعال");
             }
 
+            // التحقق من فصل القبول
             bool admissionSemesterExists =
                 await _context.Semesters.AnyAsync(s =>
                     s.Id == model.AdmissionSemesterId);
@@ -414,6 +421,7 @@ namespace StudentAffairsManagementSystem.Controllers
                     "فصل القبول غير موجود");
             }
 
+            // التحقق من فصل التخرج
             if (model.GraduationSemesterId.HasValue)
             {
                 bool graduationSemesterExists =
@@ -434,6 +442,7 @@ namespace StudentAffairsManagementSystem.Controllers
                 return View(model);
             }
 
+            // تحديث بيانات الطالب
             student.FirstName = model.FirstName.Trim();
             student.FatherName = model.FatherName.Trim();
             student.MotherName = model.MotherName.Trim();
@@ -447,6 +456,7 @@ namespace StudentAffairsManagementSystem.Controllers
             student.DepartmentId = model.DepartmentId;
             student.AdmissionSemesterId =
                 model.AdmissionSemesterId;
+
             student.GraduationSemesterId =
                 model.GraduationSemesterId;
 
@@ -462,7 +472,51 @@ namespace StudentAffairsManagementSystem.Controllers
             student.NationalIdImage = model.NationalIdImage;
             student.CertificateImage = model.CertificateImage;
 
+            // تحديث حساب الطالب ورقم هاتفه
+            await using var transaction =
+                await _context.Database.BeginTransactionAsync();
+
+            var account = await _userManager.FindByIdAsync(
+                student.AccountId.ToString());
+
+            if (account == null)
+            {
+                await transaction.RollbackAsync();
+
+                ModelState.AddModelError(
+                    string.Empty,
+                    "حساب الطالب المرتبط غير موجود. لم يتم حفظ التعديلات.");
+
+                await LoadStudentLists();
+                return View(model);
+            }
+
+            account.PhoneNumber = model.Phone;
+
+            var updateResult =
+                await _userManager.UpdateAsync(account);
+
+            if (!updateResult.Succeeded)
+            {
+                await transaction.RollbackAsync();
+
+                foreach (var error in updateResult.Errors)
+                {
+                    ModelState.AddModelError(
+                        string.Empty,
+                        error.Description);
+                }
+
+                await LoadStudentLists();
+                return View(model);
+            }
+
             await _context.SaveChangesAsync();
+
+            await transaction.CommitAsync();
+
+            TempData["SuccessMessage"] =
+                "تم تحديث بيانات الطالب بنجاح";
 
             return RedirectToAction(
                 nameof(Details),
@@ -475,16 +529,13 @@ namespace StudentAffairsManagementSystem.Controllers
         [HttpGet]
         public async Task<IActionResult> Delete(long id)
         {
-            // التحقق من الصلاحية عند كل طلب
             bool canDelete =
                 await _permissionService.HasPermissionAsync(
                     User,
                     PermissionCodes.StudentsDelete);
 
             if (!canDelete)
-            {
                 return Forbid();
-            }
 
             var student = await _context.Students
                 .Include(s => s.Department)
@@ -494,9 +545,7 @@ namespace StudentAffairsManagementSystem.Controllers
                     !s.IsDeleted);
 
             if (student == null)
-            {
                 return NotFound();
-            }
 
             return View(student);
         }
@@ -509,16 +558,13 @@ namespace StudentAffairsManagementSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
-            // التحقق من الصلاحية مجددًا عند التنفيذ
             bool canDelete =
                 await _permissionService.HasPermissionAsync(
                     User,
                     PermissionCodes.StudentsDelete);
 
             if (!canDelete)
-            {
                 return Forbid();
-            }
 
             var student = await _context.Students
                 .FirstOrDefaultAsync(s =>
@@ -526,9 +572,7 @@ namespace StudentAffairsManagementSystem.Controllers
                     !s.IsDeleted);
 
             if (student == null)
-            {
                 return NotFound();
-            }
 
             var account = await _userManager.FindByIdAsync(
                 student.AccountId.ToString(
@@ -547,10 +591,11 @@ namespace StudentAffairsManagementSystem.Controllers
             await using var transaction =
                 await _context.Database.BeginTransactionAsync();
 
+            // حذف منطقي مع الاحتفاظ بالسجلات الأكاديمية
             student.IsDeleted = true;
             student.DeletedAt = DateTime.UtcNow;
 
-            // منع تسجيل الدخول الجديد
+            // إيقاف حساب الطالب ومنع تسجيل الدخول
             account.LockoutEnabled = true;
             account.LockoutEnd = DateTimeOffset.MaxValue;
 
@@ -570,6 +615,7 @@ namespace StudentAffairsManagementSystem.Controllers
             }
 
             await _context.SaveChangesAsync();
+
             await transaction.CommitAsync();
 
             TempData["SuccessMessage"] =
@@ -591,6 +637,7 @@ namespace StudentAffairsManagementSystem.Controllers
 
             ViewBag.Semesters = await _context.Semesters
                 .AsNoTracking()
+                .OrderByDescending(s => s.StartDate)
                 .ToListAsync();
         }
     }
