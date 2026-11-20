@@ -1,0 +1,447 @@
+﻿@model StudentAffairsManagementSystem.Models.Department
+
+@{
+    ViewData["Title"] = "حذف القسم الأكاديمي";
+}
+
+<style>
+    .department-delete-page {
+        direction: rtl;
+        max-width: 900px;
+        margin: 20px auto;
+        color: #142d4e;
+    }
+
+    .department-delete-header {
+        background: linear-gradient(135deg, #142d4e, #304661);
+        color: #ffffff;
+        padding: 28px 32px;
+        border-radius: 16px 16px 0 0;
+        border-bottom: 4px solid #c9a24d;
+    }
+
+        .department-delete-header h2 {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 25px;
+            font-weight: 800;
+            margin: 0 0 10px;
+        }
+
+            .department-delete-header h2 i {
+                color: #ffcf80;
+                font-size: 27px;
+            }
+
+        .department-delete-header p {
+            color: #d6dfeb;
+            font-size: 14px;
+            line-height: 1.9;
+            margin: 0;
+        }
+
+    .department-delete-body {
+        background: #ffffff;
+        padding: 30px;
+        border: 1px solid #e5eaf2;
+        border-top: none;
+        border-radius: 0 0 16px 16px;
+        box-shadow: 0 5px 25px rgba(20,45,78,.05);
+    }
+
+    .department-delete-warning {
+        display: flex;
+        align-items: flex-start;
+        gap: 15px;
+        background: #fff4f1;
+        border: 1px solid #f4d0ca;
+        border-right: 4px solid #c62828;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 28px;
+    }
+
+    .department-delete-warning-icon {
+        color: #c62828;
+        font-size: 28px;
+        flex-shrink: 0;
+    }
+
+    .department-delete-warning h3 {
+        color: #9d2820;
+        font-size: 17px;
+        font-weight: 800;
+        margin: 0 0 9px;
+    }
+
+    .department-delete-warning p {
+        color: #79524d;
+        font-size: 14px;
+        line-height: 1.9;
+        margin: 0;
+    }
+
+    .department-delete-section-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #142d4e;
+        font-size: 18px;
+        font-weight: 800;
+        border-right: 4px solid #c9a24d;
+        padding-right: 13px;
+        margin-bottom: 23px;
+    }
+
+        .department-delete-section-title i {
+            color: #b9913d;
+            font-size: 20px;
+        }
+
+    .department-delete-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 17px;
+        margin-bottom: 28px;
+    }
+
+    .department-delete-field {
+        background: #f9fafc;
+        border: 1px solid #e9edf3;
+        border-radius: 11px;
+        padding: 19px;
+        min-width: 0;
+    }
+
+    .department-delete-label {
+        color: #718096;
+        font-size: 13px;
+        margin-bottom: 10px;
+    }
+
+    .department-delete-value {
+        color: #142d4e;
+        font-size: 16px;
+        font-weight: 800;
+        overflow-wrap: anywhere;
+    }
+
+    .department-delete-code {
+        display: inline-block;
+        background: #e9eef6;
+        color: #142d4e;
+        padding: 6px 13px;
+        border-radius: 8px;
+        font-weight: 800;
+        direction: ltr;
+    }
+
+    .department-delete-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 7px 12px;
+        border-radius: 9px;
+        font-size: 13px;
+        font-weight: 800;
+    }
+
+    .department-delete-status-active {
+        background: #e8f6ee;
+        color: #197647;
+    }
+
+    .department-delete-status-inactive {
+        background: #fff0ee;
+        color: #b42318;
+    }
+
+    .department-delete-note {
+        display: flex;
+        align-items: flex-start;
+        gap: 11px;
+        background: #fffaf0;
+        border: 1px solid #f0e2c3;
+        border-radius: 11px;
+        padding: 17px 19px;
+        margin-bottom: 30px;
+        color: #665532;
+        font-size: 14px;
+        line-height: 1.9;
+    }
+
+        .department-delete-note i {
+            color: #b9913d;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+    .department-delete-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        padding-top: 25px;
+        border-top: 1px solid #e9edf3;
+    }
+
+    .department-delete-confirm,
+    .department-delete-cancel {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+        min-height: 45px;
+        padding: 11px 22px;
+        border-radius: 11px;
+        font-size: 14px;
+        font-weight: 800;
+        font-family: inherit;
+        text-decoration: none;
+        transition: background-color .2s ease;
+    }
+
+    .department-delete-confirm {
+        background: #c62828;
+        color: #ffffff;
+        border: 1px solid #c62828;
+        cursor: pointer;
+    }
+
+        .department-delete-confirm:hover {
+            background: #a91e1e;
+            color: #ffffff;
+        }
+
+    .department-delete-cancel {
+        background: #edf1f7;
+        color: #142d4e;
+        border: 1px solid #dfe6ef;
+    }
+
+        .department-delete-cancel:hover {
+            background: #e1e8f2;
+            color: #142d4e;
+        }
+
+        .department-delete-confirm:focus-visible,
+        .department-delete-cancel:focus-visible {
+            outline: 3px solid #142d4e;
+            outline-offset: 3px;
+        }
+
+    @@media (max-width: 650px) {
+        .department-delete-page {
+            margin: 15px auto;
+        }
+
+        .department-delete-header,
+        .department-delete-body {
+            padding: 22px;
+        }
+
+            .department-delete-header h2 {
+                font-size: 21px;
+            }
+
+        .department-delete-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .department-delete-actions {
+            flex-direction: column;
+        }
+
+        .department-delete-confirm,
+        .department-delete-cancel {
+            width: 100%;
+        }
+    }
+</style>
+
+<div class="department-delete-page">
+
+    <!-- رأس الصفحة -->
+
+    <div class="department-delete-header">
+
+        <h2>
+            <i class="bi bi-trash3"></i>
+            حذف القسم الأكاديمي
+        </h2>
+
+        <p>
+            مراجعة بيانات القسم قبل تأكيد حذفه
+            من نظام إدارة شؤون الطلاب.
+        </p>
+
+    </div>
+
+    <div class="department-delete-body">
+
+        <!-- تحذير الحذف -->
+
+        <div class="department-delete-warning">
+
+            <i class="bi bi-exclamation-triangle-fill department-delete-warning-icon"></i>
+
+            <div>
+
+                <h3>
+                    هل أنت متأكد من حذف هذا القسم؟
+                </h3>
+
+                <p>
+                    سيتم حذف القسم من قاعدة البيانات بشكل نهائي
+                    إذا لم يكن مرتبطًا بأي بيانات تمنع حذفه.
+                    يرجى مراجعة المعلومات قبل المتابعة.
+                </p>
+
+            </div>
+
+        </div>
+
+        <!-- بيانات القسم -->
+
+        <h3 class="department-delete-section-title">
+            <i class="bi bi-diagram-3"></i>
+            بيانات القسم المراد حذفه
+        </h3>
+
+        <div class="department-delete-grid">
+
+            <!-- اسم القسم -->
+
+            <div class="department-delete-field">
+
+                <div class="department-delete-label">
+                    اسم القسم الأكاديمي
+                </div>
+
+                <div class="department-delete-value">
+                    @Model.Name
+                </div>
+
+            </div>
+
+            <!-- رمز القسم -->
+
+            <div class="department-delete-field">
+
+                <div class="department-delete-label">
+                    رمز القسم
+                </div>
+
+                <div class="department-delete-value">
+
+                    <span class="department-delete-code">
+                        @Model.Code
+                    </span>
+
+                </div>
+
+            </div>
+
+            <!-- الكلية -->
+
+            <div class="department-delete-field">
+
+                <div class="department-delete-label">
+                    الكلية
+                </div>
+
+                <div class="department-delete-value">
+                    @(Model.Faculty?.Name ?? "غير محددة")
+                </div>
+
+            </div>
+
+            <!-- حالة القسم -->
+
+            <div class="department-delete-field">
+
+                <div class="department-delete-label">
+                    حالة القسم
+                </div>
+
+                <div class="department-delete-value">
+
+                    @if (Model.IsActive)
+                    {
+                        <span class="department-delete-status department-delete-status-active">
+                            <i class="bi bi-check-circle"></i>
+                            فعّال
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="department-delete-status department-delete-status-inactive">
+                            <i class="bi bi-x-circle"></i>
+                            غير فعّال
+                        </span>
+                    }
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- توضيح قيود الحذف -->
+
+        <div class="department-delete-note">
+
+            <i class="bi bi-info-circle"></i>
+
+            <span>
+                <strong>ملاحظة مهمة:</strong>
+                لا يسمح النظام بحذف قسم أكاديمي
+                مرتبط بطلاب أو مقررات دراسية
+                أو أسعار ساعات مسجلة.
+                في هذه الحالة سيُلغى الحذف
+                وتظهر رسالة توضح السبب.
+            </span>
+
+        </div>
+
+        <!-- نموذج تأكيد الحذف -->
+
+        <form asp-controller="Departments"
+              asp-action="Delete"
+              asp-route-id="@Model.Id"
+              method="post"
+              onsubmit="return confirm('هل أنت متأكد من حذف هذا القسم الأكاديمي نهائيًا؟');">
+
+            @Html.AntiForgeryToken()
+
+            <input type="hidden"
+                   name="id"
+                   value="@Model.Id" />
+
+            <div class="department-delete-actions">
+
+                <button type="submit"
+                        class="department-delete-confirm">
+
+                    <i class="bi bi-trash3"></i>
+                    تأكيد حذف القسم
+
+                </button>
+
+                <a asp-controller="Departments"
+                   asp-action="Details"
+                   asp-route-id="@Model.Id"
+                   class="department-delete-cancel">
+
+                    <i class="bi bi-x-circle"></i>
+                    إلغاء والعودة
+
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>

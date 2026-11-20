@@ -1,5 +1,4 @@
-﻿
-@{
+﻿@{
     ViewData["Title"] = "لوحة تحكم المدير";
 
     int studentsCount = ViewBag.StudentsCount ?? 0;
@@ -11,49 +10,89 @@
 }
 
 <style>
+    .admin-dashboard {
+        direction: rtl;
+        color: #142d4e;
+        padding-bottom: 25px;
+    }
+
+    /* بطاقة الترحيب */
+
     .dashboard-welcome {
-        background: linear-gradient(135deg, #16263f, #304661);
-        color: white;
-        border-radius: 16px;
+        background: linear-gradient( 135deg, #142d4e, #304661 );
+        color: #ffffff;
+        border-radius: 15px;
+        border-bottom: 4px solid #c9a24d;
         padding: 30px;
         margin-bottom: 28px;
+        box-shadow: 0 4px 14px rgba(20,45,78,.08);
     }
 
-    .dashboard-welcome h2 {
-        font-size: 25px;
-        font-weight: bold;
-        margin-bottom: 10px;
-    }
+        .dashboard-welcome h2 {
+            font-size: 25px;
+            font-weight: 800;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
 
-    .dashboard-welcome p {
-        color: #d8e1ee;
-        margin-bottom: 0;
-    }
+            .dashboard-welcome h2 i {
+                color: #c9a24d;
+                font-size: 27px;
+            }
+
+        .dashboard-welcome p {
+            color: #d8e1ee;
+            margin-bottom: 0;
+            line-height: 1.9;
+        }
+
+    /* عناوين الأقسام */
 
     .dashboard-title {
-        color: #16263f;
+        color: #142d4e;
         font-size: 20px;
-        font-weight: bold;
+        font-weight: 800;
         margin: 28px 0 18px;
+        border-right: 4px solid #c9a24d;
+        padding-right: 12px;
+        display: flex;
+        align-items: center;
+        gap: 9px;
     }
+
+        .dashboard-title i {
+            color: #c9a24d;
+            font-size: 21px;
+        }
+
+    /* شبكة الإحصائيات */
 
     .dashboard-stats {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 20px;
+        gap: 18px;
     }
 
     .dashboard-stat {
-        background: white;
+        background: #ffffff;
         border: 1px solid #e5eaf2;
-        border-top: 4px solid #c8a66a;
-        border-radius: 14px;
+        border-top: 4px solid #c9a24d;
+        border-radius: 15px;
         padding: 24px;
         display: flex;
         align-items: center;
         gap: 18px;
-        box-shadow: 0 4px 14px rgba(20, 40, 70, .04);
+        min-width: 0;
+        box-shadow: 0 3px 12px rgba(20,45,78,.04);
+        transition: box-shadow .2s ease, transform .2s ease;
     }
+
+        .dashboard-stat:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(20,45,78,.08);
+        }
 
     .dashboard-stat-icon {
         width: 58px;
@@ -62,10 +101,14 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        border-radius: 13px;
-        background: #f8f2e7;
-        color: #a7803f;
+        border-radius: 11px;
+        background: #f8f5ec;
+        color: #c9a24d;
         font-size: 27px;
+    }
+
+    .dashboard-stat-content {
+        min-width: 0;
     }
 
     .dashboard-stat-label {
@@ -75,10 +118,13 @@
     }
 
     .dashboard-stat-number {
-        color: #16263f;
+        color: #142d4e;
         font-size: 29px;
-        font-weight: bold;
+        font-weight: 800;
+        overflow-wrap: anywhere;
     }
+
+    /* شبكة روابط الإدارة */
 
     .dashboard-actions {
         display: grid;
@@ -90,37 +136,81 @@
         display: flex;
         align-items: center;
         gap: 14px;
-        padding: 21px;
-        border-radius: 13px;
-        background: white;
+        padding: 20px;
+        min-height: 105px;
+        border-radius: 15px;
+        background: #ffffff;
         border: 1px solid #e5eaf2;
-        color: #16263f;
+        color: #142d4e;
         text-decoration: none;
-        transition: .2s;
+        box-shadow: 0 3px 12px rgba(20,45,78,.04);
+        transition: background-color .2s ease, border-color .2s ease, box-shadow .2s ease, transform .2s ease;
     }
 
-    .dashboard-action:hover {
-        border-color: #c8a66a;
-        background: #fffcf7;
-        color: #16263f;
-        transform: translateY(-2px);
+        .dashboard-action:hover {
+            border-color: #c9a24d;
+            background: #fffcf7;
+            color: #142d4e;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(20,45,78,.08);
+        }
+
+        .dashboard-action:focus-visible {
+            outline: 3px solid #142d4e;
+            outline-offset: 3px;
+        }
+
+    .dashboard-action-icon {
+        width: 48px;
+        height: 48px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 11px;
+        background: #f8f5ec;
+        color: #c9a24d;
+        font-size: 23px;
+        transition: background-color .2s ease;
     }
 
-    .dashboard-action i {
-        color: #b89556;
-        font-size: 26px;
+    .dashboard-action:hover .dashboard-action-icon {
+        background: #f3e9d3;
+    }
+
+    .dashboard-action-content {
+        flex: 1;
+        min-width: 0;
     }
 
     .dashboard-action strong {
         display: block;
-        margin-bottom: 4px;
+        margin-bottom: 6px;
         font-size: 15px;
+        font-weight: 800;
+        color: #142d4e;
     }
 
     .dashboard-action small {
+        display: block;
         color: #718096;
         font-size: 12px;
+        line-height: 1.7;
     }
+
+    .dashboard-action-arrow {
+        color: #a0aec0;
+        font-size: 17px;
+        flex-shrink: 0;
+        transition: color .2s ease, transform .2s ease;
+    }
+
+    .dashboard-action:hover .dashboard-action-arrow {
+        color: #c9a24d;
+        transform: translateX(-3px);
+    }
+
+    /* الشاشات المتوسطة */
 
     @@media (max-width: 1050px) {
         .dashboard-stats,
@@ -128,6 +218,8 @@
             grid-template-columns: repeat(2, minmax(0, 1fr));
         }
     }
+
+    /* الشاشات الصغيرة */
 
     @@media (max-width: 650px) {
         .dashboard-stats,
@@ -138,175 +230,363 @@
         .dashboard-welcome {
             padding: 22px;
         }
+
+            .dashboard-welcome h2 {
+                font-size: 22px;
+            }
+
+        .dashboard-stat {
+            padding: 20px;
+        }
+
+        .dashboard-action {
+            padding: 18px;
+            min-height: 95px;
+        }
     }
 </style>
 
-<div class="dashboard-welcome">
-    <h2>مرحباً بك في لوحة تحكم المدير</h2>
-    <p>
-        الجامعة الدولية للعلوم والنهضة
-        — نظام إدارة شؤون الطلاب
-    </p>
-</div>
+<div class="admin-dashboard">
 
-<h3 class="dashboard-title">الإحصائيات العامة</h3>
+    <!-- بطاقة الترحيب -->
 
-<div class="dashboard-stats">
+    <div class="dashboard-welcome">
 
-    <div class="dashboard-stat">
-        <div class="dashboard-stat-icon">
-            <i class="bi bi-mortarboard-fill"></i>
-        </div>
-        <div>
-            <div class="dashboard-stat-label">إجمالي الطلاب</div>
-            <div class="dashboard-stat-number">@studentsCount</div>
-        </div>
+        <h2>
+            <i class="bi bi-speedometer2"></i>
+            مرحباً بك في لوحة تحكم المدير
+        </h2>
+
+        <p>
+            الجامعة الدولية للعلوم والنهضة
+            — نظام إدارة شؤون الطلاب
+        </p>
+
     </div>
 
-    <div class="dashboard-stat">
-        <div class="dashboard-stat-icon">
-            <i class="bi bi-people-fill"></i>
+    <!-- الإحصائيات العامة -->
+
+    <h3 class="dashboard-title">
+        <i class="bi bi-bar-chart-fill"></i>
+        الإحصائيات العامة
+    </h3>
+
+    <div class="dashboard-stats">
+
+        <!-- إجمالي الطلاب -->
+
+        <div class="dashboard-stat">
+
+            <div class="dashboard-stat-icon">
+                <i class="bi bi-mortarboard-fill"></i>
+            </div>
+
+            <div class="dashboard-stat-content">
+
+                <div class="dashboard-stat-label">
+                    إجمالي الطلاب
+                </div>
+
+                <div class="dashboard-stat-number">
+                    @studentsCount
+                </div>
+
+            </div>
+
         </div>
-        <div>
-            <div class="dashboard-stat-label">إجمالي الموظفين</div>
-            <div class="dashboard-stat-number">@employeesCount</div>
+
+        <!-- إجمالي الموظفين -->
+
+        <div class="dashboard-stat">
+
+            <div class="dashboard-stat-icon">
+                <i class="bi bi-people-fill"></i>
+            </div>
+
+            <div class="dashboard-stat-content">
+
+                <div class="dashboard-stat-label">
+                    إجمالي الموظفين
+                </div>
+
+                <div class="dashboard-stat-number">
+                    @employeesCount
+                </div>
+
+            </div>
+
         </div>
+
+        <!-- الكليات -->
+
+        <div class="dashboard-stat">
+
+            <div class="dashboard-stat-icon">
+                <i class="bi bi-bank"></i>
+            </div>
+
+            <div class="dashboard-stat-content">
+
+                <div class="dashboard-stat-label">
+                    الكليات
+                </div>
+
+                <div class="dashboard-stat-number">
+                    @facultiesCount
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- الأقسام الأكاديمية -->
+
+        <div class="dashboard-stat">
+
+            <div class="dashboard-stat-icon">
+                <i class="bi bi-diagram-3-fill"></i>
+            </div>
+
+            <div class="dashboard-stat-content">
+
+                <div class="dashboard-stat-label">
+                    الأقسام الأكاديمية
+                </div>
+
+                <div class="dashboard-stat-number">
+                    @departmentsCount
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- المقررات الدراسية -->
+
+        <div class="dashboard-stat">
+
+            <div class="dashboard-stat-icon">
+                <i class="bi bi-book-fill"></i>
+            </div>
+
+            <div class="dashboard-stat-content">
+
+                <div class="dashboard-stat-label">
+                    المقررات الدراسية
+                </div>
+
+                <div class="dashboard-stat-number">
+                    @coursesCount
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- تسجيلات المقررات -->
+
+        <div class="dashboard-stat">
+
+            <div class="dashboard-stat-icon">
+                <i class="bi bi-clipboard-check-fill"></i>
+            </div>
+
+            <div class="dashboard-stat-content">
+
+                <div class="dashboard-stat-label">
+                    تسجيلات المقررات
+                </div>
+
+                <div class="dashboard-stat-number">
+                    @registrationsCount
+                </div>
+
+            </div>
+
+        </div>
+
     </div>
 
-    <div class="dashboard-stat">
-        <div class="dashboard-stat-icon">
-            <i class="bi bi-bank"></i>
-        </div>
-        <div>
-            <div class="dashboard-stat-label">الكليات</div>
-            <div class="dashboard-stat-number">@facultiesCount</div>
-        </div>
+    <!-- الإدارة الأكاديمية -->
+
+    <h3 class="dashboard-title">
+        <i class="bi bi-grid-1x2-fill"></i>
+        الإدارة الأكاديمية
+    </h3>
+
+    <div class="dashboard-actions">
+
+        <!-- إدارة الطلاب -->
+
+        <a asp-controller="Students"
+           asp-action="Index"
+           class="dashboard-action">
+
+            <div class="dashboard-action-icon">
+                <i class="bi bi-mortarboard"></i>
+            </div>
+
+            <div class="dashboard-action-content">
+                <strong>إدارة الطلاب</strong>
+                <small>عرض وإدارة بيانات الطلاب</small>
+            </div>
+
+            <i class="bi bi-chevron-left dashboard-action-arrow"></i>
+
+        </a>
+
+        <!-- المقررات الدراسية -->
+
+        <a asp-controller="Courses"
+           asp-action="Index"
+           class="dashboard-action">
+
+            <div class="dashboard-action-icon">
+                <i class="bi bi-book"></i>
+            </div>
+
+            <div class="dashboard-action-content">
+                <strong>المقررات الدراسية</strong>
+                <small>عرض وإدارة المقررات</small>
+            </div>
+
+            <i class="bi bi-chevron-left dashboard-action-arrow"></i>
+
+        </a>
+
+        <!-- تسجيل المقررات -->
+
+        <a asp-controller="Registrations"
+           asp-action="Index"
+           class="dashboard-action">
+
+            <div class="dashboard-action-icon">
+                <i class="bi bi-clipboard-check"></i>
+            </div>
+
+            <div class="dashboard-action-content">
+                <strong>تسجيل المقررات</strong>
+                <small>متابعة تسجيلات الطلاب</small>
+            </div>
+
+            <i class="bi bi-chevron-left dashboard-action-arrow"></i>
+
+        </a>
+
+        <!-- الشعب المطروحة -->
+
+        <a asp-controller="CourseOfferings"
+           asp-action="Index"
+           class="dashboard-action">
+
+            <div class="dashboard-action-icon">
+                <i class="bi bi-collection"></i>
+            </div>
+
+            <div class="dashboard-action-content">
+                <strong>الشعب المطروحة</strong>
+                <small>عرض الشعب الدراسية</small>
+            </div>
+
+            <i class="bi bi-chevron-left dashboard-action-arrow"></i>
+
+        </a>
+
+        <!-- الكليات -->
+
+        <a asp-controller="Faculties"
+           asp-action="Index"
+           class="dashboard-action">
+
+            <div class="dashboard-action-icon">
+                <i class="bi bi-bank"></i>
+            </div>
+
+            <div class="dashboard-action-content">
+                <strong>الكليات</strong>
+                <small>إدارة كليات الجامعة</small>
+            </div>
+
+            <i class="bi bi-chevron-left dashboard-action-arrow"></i>
+
+        </a>
+
+        <!-- الأقسام الأكاديمية -->
+
+        <a asp-controller="Departments"
+           asp-action="Index"
+           class="dashboard-action">
+
+            <div class="dashboard-action-icon">
+                <i class="bi bi-diagram-3"></i>
+            </div>
+
+            <div class="dashboard-action-content">
+                <strong>الأقسام الأكاديمية</strong>
+                <small>إدارة الأقسام والتخصصات</small>
+            </div>
+
+            <i class="bi bi-chevron-left dashboard-action-arrow"></i>
+
+        </a>
+
+        <!-- الموظفون -->
+
+        <a asp-controller="Employees"
+           asp-action="Index"
+           class="dashboard-action">
+
+            <div class="dashboard-action-icon">
+                <i class="bi bi-people"></i>
+            </div>
+
+            <div class="dashboard-action-content">
+                <strong>الموظفون</strong>
+                <small>عرض وإدارة بيانات الموظفين</small>
+            </div>
+
+            <i class="bi bi-chevron-left dashboard-action-arrow"></i>
+
+        </a>
+
+        <!-- الفصول الدراسية -->
+
+        <a asp-controller="Semesters"
+           asp-action="Index"
+           class="dashboard-action">
+
+            <div class="dashboard-action-icon">
+                <i class="bi bi-calendar3"></i>
+            </div>
+
+            <div class="dashboard-action-content">
+                <strong>الفصول الدراسية</strong>
+                <small>إدارة الفصول الأكاديمية</small>
+            </div>
+
+            <i class="bi bi-chevron-left dashboard-action-arrow"></i>
+
+        </a>
+
+        <!-- أسعار الساعات -->
+
+        <a asp-controller="HourPrices"
+           asp-action="Index"
+           class="dashboard-action">
+
+            <div class="dashboard-action-icon">
+                <i class="bi bi-cash-stack"></i>
+            </div>
+
+            <div class="dashboard-action-content">
+                <strong>أسعار الساعات</strong>
+                <small>متابعة رسوم الساعات الدراسية</small>
+            </div>
+
+            <i class="bi bi-chevron-left dashboard-action-arrow"></i>
+
+        </a>
+
     </div>
-
-    <div class="dashboard-stat">
-        <div class="dashboard-stat-icon">
-            <i class="bi bi-diagram-3-fill"></i>
-        </div>
-        <div>
-            <div class="dashboard-stat-label">الأقسام الأكاديمية</div>
-            <div class="dashboard-stat-number">@departmentsCount</div>
-        </div>
-    </div>
-
-    <div class="dashboard-stat">
-        <div class="dashboard-stat-icon">
-            <i class="bi bi-book-fill"></i>
-        </div>
-        <div>
-            <div class="dashboard-stat-label">المقررات الدراسية</div>
-            <div class="dashboard-stat-number">@coursesCount</div>
-        </div>
-    </div>
-
-    <div class="dashboard-stat">
-        <div class="dashboard-stat-icon">
-            <i class="bi bi-clipboard-check-fill"></i>
-        </div>
-        <div>
-            <div class="dashboard-stat-label">تسجيلات المقررات</div>
-            <div class="dashboard-stat-number">@registrationsCount</div>
-        </div>
-    </div>
-
-</div>
-
-<h3 class="dashboard-title">الإدارة الأكاديمية</h3>
-
-<div class="dashboard-actions">
-
-    <a asp-controller="Students"
-       asp-action="Index"
-       class="dashboard-action">
-        <i class="bi bi-mortarboard"></i>
-        <div>
-            <strong>إدارة الطلاب</strong>
-            <small>عرض وإدارة بيانات الطلاب</small>
-        </div>
-    </a>
-
-    <a asp-controller="Courses"
-       asp-action="Index"
-       class="dashboard-action">
-        <i class="bi bi-book"></i>
-        <div>
-            <strong>المقررات الدراسية</strong>
-            <small>عرض وإدارة المقررات</small>
-        </div>
-    </a>
-
-    <a asp-controller="Registrations"
-       asp-action="Index"
-       class="dashboard-action">
-        <i class="bi bi-clipboard-check"></i>
-        <div>
-            <strong>تسجيل المقررات</strong>
-            <small>متابعة تسجيلات الطلاب</small>
-        </div>
-    </a>
-
-    <a asp-controller="CourseOfferings"
-       asp-action="Index"
-       class="dashboard-action">
-        <i class="bi bi-collection"></i>
-        <div>
-            <strong>الشعب المطروحة</strong>
-            <small>عرض الشعب الدراسية</small>
-        </div>
-    </a>
-
-    <a asp-controller="Faculties"
-       asp-action="Index"
-       class="dashboard-action">
-        <i class="bi bi-bank"></i>
-        <div>
-            <strong>الكليات</strong>
-            <small>إدارة كليات الجامعة</small>
-        </div>
-    </a>
-
-    <a asp-controller="Departments"
-       asp-action="Index"
-       class="dashboard-action">
-        <i class="bi bi-diagram-3"></i>
-        <div>
-            <strong>الأقسام الأكاديمية</strong>
-            <small>إدارة الأقسام والتخصصات</small>
-        </div>
-    </a>
-
-    <a asp-controller="Employees"
-       asp-action="Index"
-       class="dashboard-action">
-        <i class="bi bi-people"></i>
-        <div>
-            <strong>الموظفون</strong>
-            <small>عرض وإدارة بيانات الموظفين</small>
-        </div>
-    </a>
-
-    <a asp-controller="Semesters"
-       asp-action="Index"
-       class="dashboard-action">
-        <i class="bi bi-calendar3"></i>
-        <div>
-            <strong>الفصول الدراسية</strong>
-            <small>إدارة الفصول الأكاديمية</small>
-        </div>
-    </a>
-
-    <a asp-controller="HourPrices"
-       asp-action="Index"
-       class="dashboard-action">
-        <i class="bi bi-cash-stack"></i>
-        <div>
-            <strong>أسعار الساعات</strong>
-            <small>متابعة رسوم الساعات الدراسية</small>
-        </div>
-    </a>
 
 </div>

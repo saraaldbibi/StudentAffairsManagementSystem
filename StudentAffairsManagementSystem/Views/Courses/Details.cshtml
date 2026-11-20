@@ -1,197 +1,426 @@
-﻿
-@model StudentAffairsManagementSystem.Models.Course
+﻿@model StudentAffairsManagementSystem.Models.Course
 
 @{
-    ViewData["Title"] = "تفاصيل المقرر";
+    ViewData["Title"] = "تفاصيل المقرر الدراسي";
+
+    var isAdmin = User.IsInRole("Admin");
 }
 
 <style>
     .course-details-page {
-        max-width: 950px;
-        margin: 30px auto;
         direction: rtl;
-        font-family: 'Cairo', Tahoma, sans-serif;
+        max-width: 900px;
+        margin: 20px auto;
+        color: #142d4e;
     }
 
-    .course-details-card {
-        background: #ffffff;
-        border-radius: 18px;
-        overflow: hidden;
-        box-shadow: 0 5px 25px rgba(0, 0, 0, 0.07);
-        border: 1px solid #e7eaf0;
-    }
+    /* رأس الصفحة */
 
     .course-details-header {
-        background: #14263f;
-        padding: 28px 32px;
+        background: linear-gradient(135deg, #142d4e, #304661);
         color: #ffffff;
-        border-bottom: 4px solid #c9a66b;
+        padding: 28px 32px;
+        border-radius: 16px 16px 0 0;
+        border-bottom: 4px solid #c9a24d;
     }
 
-    .course-details-header h2 {
-        font-size: 25px;
-        font-weight: 700;
-        margin: 0 0 8px;
-    }
+        .course-details-header h2 {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 25px;
+            font-weight: 800;
+            margin: 0 0 10px;
+        }
 
-    .course-details-header p {
-        margin: 0;
-        color: #d6dce6;
-        font-size: 14px;
-    }
+            .course-details-header h2 i {
+                color: #c9a24d;
+                font-size: 27px;
+            }
+
+        .course-details-header p {
+            color: #d6dfeb;
+            font-size: 14px;
+            line-height: 1.9;
+            margin: 0;
+        }
+
+    /* بطاقة التفاصيل */
 
     .course-details-body {
+        background: #ffffff;
         padding: 30px;
+        border: 1px solid #e5eaf2;
+        border-top: none;
+        border-radius: 0 0 16px 16px;
+        box-shadow: 0 5px 25px rgba(20,45,78,.05);
     }
 
-    .course-info-grid {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 20px;
+    /* ملخص المقرر */
+
+    .course-details-summary {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 18px;
+        background: #f7f9fc;
+        border: 1px solid #e9edf3;
+        border-radius: 13px;
+        padding: 22px;
+        margin-bottom: 30px;
     }
 
-    .course-info-item {
-        background: #f8f9fc;
-        border: 1px solid #edf0f5;
-        border-radius: 12px;
-        padding: 20px;
+    .course-details-icon {
+        width: 65px;
+        height: 65px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #142d4e;
+        color: #c9a24d;
+        border-radius: 14px;
+        font-size: 29px;
+        flex-shrink: 0;
     }
 
-    .course-info-label {
-        display: block;
-        font-size: 13px;
-        color: #718096;
-        margin-bottom: 10px;
+    .course-details-summary-info {
+        flex: 1;
+        min-width: 180px;
     }
 
-    .course-info-value {
-        display: block;
-        font-size: 18px;
-        font-weight: 700;
-        color: #14263f;
+        .course-details-summary-info h3 {
+            color: #142d4e;
+            font-size: 20px;
+            font-weight: 800;
+            margin: 0 0 8px;
+            overflow-wrap: anywhere;
+        }
+
+        .course-details-summary-info p {
+            color: #718096;
+            font-size: 14px;
+            margin: 0;
+        }
+
+    .course-details-code {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: #e9eef6;
+        color: #142d4e;
+        border-radius: 9px;
+        padding: 9px 14px;
+        font-size: 14px;
+        font-weight: 800;
+        direction: ltr;
         overflow-wrap: anywhere;
     }
 
-    .course-details-footer {
+    /* عنوان البيانات */
+
+    .course-details-section-title {
         display: flex;
-        flex-wrap: wrap;
-        gap: 12px;
-        padding: 0 30px 30px;
+        align-items: center;
+        gap: 10px;
+        color: #142d4e;
+        font-size: 18px;
+        font-weight: 800;
+        border-right: 4px solid #c9a24d;
+        padding-right: 13px;
+        margin-bottom: 23px;
     }
 
-    .course-btn {
+        .course-details-section-title i {
+            color: #b9913d;
+            font-size: 20px;
+        }
+
+    /* شبكة البيانات */
+
+    .course-details-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 17px;
+        margin-bottom: 30px;
+    }
+
+    .course-details-field {
+        background: #f9fafc;
+        border: 1px solid #e9edf3;
+        border-radius: 11px;
+        padding: 19px;
+        min-width: 0;
+    }
+
+    .course-details-label {
+        color: #718096;
+        font-size: 13px;
+        margin-bottom: 10px;
+    }
+
+    .course-details-value {
+        color: #142d4e;
+        font-size: 16px;
+        font-weight: 800;
+        overflow-wrap: anywhere;
+    }
+
+    .course-details-hours {
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        padding: 12px 20px;
-        border-radius: 10px;
-        font-weight: 600;
+        background: #eef2f8;
+        color: #142d4e;
+        border-radius: 9px;
+        padding: 8px 13px;
+        font-size: 14px;
+        font-weight: 800;
+    }
+
+        .course-details-hours i {
+            color: #b9913d;
+        }
+
+    /* أزرار الإجراءات */
+
+    .course-details-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        padding-top: 25px;
+        border-top: 1px solid #e9edf3;
+    }
+
+    .course-details-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+        min-height: 45px;
+        padding: 11px 22px;
+        border-radius: 11px;
+        font-size: 14px;
+        font-weight: 800;
         text-decoration: none;
+        border: 1px solid transparent;
+        transition: background-color .2s ease;
     }
 
-    .course-btn-back {
+    /* زر العودة */
+
+    .course-details-back {
         background: #edf1f7;
-        color: #14263f;
+        color: #142d4e;
+        border-color: #dfe6ef;
     }
 
-    .course-btn-edit {
-        background: #c9a66b;
-        color: #14263f;
+        .course-details-back:hover {
+            background: #e1e8f2;
+            color: #142d4e;
+        }
+
+    /* زر التعديل */
+
+    .course-details-edit {
+        background: #c9a24d;
+        color: #142d4e;
     }
+
+        .course-details-edit:hover {
+            background: #b9913d;
+            color: #142d4e;
+        }
+
+    .course-details-btn:focus-visible {
+        outline: 3px solid #142d4e;
+        outline-offset: 3px;
+    }
+
+    /* الشاشات الصغيرة */
 
     @@media (max-width: 650px) {
-        .course-info-grid {
+        .course-details-page {
+            margin: 15px auto;
+        }
+
+        .course-details-header,
+        .course-details-body {
+            padding: 22px;
+        }
+
+            .course-details-header h2 {
+                font-size: 21px;
+            }
+
+        .course-details-summary {
+            padding: 17px;
+        }
+
+        .course-details-grid {
             grid-template-columns: 1fr;
         }
 
-        .course-details-body {
-            padding: 20px;
+        .course-details-actions {
+            flex-direction: column;
         }
 
-        .course-details-footer {
-            padding: 0 20px 20px;
+        .course-details-btn {
+            width: 100%;
         }
     }
 </style>
 
 <div class="course-details-page">
 
-    <div class="course-details-card">
+    <!-- رأس الصفحة -->
 
-        <div class="course-details-header">
-            <h2>
-                <i class="bi bi-book"></i>
-                تفاصيل المقرر الدراسي
-            </h2>
+    <div class="course-details-header">
 
-            <p>عرض البيانات المسجلة للمقرر الدراسي</p>
+        <h2>
+            <i class="bi bi-book"></i>
+            تفاصيل المقرر الدراسي
+        </h2>
+
+        <p>
+            عرض البيانات الأساسية المسجلة
+            للمقرر الدراسي والقسم الأكاديمي المرتبط به.
+        </p>
+
+    </div>
+
+    <!-- بطاقة التفاصيل -->
+
+    <div class="course-details-body">
+
+        <!-- ملخص المقرر -->
+
+        <div class="course-details-summary">
+
+            <div class="course-details-icon">
+                <i class="bi bi-journal-bookmark"></i>
+            </div>
+
+            <div class="course-details-summary-info">
+
+                <h3>@Model.Name</h3>
+
+                <p>
+                    @(Model.Department?.Name ?? "القسم الأكاديمي غير محدد")
+                </p>
+
+            </div>
+
+            <span class="course-details-code">
+                @Model.Code
+            </span>
+
         </div>
 
-        <div class="course-details-body">
+        <!-- عنوان البيانات -->
 
-            <div class="course-info-grid">
+        <h3 class="course-details-section-title">
+            <i class="bi bi-journal-text"></i>
+            البيانات الأساسية
+        </h3>
 
-                <div class="course-info-item">
-                    <span class="course-info-label">
-                        اسم المقرر
-                    </span>
+        <!-- بيانات المقرر -->
 
-                    <span class="course-info-value">
-                        @Model.Name
-                    </span>
+        <div class="course-details-grid">
+
+            <!-- اسم المقرر -->
+
+            <div class="course-details-field">
+
+                <div class="course-details-label">
+                    اسم المقرر الدراسي
                 </div>
 
-                <div class="course-info-item">
-                    <span class="course-info-label">
-                        رمز المقرر
-                    </span>
+                <div class="course-details-value">
+                    @Model.Name
+                </div>
 
-                    <span class="course-info-value">
+            </div>
+
+            <!-- رمز المقرر -->
+
+            <div class="course-details-field">
+
+                <div class="course-details-label">
+                    رمز المقرر
+                </div>
+
+                <div class="course-details-value">
+
+                    <span class="course-details-code">
                         @Model.Code
                     </span>
+
                 </div>
 
-                <div class="course-info-item">
-                    <span class="course-info-label">
-                        الساعات المعتمدة
-                    </span>
+            </div>
 
-                    <span class="course-info-value">
+            <!-- الساعات المعتمدة -->
+
+            <div class="course-details-field">
+
+                <div class="course-details-label">
+                    عدد الساعات المعتمدة
+                </div>
+
+                <div class="course-details-value">
+
+                    <span class="course-details-hours">
+
+                        <i class="bi bi-clock"></i>
+
                         @Model.CreditHours
+                        ساعة معتمدة
+
                     </span>
+
                 </div>
 
-                <div class="course-info-item">
-                    <span class="course-info-label">
-                        القسم الأكاديمي
-                    </span>
+            </div>
 
-                    <span class="course-info-value">
-                        @(Model.Department?.Name ?? "غير محدد")
-                    </span>
+            <!-- القسم الأكاديمي -->
+
+            <div class="course-details-field">
+
+                <div class="course-details-label">
+                    القسم الأكاديمي
+                </div>
+
+                <div class="course-details-value">
+                    @(Model.Department?.Name ?? "غير محدد")
                 </div>
 
             </div>
 
         </div>
 
-        <div class="course-details-footer">
+        <!-- أزرار الإجراءات -->
+
+        <div class="course-details-actions">
 
             <a asp-controller="Courses"
                asp-action="Index"
-               class="course-btn course-btn-back">
+               class="course-details-btn course-details-back">
+
                 <i class="bi bi-arrow-right"></i>
                 العودة إلى المقررات
+
             </a>
 
-            @if (User.IsInRole("Admin"))
+            @if (isAdmin)
             {
                 <a asp-controller="Courses"
                    asp-action="Edit"
                    asp-route-id="@Model.Id"
-                   class="course-btn course-btn-edit">
+                   class="course-details-btn course-details-edit">
+
                     <i class="bi bi-pencil-square"></i>
                     تعديل المقرر
+
                 </a>
             }
 

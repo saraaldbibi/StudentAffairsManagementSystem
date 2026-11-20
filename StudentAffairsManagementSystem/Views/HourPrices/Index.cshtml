@@ -1,12 +1,12 @@
-﻿
-@model IEnumerable<StudentAffairsManagementSystem.Models.HourPrice>
+﻿@model IEnumerable<StudentAffairsManagementSystem.Models.HourPrice>
 
 @{
     ViewData["Title"] = "إدارة أسعار الساعات الدراسية";
 
     bool isAdmin = User.IsInRole("Admin");
 
-    var hourPrices = Model.ToList();
+    var hourPrices = Model?.ToList()
+        ?? new List<StudentAffairsManagementSystem.Models.HourPrice>();
 
     int totalPrices = hourPrices.Count;
 
@@ -21,34 +21,362 @@
         .Count();
 }
 
-<div class="container-fluid py-4" dir="rtl">
+<style>
+    .hourprices-page {
+        direction: rtl;
+        color: #142d4e;
+        padding-top: 20px;
+        padding-bottom: 25px;
+    }
 
-    <!-- عنوان الصفحة -->
-    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+    /* رأس الصفحة */
+
+    .hourprices-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-bottom: 25px;
+    }
+
+        .hourprices-header h2 {
+            color: #142d4e;
+            font-size: 26px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .hourprices-header p {
+            color: #718096;
+            margin: 0;
+        }
+
+    /* زر إضافة سعر ساعة */
+
+    .hourprices-add-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+        background: #c9a24d;
+        color: #142d4e;
+        border-radius: 11px;
+        padding: 12px 20px;
+        text-decoration: none;
+        font-weight: 800;
+        transition: background-color 0.2s ease;
+    }
+
+        .hourprices-add-btn:hover {
+            background: #b9913d;
+            color: #142d4e;
+        }
+
+    /* بطاقات الإحصائيات */
+
+    .hourprices-stats {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 18px;
+        margin-bottom: 25px;
+    }
+
+    .hourprices-stat-card {
+        background: white;
+        border: 1px solid #e5eaf0;
+        border-right: 4px solid #c9a24d;
+        border-radius: 14px;
+        padding: 22px;
+    }
+
+    .hourprices-stat-label {
+        color: #718096;
+        font-size: 14px;
+        margin-bottom: 10px;
+    }
+
+    .hourprices-stat-value {
+        color: #142d4e;
+        font-size: 30px;
+        font-weight: 800;
+        margin: 0;
+    }
+
+    /* بطاقة الجدول */
+
+    .hourprices-table-card {
+        background: white;
+        border: 1px solid #e5eaf0;
+        border-radius: 15px;
+        overflow: hidden;
+    }
+
+    .hourprices-table-header {
+        background: #142d4e;
+        color: white;
+        padding: 18px 22px;
+    }
+
+        .hourprices-table-header h4 {
+            margin: 0;
+            font-size: 19px;
+            font-weight: 800;
+        }
+
+    .hourprices-table-wrapper {
+        overflow-x: auto;
+    }
+
+    /* جدول أسعار الساعات */
+
+    .hourprices-table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: center;
+    }
+
+        .hourprices-table thead {
+            background: #f5f6f8;
+            color: #142d4e;
+        }
+
+        .hourprices-table th {
+            padding: 16px;
+            font-size: 14px;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .hourprices-table td {
+            padding: 16px;
+            border-bottom: 1px solid #edf0f5;
+            vertical-align: middle;
+            font-size: 14px;
+        }
+
+        .hourprices-table tbody tr:hover {
+            background: #fafbfd;
+        }
+
+    /* اسم القسم */
+
+    .hourprices-department {
+        color: #142d4e;
+        font-weight: 800;
+    }
+
+    /* سعر الساعة */
+
+    .hourprices-price {
+        color: #142d4e;
+        font-weight: 800;
+        font-size: 15px;
+        white-space: nowrap;
+    }
+
+    /* حالة الفصل */
+
+    .hourprices-status {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 7px 13px;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .hourprices-status-active {
+        background: #e8f6ee;
+        color: #197647;
+    }
+
+    .hourprices-status-inactive {
+        background: #eef0f3;
+        color: #596579;
+    }
+
+    /* أزرار الإجراءات الموحدة */
+
+    .hourprices-actions {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .hourprices-action-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-height: 43px;
+        padding: 9px 15px;
+        border-radius: 11px;
+        border: 1px solid transparent;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 700;
+        white-space: nowrap;
+        transition: background-color 0.2s ease, transform 0.2s ease;
+    }
+
+        .hourprices-action-btn i {
+            font-size: 16px;
+        }
+
+    /* زر عرض التفاصيل */
+
+    .hourprices-details-btn {
+        background: #eef2f8;
+        color: #142d4e;
+    }
+
+        .hourprices-details-btn:hover {
+            background: #dfe7f2;
+            color: #142d4e;
+            transform: translateY(-1px);
+        }
+
+    /* زر تعديل */
+
+    .hourprices-edit-btn {
+        background: #c9a24d;
+        color: #142d4e;
+    }
+
+        .hourprices-edit-btn:hover {
+            background: #b9913d;
+            color: #142d4e;
+            transform: translateY(-1px);
+        }
+
+    /* زر حذف */
+
+    .hourprices-delete-btn {
+        background: #fff0ee;
+        color: #c62828;
+        border-color: #ffc5bf;
+    }
+
+        .hourprices-delete-btn:hover {
+            background: #ffe0dc;
+            color: #a91e1e;
+            border-color: #f2a8a0;
+            transform: translateY(-1px);
+        }
+
+    .hourprices-action-btn:focus-visible {
+        outline: 3px solid #142d4e;
+        outline-offset: 3px;
+    }
+
+    /* حالة عدم وجود أسعار */
+
+    .hourprices-empty {
+        text-align: center;
+        padding: 45px 20px !important;
+        color: #718096;
+    }
+
+        .hourprices-empty i {
+            display: block;
+            font-size: 38px;
+            color: #c9a24d;
+            margin-bottom: 15px;
+        }
+
+        .hourprices-empty h5 {
+            color: #142d4e;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .hourprices-empty p {
+            margin: 0;
+        }
+
+    /* الملاحظة التوضيحية */
+
+    .hourprices-note {
+        background: #f8f9fc;
+        border: 1px solid #e5eaf0;
+        border-radius: 11px;
+        padding: 18px 20px;
+        margin-top: 25px;
+        color: #596579;
+        line-height: 1.9;
+    }
+
+        .hourprices-note strong {
+            color: #142d4e;
+        }
+
+    /* الشاشات الصغيرة */
+
+    @@media (max-width: 900px) {
+        .hourprices-stats {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @@media (max-width: 600px) {
+        .hourprices-stats {
+            grid-template-columns: 1fr;
+        }
+
+        .hourprices-header h2 {
+            font-size: 22px;
+        }
+
+        .hourprices-stat-card {
+            padding: 18px;
+        }
+
+        .hourprices-table th,
+        .hourprices-table td {
+            padding: 12px;
+        }
+    }
+</style>
+
+<div class="container-fluid hourprices-page" dir="rtl">
+
+    <!-- رأس الصفحة -->
+
+    <div class="hourprices-header">
 
         <div>
-            <h2 style="color:#142d4e; font-weight:800;">
+
+            <h2>
+                <i class="bi bi-cash-coin"></i>
                 إدارة أسعار الساعات الدراسية
             </h2>
 
-            <p class="text-muted mb-0">
+            <p>
                 عرض أسعار الساعة الدراسية حسب القسم والفصل الدراسي
             </p>
+
         </div>
 
         @if (isAdmin)
         {
             <a asp-controller="HourPrices"
                asp-action="Create"
-               class="btn px-4 py-2"
-               style="background:#c9a24d; color:#142d4e; font-weight:800;">
-                + إضافة سعر ساعة
+               class="hourprices-add-btn">
+
+                <i class="bi bi-plus-circle"></i>
+                إضافة سعر ساعة
+
             </a>
         }
 
     </div>
 
-    <!-- رسائل النظام -->
+    <!-- رسائل النجاح والخطأ -->
     @if (TempData["Success"] != null)
     {
         <div class="alert alert-success">
@@ -64,209 +392,223 @@
     }
 
     <!-- بطاقات الإحصائيات -->
-    <div class="row g-3 mb-4">
 
-        <div class="col-md-4">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body p-4">
+    <div class="hourprices-stats">
 
-                    <div class="text-muted mb-2">
-                        إجمالي أسعار الساعات المسجلة
-                    </div>
+        <!-- إجمالي الأسعار -->
 
-                    <h2 class="mb-0"
-                        style="color:#142d4e; font-weight:800;">
-                        @totalPrices
-                    </h2>
+        <div class="hourprices-stat-card">
 
-                </div>
+            <div class="hourprices-stat-label">
+                إجمالي أسعار الساعات المسجلة
             </div>
+
+            <h2 class="hourprices-stat-value">
+                @totalPrices
+            </h2>
+
         </div>
 
-        <div class="col-md-4">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body p-4">
+        <!-- عدد الأقسام -->
 
-                    <div class="text-muted mb-2">
-                        الأقسام التي لديها أسعار مسجلة
-                    </div>
+        <div class="hourprices-stat-card">
 
-                    <h2 class="mb-0"
-                        style="color:#142d4e; font-weight:800;">
-                        @departmentsCount
-                    </h2>
-
-                </div>
+            <div class="hourprices-stat-label">
+                الأقسام التي لديها أسعار مسجلة
             </div>
+
+            <h2 class="hourprices-stat-value">
+                @departmentsCount
+            </h2>
+
         </div>
 
-        <div class="col-md-4">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body p-4">
+        <!-- عدد الفصول -->
 
-                    <div class="text-muted mb-2">
-                        الفصول التي لديها أسعار مسجلة
-                    </div>
+        <div class="hourprices-stat-card">
 
-                    <h2 class="mb-0"
-                        style="color:#142d4e; font-weight:800;">
-                        @semestersCount
-                    </h2>
-
-                </div>
+            <div class="hourprices-stat-label">
+                الفصول التي لديها أسعار مسجلة
             </div>
+
+            <h2 class="hourprices-stat-value">
+                @semestersCount
+            </h2>
+
         </div>
 
     </div>
 
-    <!-- جدول أسعار الساعات -->
-    <div class="card border-0 shadow-sm">
+    <!-- قائمة أسعار الساعات -->
 
-        <div class="card-header py-3"
-             style="background:#142d4e; color:white;">
+    <div class="hourprices-table-card">
 
-            <h5 class="mb-0">
+        <div class="hourprices-table-header">
+
+            <h4>
+                <i class="bi bi-list-ul"></i>
                 قائمة أسعار الساعات الدراسية
-            </h5>
+            </h4>
 
         </div>
 
-        <div class="card-body p-0">
+        <div class="hourprices-table-wrapper">
 
-            <div class="table-responsive">
+            <table class="hourprices-table">
 
-                <table class="table table-hover align-middle text-center mb-0">
+                <thead>
+                    <tr>
+                        <th>القسم الدراسي</th>
+                        <th>الفصل الدراسي</th>
+                        <th>العام الدراسي</th>
+                        <th>سعر الساعة</th>
+                        <th>حالة الفصل</th>
+                        <th>الإجراءات</th>
+                    </tr>
+                </thead>
 
-                    <thead style="background:#f5f6f8;">
-                        <tr>
-                            <th>القسم الدراسي</th>
-                            <th>الفصل الدراسي</th>
-                            <th>العام الدراسي</th>
-                            <th>سعر الساعة</th>
-                            <th>حالة الفصل</th>
-                            <th>الإجراءات</th>
-                        </tr>
-                    </thead>
+                <tbody>
 
-                    <tbody>
-
-                        @if (hourPrices.Any())
-                        {
-                            @foreach (var hourPrice in hourPrices)
-                            {
-                                <tr>
-
-                                    <!-- القسم -->
-                                    <td class="fw-bold">
-                                        @hourPrice.Department.Name
-                                    </td>
-
-                                    <!-- الفصل -->
-                                    <td>
-                                        @hourPrice.Semester.Name
-                                    </td>
-
-                                    <!-- العام الدراسي -->
-                                    <td>
-                                        @hourPrice.Semester.AcademicYear
-                                    </td>
-
-                                    <!-- سعر الساعة -->
-                                    <td>
-                                        <span style="color:#142d4e; font-weight:800;">
-                                            @hourPrice.PricePerHour.ToString("N2")
-                                        </span>
-                                    </td>
-
-                                    <!-- حالة الفصل -->
-                                    <td>
-                                        @if (hourPrice.Semester.IsActive)
-                                        {
-                                            <span class="badge bg-success px-3 py-2">
-                                                فعال
-                                            </span>
-                                        }
-                                        else
-                                        {
-                                            <span class="badge bg-secondary px-3 py-2">
-                                                غير فعال
-                                            </span>
-                                        }
-                                    </td>
-
-                                    <!-- الإجراءات -->
-                                    <td>
-
-                                        <div class="d-flex justify-content-center gap-2 flex-wrap">
-
-                                            <a asp-controller="HourPrices"
-                                               asp-action="Details"
-                                               asp-route-id="@hourPrice.Id"
-                                               class="btn btn-sm btn-outline-primary">
-                                                التفاصيل
-                                            </a>
-
-                                            @if (isAdmin)
-                                            {
-                                                <a asp-controller="HourPrices"
-                                                   asp-action="Edit"
-                                                   asp-route-id="@hourPrice.Id"
-                                                   class="btn btn-sm btn-outline-warning">
-                                                    تعديل
-                                                </a>
-
-                                                <a asp-controller="HourPrices"
-                                                   asp-action="Delete"
-                                                   asp-route-id="@hourPrice.Id"
-                                                   class="btn btn-sm btn-outline-danger">
-                                                    حذف
-                                                </a>
-                                            }
-
-                                        </div>
-
-                                    </td>
-
-                                </tr>
-                            }
-                        }
-                        else
+                    @if (hourPrices.Any())
+                    {
+                        @foreach (var hourPrice in hourPrices)
                         {
                             <tr>
-                                <td colspan="6"
-                                    class="text-center text-muted py-5">
 
-                                    <div class="mb-3" style="font-size:36px;">
-                                        💰
-                                    </div>
+                                <!-- القسم -->
 
-                                    <h5 class="mb-2">
-                                        لا توجد أسعار ساعات مسجلة حاليًا
-                                    </h5>
+                                <td class="hourprices-department">
+                                    @hourPrice.Department.Name
+                                </td>
 
-                                    <p class="mb-0">
-                                        ستظهر الأسعار هنا بعد إضافتها إلى النظام.
-                                    </p>
+                                <!-- الفصل الدراسي -->
+
+                                <td>
+                                    @hourPrice.Semester.Name
+                                </td>
+
+                                <!-- العام الدراسي -->
+
+                                <td>
+                                    @hourPrice.Semester.AcademicYear
+                                </td>
+
+                                <!-- سعر الساعة -->
+
+                                <td>
+                                    <span class="hourprices-price">
+                                        @hourPrice.PricePerHour.ToString("N2")
+                                    </span>
+                                </td>
+
+                                <!-- حالة الفصل -->
+
+                                <td>
+
+                                    @if (hourPrice.Semester.IsActive)
+                                    {
+                                        <span class="hourprices-status hourprices-status-active">
+                                            فعّال
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="hourprices-status hourprices-status-inactive">
+                                            غير فعّال
+                                        </span>
+                                    }
 
                                 </td>
+
+                                <!-- الإجراءات -->
+
+                                <td>
+
+                                    <div class="hourprices-actions">
+
+                                        <!-- عرض التفاصيل -->
+
+                                        <a asp-controller="HourPrices"
+                                           asp-action="Details"
+                                           asp-route-id="@hourPrice.Id"
+                                           class="hourprices-action-btn hourprices-details-btn">
+
+                                            <i class="bi bi-eye"></i>
+                                            عرض التفاصيل
+
+                                        </a>
+
+                                        @if (isAdmin)
+                                        {
+                                            <!-- تعديل -->
+
+                                            <a asp-controller="HourPrices"
+                                               asp-action="Edit"
+                                               asp-route-id="@hourPrice.Id"
+                                               class="hourprices-action-btn hourprices-edit-btn">
+
+                                                <i class="bi bi-pencil-square"></i>
+                                                تعديل
+
+                                            </a>
+
+                                            <!-- حذف -->
+
+                                            <a asp-controller="HourPrices"
+                                               asp-action="Delete"
+                                               asp-route-id="@hourPrice.Id"
+                                               class="hourprices-action-btn hourprices-delete-btn">
+
+                                                <i class="bi bi-trash3"></i>
+                                                حذف
+
+                                            </a>
+                                        }
+
+                                    </div>
+
+                                </td>
+
                             </tr>
                         }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="6"
+                                class="hourprices-empty">
 
-                    </tbody>
+                                <i class="bi bi-cash-coin"></i>
 
-                </table>
+                                <h5>
+                                    لا توجد أسعار ساعات مسجلة حاليًا
+                                </h5>
 
-            </div>
+                                <p>
+                                    ستظهر الأسعار هنا بعد إضافتها إلى النظام.
+                                </p>
+
+                            </td>
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
 
         </div>
 
     </div>
 
     <!-- ملاحظة توضيحية -->
-    <div class="alert alert-light border mt-4 mb-0">
+
+    <div class="hourprices-note">
+
         <strong>ملاحظة:</strong>
+
         يتم تحديد سعر الساعة الدراسية لكل قسم ضمن فصل دراسي محدد.
         وقد يختلف السعر بين الأقسام أو الفصول الدراسية.
+
     </div>
 
 </div>

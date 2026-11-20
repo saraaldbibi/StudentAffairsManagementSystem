@@ -1,4 +1,7 @@
 ﻿
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -13,18 +16,22 @@ namespace StudentAffairsManagementSystem.Controllers
     {
         private readonly ApplicationDbContext _context;
 
-        public CourseOfferingsController(ApplicationDbContext context)
+        public CourseOfferingsController(
+            ApplicationDbContext context)
         {
             _context = context;
         }
 
+        // ==========================================
         // عرض جميع المقررات المطروحة
+        // GET: /CourseOfferings
+        // ==========================================
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
             var offerings = await _context.CourseOfferings
                 .Include(o => o.Course)
                 .Include(o => o.Semester)
-                .Include(o => o.Employee)
                 .AsNoTracking()
                 .OrderByDescending(o => o.Semester.StartDate)
                 .ThenBy(o => o.Course.Name)
@@ -33,13 +40,16 @@ namespace StudentAffairsManagementSystem.Controllers
             return View(offerings);
         }
 
+        // ==========================================
         // عرض تفاصيل مقرر مطروح
+        // GET: /CourseOfferings/Details/5
+        // ==========================================
+        [HttpGet]
         public async Task<IActionResult> Details(long id)
         {
             var offering = await _context.CourseOfferings
                 .Include(o => o.Course)
                 .Include(o => o.Semester)
-                .Include(o => o.Employee)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(o => o.Id == id);
 
@@ -49,7 +59,10 @@ namespace StudentAffairsManagementSystem.Controllers
             return View(offering);
         }
 
-        // فتح صفحة إضافة طرح جديد
+        // ==========================================
+        // فتح صفحة طرح مقرر جديد
+        // GET: /CourseOfferings/Create
+        // ==========================================
         [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<IActionResult> Create()
@@ -59,18 +72,20 @@ namespace StudentAffairsManagementSystem.Controllers
             return View(new CourseOffering());
         }
 
-        // حفظ طرح مقرر جديد
+        // ==========================================
+        // حفظ مقرر مطروح جديد
+        // POST: /CourseOfferings/Create
+        // ==========================================
         [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(
-            [Bind("CourseId,SemesterId,EmployeeId,Capacity")]
+            [Bind("CourseId,SemesterId,Capacity")]
             CourseOffering offering)
         {
-            // الخصائص المرتبطة لا تأتي من النموذج
+            // الخصائص المرتبطة لا تُرسل من النموذج
             ModelState.Remove(nameof(CourseOffering.Course));
             ModelState.Remove(nameof(CourseOffering.Semester));
-            ModelState.Remove(nameof(CourseOffering.Employee));
 
             await ValidateOffering(offering);
 
@@ -85,22 +100,28 @@ namespace StudentAffairsManagementSystem.Controllers
             try
             {
                 await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] =
+                    "تم طرح المقرر الدراسي بنجاح.";
+
+                return RedirectToAction(nameof(Index));
             }
             catch (DbUpdateException)
             {
                 ModelState.AddModelError(
                     string.Empty,
-                    "تعذر حفظ الطرح. تحققوا من البيانات " +
-                    "ومن عدم تكرار المقرر في نفس الفصل.");
+                    "تعذر حفظ المقرر المطروح. يرجى التحقق " +
+                    "من البيانات وعدم تكرار المقرر في الفصل نفسه.");
 
                 await LoadLists();
                 return View(offering);
             }
-
-            return RedirectToAction(nameof(Index));
         }
 
-        // فتح صفحة تعديل طرح
+        // ==========================================
+        // فتح صفحة تعديل مقرر مطروح
+        // GET: /CourseOfferings/Edit/5
+        // ==========================================
         [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<IActionResult> Edit(long id)
@@ -116,13 +137,16 @@ namespace StudentAffairsManagementSystem.Controllers
             return View(offering);
         }
 
-        // حفظ التعديلات
+        // ==========================================
+        // حفظ تعديلات المقرر المطروح
+        // POST: /CourseOfferings/Edit/5
+        // ==========================================
         [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(
             long id,
-            [Bind("Id,CourseId,SemesterId,EmployeeId,Capacity")]
+            [Bind("Id,CourseId,SemesterId,Capacity")]
             CourseOffering model)
         {
             if (id != model.Id)
@@ -130,7 +154,6 @@ namespace StudentAffairsManagementSystem.Controllers
 
             ModelState.Remove(nameof(CourseOffering.Course));
             ModelState.Remove(nameof(CourseOffering.Semester));
-            ModelState.Remove(nameof(CourseOffering.Employee));
 
             var offering = await _context.CourseOfferings
                 .FindAsync(id);
@@ -138,7 +161,8 @@ namespace StudentAffairsManagementSystem.Controllers
             if (offering == null)
                 return NotFound();
 
-            // منع تغيير المقرر أو الفصل إذا كان هناك تسجيلات
+            // لا نسمح بتغيير المقرر أو الفصل
+            // بعد وجود تسجيلات مرتبطة بالطرح
             bool hasRegistrations =
                 await _context.Registrations.AnyAsync(r =>
                     r.CourseOfferingId == id);
@@ -163,28 +187,33 @@ namespace StudentAffairsManagementSystem.Controllers
 
             offering.CourseId = model.CourseId;
             offering.SemesterId = model.SemesterId;
-            offering.EmployeeId = model.EmployeeId;
             offering.Capacity = model.Capacity;
 
             try
             {
                 await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] =
+                    "تم تعديل المقرر المطروح بنجاح.";
+
+                return RedirectToAction(nameof(Index));
             }
             catch (DbUpdateException)
             {
                 ModelState.AddModelError(
                     string.Empty,
-                    "تعذر حفظ التعديلات. تحققوا من البيانات " +
-                    "وحاولوا مجدداً.");
+                    "تعذر حفظ التعديلات. يرجى التحقق " +
+                    "من البيانات والمحاولة مجددًا.");
 
                 await LoadLists();
                 return View(model);
             }
-
-            return RedirectToAction(nameof(Index));
         }
 
-        // فتح صفحة تأكيد حذف طرح
+        // ==========================================
+        // صفحة تأكيد حذف مقرر مطروح
+        // GET: /CourseOfferings/Delete/5
+        // ==========================================
         [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<IActionResult> Delete(long id)
@@ -192,7 +221,6 @@ namespace StudentAffairsManagementSystem.Controllers
             var offering = await _context.CourseOfferings
                 .Include(o => o.Course)
                 .Include(o => o.Semester)
-                .Include(o => o.Employee)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(o => o.Id == id);
 
@@ -202,7 +230,10 @@ namespace StudentAffairsManagementSystem.Controllers
             return View(offering);
         }
 
-        // تنفيذ حذف الطرح
+        // ==========================================
+        // تنفيذ حذف مقرر مطروح
+        // POST: /CourseOfferings/Delete/5
+        // ==========================================
         [Authorize(Roles = "Admin")]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
@@ -214,7 +245,7 @@ namespace StudentAffairsManagementSystem.Controllers
             if (offering == null)
                 return NotFound();
 
-            // منع الحذف إذا كان الطرح مرتبطاً بتسجيلات
+            // حماية تسجيلات الطلاب
             bool hasRegistrations =
                 await _context.Registrations.AnyAsync(r =>
                     r.CourseOfferingId == id);
@@ -233,25 +264,28 @@ namespace StudentAffairsManagementSystem.Controllers
             try
             {
                 await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] =
+                    "تم حذف المقرر المطروح بنجاح.";
             }
             catch (DbUpdateException)
             {
                 TempData["Error"] =
                     "تعذر حذف المقرر المطروح لأنه قد يكون " +
-                    "مرتبطاً ببيانات أخرى.";
-
-                return RedirectToAction(nameof(Index));
+                    "مرتبطًا ببيانات أخرى.";
             }
 
             return RedirectToAction(nameof(Index));
         }
 
-        // التحقق من بيانات طرح المقرر
+        // ==========================================
+        // التحقق من بيانات المقرر المطروح
+        // ==========================================
         private async Task ValidateOffering(
             CourseOffering offering,
             long? currentId = null)
         {
-            // التأكد من وجود المقرر
+            // التأكد من وجود المقرر الدراسي
             bool courseExists =
                 await _context.Courses.AnyAsync(c =>
                     c.Id == offering.CourseId);
@@ -260,7 +294,7 @@ namespace StudentAffairsManagementSystem.Controllers
             {
                 ModelState.AddModelError(
                     nameof(CourseOffering.CourseId),
-                    "المقرر المختار غير موجود");
+                    "المقرر الدراسي المختار غير موجود.");
             }
 
             // التأكد من وجود الفصل الدراسي
@@ -272,31 +306,18 @@ namespace StudentAffairsManagementSystem.Controllers
             {
                 ModelState.AddModelError(
                     nameof(CourseOffering.SemesterId),
-                    "الفصل الدراسي المختار غير موجود");
+                    "الفصل الدراسي المختار غير موجود.");
             }
 
-            // التأكد من وجود الموظف وأنه غير محذوف
-            bool employeeExists =
-                await _context.Employees.AnyAsync(e =>
-                    e.Id == offering.EmployeeId &&
-                    !e.IsDeleted);
-
-            if (!employeeExists)
-            {
-                ModelState.AddModelError(
-                    nameof(CourseOffering.EmployeeId),
-                    "الموظف المختار غير موجود أو تم حذفه");
-            }
-
-            // التأكد من أن السعة أكبر من صفر
+            // يجب أن تكون السعة أكبر من صفر
             if (offering.Capacity <= 0)
             {
                 ModelState.AddModelError(
                     nameof(CourseOffering.Capacity),
-                    "سعة المقرر لازم تكون أكبر من صفر");
+                    "يجب أن تكون السعة الاستيعابية أكبر من صفر.");
             }
 
-            // منع طرح نفس المقرر مرتين في نفس الفصل
+            // منع طرح المقرر نفسه مرتين في الفصل نفسه
             bool duplicateExists =
                 await _context.CourseOfferings.AnyAsync(o =>
                     o.CourseId == offering.CourseId &&
@@ -308,10 +329,10 @@ namespace StudentAffairsManagementSystem.Controllers
             {
                 ModelState.AddModelError(
                     nameof(CourseOffering.CourseId),
-                    "هذا المقرر مطروح مسبقاً في نفس الفصل");
+                    "هذا المقرر مطروح مسبقًا في الفصل الدراسي نفسه.");
             }
 
-            // منع تخفيض السعة تحت عدد الطلاب المسجلين
+            // منع تخفيض السعة إلى أقل من عدد المسجلين
             if (currentId.HasValue)
             {
                 int registeredCount =
@@ -323,13 +344,15 @@ namespace StudentAffairsManagementSystem.Controllers
                 {
                     ModelState.AddModelError(
                         nameof(CourseOffering.Capacity),
-                        "السعة لا يمكن أن تكون أقل من " +
-                        "عدد الطلاب المسجلين حالياً");
+                        "لا يمكن أن تقل السعة الاستيعابية " +
+                        "عن عدد الطلاب المسجلين حاليًا.");
                 }
             }
         }
 
-        // تجهيز قوائم المقررات والفصول والموظفين
+        // ==========================================
+        // تجهيز قوائم المقررات والفصول
+        // ==========================================
         private async Task LoadLists()
         {
             var courses = await _context.Courses
@@ -342,22 +365,11 @@ namespace StudentAffairsManagementSystem.Controllers
                 .OrderByDescending(s => s.StartDate)
                 .ToListAsync();
 
-            // إظهار الموظفين غير المحذوفين فقط
-            var employees = await _context.Employees
-                .AsNoTracking()
-                .Where(e => !e.IsDeleted)
-                .OrderBy(e => e.FirstName)
-                .ThenBy(e => e.LastName)
-                .ToListAsync();
-
             ViewBag.CourseId = new SelectList(
                 courses, "Id", "Name");
 
             ViewBag.SemesterId = new SelectList(
                 semesters, "Id", "Name");
-
-            ViewBag.EmployeeId = new SelectList(
-                employees, "Id", "FirstName");
         }
     }
 }

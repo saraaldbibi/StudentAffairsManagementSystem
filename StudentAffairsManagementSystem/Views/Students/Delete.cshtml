@@ -1,5 +1,4 @@
-﻿
-@model StudentAffairsManagementSystem.Models.Student
+﻿@model StudentAffairsManagementSystem.Models.Student
 
 @{
     ViewData["Title"] = "حذف طالب";
@@ -9,151 +8,216 @@
     .student-delete-page {
         direction: rtl;
         max-width: 900px;
-        margin: 30px auto;
-        color: #14263f;
+        margin: 20px auto;
+        color: #142d4e;
     }
+
+    /* رأس الصفحة */
 
     .student-delete-header {
-        background: #14263f;
-        color: white;
+        background: linear-gradient(135deg, #142d4e, #304661);
+        color: #ffffff;
         padding: 28px 32px;
         border-radius: 16px 16px 0 0;
-        border-bottom: 4px solid #c9a66b;
+        border-bottom: 4px solid #c9a24d;
     }
 
-    .student-delete-header h2 {
-        font-size: 24px;
-        font-weight: 700;
-        margin: 0 0 10px;
-    }
+        .student-delete-header h2 {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 25px;
+            font-weight: 800;
+            margin: 0 0 10px;
+        }
 
-    .student-delete-header p {
-        color: #dce3ed;
-        margin: 0;
-    }
+            .student-delete-header h2 i {
+                color: #c9a24d;
+                font-size: 27px;
+            }
+
+        .student-delete-header p {
+            color: #d6dfeb;
+            font-size: 14px;
+            line-height: 1.9;
+            margin: 0;
+        }
+
+    /* بطاقة الصفحة */
 
     .student-delete-card {
-        background: white;
+        background: #ffffff;
         padding: 30px;
-        border: 1px solid #e5eaf0;
+        border: 1px solid #e5eaf2;
         border-top: none;
         border-radius: 0 0 16px 16px;
-        box-shadow: 0 6px 24px rgba(0,0,0,0.05);
+        box-shadow: 0 5px 25px rgba(20,45,78,.05);
     }
+
+    /* رسالة التحذير */
 
     .student-delete-warning {
         display: flex;
-        gap: 15px;
         align-items: flex-start;
-        background: #fff4ec;
+        gap: 15px;
+        background: #fff6ed;
         border: 1px solid #f2d5bc;
-        border-right: 5px solid #d97735;
+        border-right: 4px solid #d97735;
         padding: 20px;
-        border-radius: 12px;
-        margin-bottom: 28px;
+        border-radius: 11px;
+        margin-bottom: 30px;
     }
 
     .student-delete-warning-icon {
-        font-size: 30px;
+        font-size: 28px;
         color: #bd5e22;
+        flex-shrink: 0;
     }
 
     .student-delete-warning h3 {
         color: #9d451c;
         font-size: 18px;
-        font-weight: 700;
-        margin: 0 0 8px;
+        font-weight: 800;
+        margin: 0 0 10px;
     }
 
     .student-delete-warning p {
         color: #80533a;
-        line-height: 1.9;
+        font-size: 14px;
+        line-height: 2;
         margin: 0;
     }
 
+    /* عنوان بيانات الطالب */
+
     .student-delete-section-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #142d4e;
         font-size: 18px;
-        font-weight: 700;
-        margin-bottom: 18px;
-        padding-bottom: 12px;
-        border-bottom: 1px solid #e8edf3;
+        font-weight: 800;
+        padding-right: 13px;
+        border-right: 4px solid #c9a24d;
+        margin-bottom: 23px;
     }
+
+        .student-delete-section-title i {
+            color: #b9913d;
+            font-size: 20px;
+        }
+
+    /* شبكة بيانات الطالب */
 
     .student-delete-info-grid {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 18px;
+        gap: 16px;
         margin-bottom: 30px;
     }
 
     .student-delete-info-item {
-        background: #f7f9fc;
-        border: 1px solid #e9edf3;
-        border-radius: 10px;
-        padding: 15px 18px;
+        background: #f8f9fc;
+        border: 1px solid #edf0f5;
+        border-radius: 11px;
+        padding: 17px 19px;
         min-width: 0;
     }
 
     .student-delete-info-label {
-        color: #6b7b91;
+        display: block;
+        color: #718096;
         font-size: 13px;
-        margin-bottom: 8px;
+        margin-bottom: 9px;
     }
 
     .student-delete-info-value {
-        color: #14263f;
-        font-weight: 700;
+        display: block;
+        color: #142d4e;
+        font-size: 14px;
+        font-weight: 800;
+        line-height: 1.9;
         overflow-wrap: anywhere;
     }
+
+    /* رسالة الخطأ */
+
+    .student-delete-error {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        background: #fff0ee;
+        color: #b42318;
+        border: 1px solid #f1d8d5;
+        padding: 15px 18px;
+        border-radius: 11px;
+        margin-bottom: 22px;
+        font-size: 14px;
+        line-height: 1.9;
+    }
+
+        .student-delete-error i {
+            font-size: 19px;
+            flex-shrink: 0;
+        }
+
+    /* أزرار الصفحة */
 
     .student-delete-actions {
         display: flex;
         justify-content: flex-start;
         flex-wrap: wrap;
         gap: 12px;
-        padding-top: 22px;
-        border-top: 1px solid #e8edf3;
+        padding-top: 25px;
+        border-top: 1px solid #e9edf3;
     }
 
-    .student-delete-confirm-btn {
-        background: #b83232;
-        color: white;
-        border: none;
-        padding: 12px 22px;
-        border-radius: 9px;
-        font-weight: 700;
-        cursor: pointer;
-    }
-
-    .student-delete-confirm-btn:hover {
-        background: #982626;
-    }
-
+    .student-delete-confirm-btn,
     .student-delete-cancel-btn {
         display: inline-flex;
         align-items: center;
-        gap: 8px;
-        background: #eef1f5;
-        color: #14263f;
-        padding: 12px 22px;
-        border-radius: 9px;
-        font-weight: 700;
+        justify-content: center;
+        gap: 9px;
+        min-height: 45px;
+        padding: 11px 22px;
+        border-radius: 11px;
+        font-size: 14px;
+        font-weight: 800;
+        font-family: inherit;
         text-decoration: none;
+        transition: background-color .2s ease;
     }
 
-    .student-delete-cancel-btn:hover {
-        background: #e1e6ec;
-        color: #14263f;
+    .student-delete-confirm-btn {
+        background: #fff0ee;
+        color: #b42318;
+        border: 1px solid #f1d8d5;
+        cursor: pointer;
     }
 
-    .student-delete-error {
-        background: #fff0f0;
-        color: #a52d2d;
-        border: 1px solid #efc4c4;
-        padding: 14px 18px;
-        border-radius: 10px;
-        margin-bottom: 20px;
+        .student-delete-confirm-btn:hover {
+            background: #f9dfdc;
+            color: #982626;
+        }
+
+    .student-delete-cancel-btn {
+        background: #edf1f7;
+        color: #142d4e;
+        border: 1px solid #dfe6ef;
     }
+
+        .student-delete-cancel-btn:hover {
+            background: #e1e8f2;
+            color: #142d4e;
+        }
+
+        .student-delete-confirm-btn:focus-visible,
+        .student-delete-cancel-btn:focus-visible {
+            outline: 3px solid #142d4e;
+            outline-offset: 3px;
+        }
+
+    /* الشاشات الصغيرة */
 
     @@media (max-width: 650px) {
         .student-delete-page {
@@ -164,6 +228,18 @@
         .student-delete-card {
             padding: 22px;
         }
+
+            .student-delete-header h2 {
+                font-size: 21px;
+            }
+
+        .student-delete-warning {
+            padding: 16px;
+        }
+
+            .student-delete-warning h3 {
+                font-size: 16px;
+            }
 
         .student-delete-info-grid {
             grid-template-columns: 1fr;
@@ -176,14 +252,16 @@
         .student-delete-confirm-btn,
         .student-delete-cancel-btn {
             width: 100%;
-            justify-content: center;
         }
     }
 </style>
 
 <div class="student-delete-page">
 
+    <!-- عنوان الصفحة -->
+
     <div class="student-delete-header">
+
         <h2>
             <i class="bi bi-person-x"></i>
             تأكيد حذف الطالب
@@ -192,24 +270,38 @@
         <p>
             يرجى مراجعة بيانات الطالب قبل تنفيذ عملية الحذف.
         </p>
+
     </div>
 
     <div class="student-delete-card">
 
+        <!-- رسالة الخطأ -->
         @if (TempData["ErrorMessage"] != null)
         {
-            <div class="student-delete-error">
+            <div class="student-delete-error"
+                 role="alert">
+
                 <i class="bi bi-exclamation-circle"></i>
-                @TempData["ErrorMessage"]
+
+                <span>
+                    @TempData["ErrorMessage"]
+                </span>
+
             </div>
         }
 
-        <div class="student-delete-warning">
+        <!-- تحذير الحذف -->
+
+        <div class="student-delete-warning"
+             role="alert">
 
             <i class="bi bi-exclamation-triangle-fill student-delete-warning-icon"></i>
 
             <div>
-                <h3>هل أنت متأكد من حذف هذا الطالب؟</h3>
+
+                <h3>
+                    هل أنت متأكد من حذف هذا الطالب؟
+                </h3>
 
                 <p>
                     عند تأكيد الحذف، سيتم إخفاء الطالب من
@@ -217,9 +309,12 @@
                     ستبقى بياناته وسجلاته الأكاديمية محفوظة
                     في قاعدة البيانات، ولن يتم حذفها نهائيًا.
                 </p>
+
             </div>
 
         </div>
+
+        <!-- بيانات الطالب -->
 
         <h3 class="student-delete-section-title">
             <i class="bi bi-person-vcard"></i>
@@ -228,49 +323,68 @@
 
         <div class="student-delete-info-grid">
 
-            <div class="student-delete-info-item">
-                <div class="student-delete-info-label">
-                    الرقم الجامعي
-                </div>
+            <!-- الرقم الجامعي -->
 
-                <div class="student-delete-info-value">
+            <div class="student-delete-info-item">
+
+                <span class="student-delete-info-label">
+                    الرقم الجامعي
+                </span>
+
+                <span class="student-delete-info-value"
+                      dir="ltr">
                     @Model.UniversityNumber
-                </div>
+                </span>
+
             </div>
 
-            <div class="student-delete-info-item">
-                <div class="student-delete-info-label">
-                    اسم الطالب الكامل
-                </div>
+            <!-- الاسم الكامل -->
 
-                <div class="student-delete-info-value">
+            <div class="student-delete-info-item">
+
+                <span class="student-delete-info-label">
+                    اسم الطالب الكامل
+                </span>
+
+                <span class="student-delete-info-value">
                     @Model.FirstName
                     @Model.FatherName
                     @Model.LastName
-                </div>
+                </span>
+
             </div>
 
+            <!-- القسم الأكاديمي -->
+
             <div class="student-delete-info-item">
-                <div class="student-delete-info-label">
+
+                <span class="student-delete-info-label">
                     القسم
-                </div>
+                </span>
 
-                <div class="student-delete-info-value">
+                <span class="student-delete-info-value">
                     @(Model.Department?.Name ?? "غير محدد")
-                </div>
+                </span>
+
             </div>
 
-            <div class="student-delete-info-item">
-                <div class="student-delete-info-label">
-                    حالة الطالب
-                </div>
+            <!-- الحالة الدراسية -->
 
-                <div class="student-delete-info-value">
+            <div class="student-delete-info-item">
+
+                <span class="student-delete-info-label">
+                    حالة الطالب
+                </span>
+
+                <span class="student-delete-info-value">
                     @Model.Status
-                </div>
+                </span>
+
             </div>
 
         </div>
+
+        <!-- نموذج تأكيد الحذف -->
 
         <form asp-controller="Students"
               asp-action="Delete"
@@ -284,16 +398,20 @@
 
                 <button type="submit"
                         class="student-delete-confirm-btn">
+
                     <i class="bi bi-trash3"></i>
                     نعم، تأكيد الحذف
+
                 </button>
 
                 <a asp-controller="Students"
                    asp-action="Details"
                    asp-route-id="@Model.Id"
                    class="student-delete-cancel-btn">
-                    <i class="bi bi-arrow-return-right"></i>
+
+                    <i class="bi bi-x-circle"></i>
                     إلغاء والعودة للتفاصيل
+
                 </a>
 
             </div>

@@ -1,0 +1,411 @@
+﻿@model StudentAffairsManagementSystem.Models.Faculty
+
+@{
+    ViewData["Title"] = "تفاصيل الكلية";
+
+    bool isAdmin = User.IsInRole("Admin");
+}
+
+<style>
+    .faculty-details-page {
+        direction: rtl;
+        max-width: 900px;
+        margin: 20px auto;
+        color: #142d4e;
+    }
+
+    /* رأس الصفحة */
+
+    .faculty-details-header {
+        background: linear-gradient(135deg, #142d4e, #304661);
+        color: #ffffff;
+        padding: 28px 32px;
+        border-radius: 16px 16px 0 0;
+        border-bottom: 4px solid #c9a24d;
+    }
+
+        .faculty-details-header h2 {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 25px;
+            font-weight: 800;
+            margin: 0 0 10px;
+        }
+
+            .faculty-details-header h2 i {
+                color: #c9a24d;
+                font-size: 27px;
+            }
+
+        .faculty-details-header p {
+            color: #d6dfeb;
+            font-size: 14px;
+            line-height: 1.9;
+            margin: 0;
+        }
+
+    /* بطاقة التفاصيل */
+
+    .faculty-details-body {
+        background: #ffffff;
+        padding: 30px;
+        border: 1px solid #e5eaf2;
+        border-top: none;
+        border-radius: 0 0 16px 16px;
+        box-shadow: 0 5px 25px rgba(20,45,78,.05);
+    }
+
+    /* عنوان القسم */
+
+    .faculty-details-section-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #142d4e;
+        font-size: 18px;
+        font-weight: 800;
+        border-right: 4px solid #c9a24d;
+        padding-right: 13px;
+        margin-bottom: 25px;
+    }
+
+        .faculty-details-section-title i {
+            color: #b9913d;
+            font-size: 20px;
+        }
+
+    /* حقول التفاصيل */
+
+    .faculty-details-info {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 18px;
+    }
+
+    .faculty-details-field {
+        background: #f8f9fc;
+        border: 1px solid #e9edf3;
+        border-radius: 12px;
+        padding: 18px 20px;
+    }
+
+    .faculty-details-label {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        color: #718096;
+        font-size: 13px;
+        font-weight: 700;
+        margin-bottom: 12px;
+    }
+
+        .faculty-details-label i {
+            color: #b9913d;
+            font-size: 17px;
+        }
+
+    .faculty-details-value {
+        color: #142d4e;
+        font-size: 17px;
+        font-weight: 800;
+        line-height: 1.8;
+        overflow-wrap: anywhere;
+    }
+
+    .faculty-details-name {
+        font-size: 21px;
+    }
+
+    /* شارات الحالة */
+
+    .faculty-details-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 15px;
+        border-radius: 999px;
+        font-size: 13px;
+        font-weight: 800;
+    }
+
+        .faculty-details-status.active {
+            background: #e8f6ed;
+            border: 1px solid #ccebd6;
+            color: #237a48;
+        }
+
+        .faculty-details-status.inactive {
+            background: #edf1f5;
+            border: 1px solid #dce3ea;
+            color: #66758a;
+        }
+
+    /* ملاحظة الصفحة */
+
+    .faculty-details-note {
+        display: flex;
+        align-items: flex-start;
+        gap: 11px;
+        background: #f8f9fc;
+        border: 1px solid #e9edf3;
+        border-radius: 11px;
+        padding: 15px 18px;
+        color: #526174;
+        font-size: 14px;
+        line-height: 1.9;
+        margin-top: 25px;
+        margin-bottom: 25px;
+    }
+
+        .faculty-details-note i {
+            color: #b9913d;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+    /* أزرار الصفحة */
+
+    .faculty-details-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        padding-top: 25px;
+        border-top: 1px solid #e9edf3;
+    }
+
+    .faculty-details-back,
+    .faculty-details-edit,
+    .faculty-details-delete {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+        min-height: 45px;
+        padding: 11px 22px;
+        border-radius: 11px;
+        font-size: 14px;
+        font-weight: 800;
+        text-decoration: none;
+        transition: background-color .2s ease;
+    }
+
+    /* العودة */
+
+    .faculty-details-back {
+        background: #edf1f7;
+        color: #142d4e;
+        border: 1px solid #dfe6ef;
+    }
+
+        .faculty-details-back:hover {
+            background: #e1e8f2;
+            color: #142d4e;
+        }
+
+    /* التعديل */
+
+    .faculty-details-edit {
+        background: #c9a24d;
+        color: #142d4e;
+        border: 1px solid transparent;
+    }
+
+        .faculty-details-edit:hover {
+            background: #b9913d;
+            color: #142d4e;
+        }
+
+    /* الحذف */
+
+    .faculty-details-delete {
+        background: #fff0ee;
+        color: #b42318;
+        border: 1px solid #f1d8d5;
+    }
+
+        .faculty-details-delete:hover {
+            background: #fce2df;
+            color: #9f2016;
+        }
+
+        .faculty-details-back:focus-visible,
+        .faculty-details-edit:focus-visible,
+        .faculty-details-delete:focus-visible {
+            outline: 3px solid #142d4e;
+            outline-offset: 3px;
+        }
+
+    /* الشاشات الصغيرة */
+
+    @@media (max-width: 650px) {
+        .faculty-details-page {
+            margin: 15px auto;
+        }
+
+        .faculty-details-header,
+        .faculty-details-body {
+            padding: 22px;
+        }
+
+            .faculty-details-header h2 {
+                font-size: 21px;
+            }
+
+        .faculty-details-field {
+            padding: 16px;
+        }
+
+        .faculty-details-actions {
+            flex-direction: column;
+        }
+
+        .faculty-details-back,
+        .faculty-details-edit,
+        .faculty-details-delete {
+            width: 100%;
+        }
+    }
+</style>
+
+<div class="faculty-details-page">
+
+    <!-- عنوان الصفحة -->
+
+    <div class="faculty-details-header">
+
+        <h2>
+            <i class="bi bi-building"></i>
+            تفاصيل الكلية
+        </h2>
+
+        <p>
+            عرض بيانات الكلية وحالة تفعيلها
+            في نظام إدارة شؤون الطلاب.
+        </p>
+
+    </div>
+
+    <!-- بطاقة التفاصيل -->
+
+    <div class="faculty-details-body">
+
+        <h3 class="faculty-details-section-title">
+            <i class="bi bi-info-circle"></i>
+            بيانات الكلية
+        </h3>
+
+        <div class="faculty-details-info">
+
+            <!-- اسم الكلية -->
+
+            <div class="faculty-details-field">
+
+                <div class="faculty-details-label">
+                    <i class="bi bi-building"></i>
+                    اسم الكلية
+                </div>
+
+                <div class="faculty-details-value faculty-details-name">
+                    @Model.Name
+                </div>
+
+            </div>
+
+            <!-- حالة الكلية -->
+
+            <div class="faculty-details-field">
+
+                <div class="faculty-details-label">
+                    <i class="bi bi-toggle-on"></i>
+                    حالة الكلية
+                </div>
+
+                @if (Model.IsActive)
+                {
+                    <span class="faculty-details-status active">
+                        <i class="bi bi-check-circle-fill"></i>
+                        كلية فعّالة
+                    </span>
+                }
+                else
+                {
+                    <span class="faculty-details-status inactive">
+                        <i class="bi bi-dash-circle-fill"></i>
+                        كلية غير فعّالة
+                    </span>
+                }
+
+            </div>
+
+            <!-- الرقم التعريفي -->
+
+            <div class="faculty-details-field">
+
+                <div class="faculty-details-label">
+                    <i class="bi bi-hash"></i>
+                    الرقم التعريفي للكلية
+                </div>
+
+                <div class="faculty-details-value">
+                    @Model.Id
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- ملاحظة -->
+
+        <div class="faculty-details-note">
+
+            <i class="bi bi-info-circle"></i>
+
+            <span>
+                تعرض هذه الصفحة بيانات الكلية المسجلة
+                في النظام دون تعديلها.
+            </span>
+
+        </div>
+
+        <!-- أزرار الصفحة -->
+
+        <div class="faculty-details-actions">
+
+            <a asp-controller="Faculties"
+               asp-action="Index"
+               class="faculty-details-back">
+
+                <i class="bi bi-arrow-right-circle"></i>
+                العودة إلى الكليات
+
+            </a>
+
+            @if (isAdmin)
+            {
+                <a asp-controller="Faculties"
+                   asp-action="Edit"
+                   asp-route-id="@Model.Id"
+                   class="faculty-details-edit">
+
+                    <i class="bi bi-pencil-square"></i>
+                    تعديل الكلية
+
+                </a>
+
+                <a asp-controller="Faculties"
+                   asp-action="Delete"
+                   asp-route-id="@Model.Id"
+                   class="faculty-details-delete">
+
+                    <i class="bi bi-trash3"></i>
+                    حذف الكلية
+
+                </a>
+            }
+
+        </div>
+
+    </div>
+
+</div>

@@ -16,55 +16,73 @@
     .student-create-page {
         direction: rtl;
         max-width: 1100px;
-        margin: 25px auto;
-        color: #14263f;
+        margin: 20px auto;
+        color: #142d4e;
     }
 
     .student-create-header {
-        background: #14263f;
-        color: white;
+        background: linear-gradient(135deg, #142d4e, #304661);
+        color: #ffffff;
         padding: 28px 32px;
         border-radius: 16px 16px 0 0;
-        border-bottom: 4px solid #c9a66b;
+        border-bottom: 4px solid #c9a24d;
     }
 
         .student-create-header h2 {
+            display: flex;
+            align-items: center;
+            gap: 12px;
             font-size: 25px;
-            font-weight: 700;
-            margin-bottom: 8px;
+            font-weight: 800;
+            margin: 0 0 10px;
         }
 
+            .student-create-header h2 i {
+                color: #c9a24d;
+                font-size: 27px;
+            }
+
         .student-create-header p {
-            color: #d6dce6;
+            color: #d6dfeb;
+            font-size: 14px;
+            line-height: 1.9;
             margin: 0;
         }
 
     .student-create-card {
-        background: white;
-        border: 1px solid #e5eaf0;
+        background: #ffffff;
+        border: 1px solid #e5eaf2;
         border-radius: 0 0 16px 16px;
         padding: 30px;
-        box-shadow: 0 5px 25px rgba(0,0,0,0.05);
+        box-shadow: 0 5px 25px rgba(20,45,78,.05);
     }
+
+    /* الأقسام */
 
     .student-section {
         margin-bottom: 30px;
-        padding-bottom: 25px;
+        padding-bottom: 26px;
         border-bottom: 1px solid #e9edf3;
     }
 
-        .student-section:last-of-type {
-            border-bottom: none;
+    .student-section-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 18px;
+        font-weight: 800;
+        color: #142d4e;
+        margin-bottom: 23px;
+        padding-right: 13px;
+        border-right: 4px solid #c9a24d;
+    }
+
+        .student-section-title i {
+            color: #b9913d;
+            font-size: 20px;
         }
 
-    .student-section-title {
-        font-size: 18px;
-        font-weight: 700;
-        color: #14263f;
-        margin-bottom: 22px;
-        padding-right: 12px;
-        border-right: 4px solid #c9a66b;
-    }
+    /* شبكة الحقول */
 
     .student-form-grid {
         display: grid;
@@ -76,6 +94,7 @@
         display: flex;
         flex-direction: column;
         gap: 8px;
+        min-width: 0;
     }
 
         .student-form-field.full-width {
@@ -84,53 +103,92 @@
 
     .student-form-label {
         font-size: 14px;
-        font-weight: 600;
-        color: #14263f;
+        font-weight: 700;
+        color: #142d4e;
     }
 
     .student-form-input {
         width: 100%;
-        padding: 12px 14px;
+        min-height: 46px;
+        padding: 11px 14px;
         border: 1px solid #dce3ed;
-        border-radius: 10px;
-        background: white;
-        color: #14263f;
+        border-radius: 11px;
+        background: #ffffff;
+        color: #142d4e;
         font-size: 14px;
+        font-family: inherit;
+        transition: border-color .2s ease, box-shadow .2s ease;
     }
 
         .student-form-input:focus {
             outline: none;
-            border-color: #c9a66b;
-            box-shadow: 0 0 0 3px rgba(201,166,107,0.15);
+            border-color: #c9a24d;
+            box-shadow: 0 0 0 3px rgba(201,162,77,.14);
         }
+
+        .student-form-input::placeholder {
+            color: #9aa7b8;
+        }
+
+    textarea.student-form-input {
+        min-height: 105px;
+        resize: vertical;
+    }
+
+    /* التحقق من البيانات */
 
     .student-form-error {
         color: #b42318;
         font-size: 13px;
+        line-height: 1.7;
     }
 
     .student-validation-summary {
-        background: #fff5f5;
-        border: 1px solid #f3c5c5;
-        border-radius: 10px;
-        padding: 15px;
+        background: #fff0ee;
+        border: 1px solid #f1d8d5;
+        border-radius: 11px;
+        padding: 15px 18px;
         margin-bottom: 22px;
         color: #b42318;
+        font-size: 14px;
     }
 
-        .student-validation-summary:empty {
+        .student-validation-summary.validation-summary-valid {
             display: none;
         }
 
+        .student-validation-summary ul {
+            margin: 0;
+            padding-right: 20px;
+        }
+
+    .student-form-input.input-validation-error {
+        border-color: #dc756e;
+    }
+
+    /* الملاحظات */
+
     .student-form-note {
+        display: flex;
+        align-items: flex-start;
+        gap: 11px;
         background: #f7f9fc;
-        border-right: 4px solid #c9a66b;
+        border-right: 4px solid #c9a24d;
         padding: 15px 18px;
-        border-radius: 8px;
+        border-radius: 11px;
         color: #526174;
         font-size: 14px;
+        line-height: 1.9;
         margin-bottom: 25px;
     }
+
+        .student-form-note i {
+            color: #b9913d;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+    /* أزرار النموذج */
 
     .student-form-actions {
         display: flex;
@@ -139,28 +197,50 @@
         margin-top: 28px;
     }
 
+    .student-save-btn,
+    .student-cancel-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+        min-height: 45px;
+        border-radius: 11px;
+        padding: 11px 22px;
+        font-size: 14px;
+        font-weight: 800;
+        font-family: inherit;
+        text-decoration: none;
+        transition: background-color .2s ease;
+    }
+
     .student-save-btn {
-        background: #c9a66b;
-        color: #14263f;
-        border: none;
-        border-radius: 10px;
-        padding: 13px 25px;
-        font-weight: 700;
+        background: #c9a24d;
+        color: #142d4e;
+        border: 1px solid transparent;
         cursor: pointer;
     }
 
         .student-save-btn:hover {
-            background: #b99555;
+            background: #b9913d;
+            color: #142d4e;
         }
 
     .student-cancel-btn {
         background: #edf1f7;
-        color: #14263f;
-        border-radius: 10px;
-        padding: 13px 25px;
-        text-decoration: none;
-        font-weight: 600;
+        color: #142d4e;
+        border: 1px solid #dfe6ef;
     }
+
+        .student-cancel-btn:hover {
+            background: #e1e8f2;
+            color: #142d4e;
+        }
+
+        .student-save-btn:focus-visible,
+        .student-cancel-btn:focus-visible {
+            outline: 3px solid #142d4e;
+            outline-offset: 3px;
+        }
 
     @@media (max-width: 700px) {
         .student-form-grid {
@@ -174,12 +254,28 @@
         .student-create-header {
             padding: 22px;
         }
+
+            .student-create-header h2 {
+                font-size: 21px;
+            }
+
+        .student-form-actions {
+            flex-direction: column;
+        }
+
+        .student-save-btn,
+        .student-cancel-btn {
+            width: 100%;
+        }
     }
 </style>
 
 <div class="student-create-page">
 
+    <!-- عنوان الصفحة -->
+
     <div class="student-create-header">
+
         <h2>
             <i class="bi bi-person-plus-fill"></i>
             إضافة طالب جديد
@@ -189,24 +285,33 @@
             إدخال بيانات الطالب الأكاديمية والشخصية
             وإنشاء حسابه في النظام
         </p>
+
     </div>
 
     <div class="student-create-card">
 
+        <!-- ملاحظة الرقم الجامعي -->
+
         <div class="student-form-note">
             <i class="bi bi-info-circle"></i>
-            سيتم توليد الرقم الجامعي تلقائياً عند حفظ الطالب،
-            بناءً على رمز القسم وتاريخ التسجيل والتسلسل.
+
+            <span>
+                سيتم توليد الرقم الجامعي تلقائياً عند حفظ الطالب،
+                بناءً على رمز القسم وتاريخ التسجيل والتسلسل.
+            </span>
         </div>
 
         <form asp-controller="Students"
               asp-action="Create"
               method="post">
 
+            @Html.AntiForgeryToken()
+
             <div asp-validation-summary="All"
                  class="student-validation-summary"></div>
 
             <!-- البيانات الأساسية -->
+
             <div class="student-section">
 
                 <h3 class="student-section-title">
@@ -217,6 +322,7 @@
                 <div class="student-form-grid">
 
                     <div class="student-form-field">
+
                         <label asp-for="FirstName"
                                class="student-form-label">
                             اسم الطالب *
@@ -227,9 +333,11 @@
 
                         <span asp-validation-for="FirstName"
                               class="student-form-error"></span>
+
                     </div>
 
                     <div class="student-form-field">
+
                         <label asp-for="FatherName"
                                class="student-form-label">
                             اسم الأب *
@@ -240,9 +348,11 @@
 
                         <span asp-validation-for="FatherName"
                               class="student-form-error"></span>
+
                     </div>
 
                     <div class="student-form-field">
+
                         <label asp-for="MotherName"
                                class="student-form-label">
                             اسم الأم *
@@ -253,9 +363,11 @@
 
                         <span asp-validation-for="MotherName"
                               class="student-form-error"></span>
+
                     </div>
 
                     <div class="student-form-field">
+
                         <label asp-for="LastName"
                                class="student-form-label">
                             الكنية *
@@ -266,9 +378,11 @@
 
                         <span asp-validation-for="LastName"
                               class="student-form-error"></span>
+
                     </div>
 
                     <div class="student-form-field">
+
                         <label asp-for="BirthDate"
                                class="student-form-label">
                             تاريخ الميلاد *
@@ -281,9 +395,11 @@
 
                         <span asp-validation-for="BirthDate"
                               class="student-form-error"></span>
+
                     </div>
 
                     <div class="student-form-field">
+
                         <label asp-for="Gender"
                                class="student-form-label">
                             الجنس
@@ -291,16 +407,20 @@
 
                         <select asp-for="Gender"
                                 class="student-form-input">
+
                             <option value="">-- اختر الجنس --</option>
                             <option value="ذكر">ذكر</option>
                             <option value="أنثى">أنثى</option>
+
                         </select>
 
                         <span asp-validation-for="Gender"
                               class="student-form-error"></span>
+
                     </div>
 
                     <div class="student-form-field">
+
                         <label asp-for="NationalId"
                                class="student-form-label">
                             الرقم الوطني
@@ -311,9 +431,11 @@
 
                         <span asp-validation-for="NationalId"
                               class="student-form-error"></span>
+
                     </div>
 
                     <div class="student-form-field">
+
                         <label asp-for="Nationality"
                                class="student-form-label">
                             الجنسية
@@ -324,12 +446,15 @@
 
                         <span asp-validation-for="Nationality"
                               class="student-form-error"></span>
+
                     </div>
 
                 </div>
+
             </div>
 
             <!-- البيانات الأكاديمية -->
+
             <div class="student-section">
 
                 <h3 class="student-section-title">
@@ -340,6 +465,7 @@
                 <div class="student-form-grid">
 
                     <div class="student-form-field">
+
                         <label asp-for="DepartmentId"
                                class="student-form-label">
                             القسم الأكاديمي *
@@ -356,13 +482,16 @@
                                     @department.Name
                                 </option>
                             }
+
                         </select>
 
                         <span asp-validation-for="DepartmentId"
                               class="student-form-error"></span>
+
                     </div>
 
                     <div class="student-form-field">
+
                         <label asp-for="AdmissionSemesterId"
                                class="student-form-label">
                             فصل القبول *
@@ -379,13 +508,16 @@
                                     @semester.Name
                                 </option>
                             }
+
                         </select>
 
                         <span asp-validation-for="AdmissionSemesterId"
                               class="student-form-error"></span>
+
                     </div>
 
                     <div class="student-form-field">
+
                         <label asp-for="GraduationSemesterId"
                                class="student-form-label">
                             فصل التخرج (اختياري)
@@ -402,13 +534,16 @@
                                     @semester.Name
                                 </option>
                             }
+
                         </select>
 
                         <span asp-validation-for="GraduationSemesterId"
                               class="student-form-error"></span>
+
                     </div>
 
                     <div class="student-form-field">
+
                         <label asp-for="Status"
                                class="student-form-label">
                             الحالة الدراسية
@@ -416,19 +551,23 @@
 
                         <select asp-for="Status"
                                 class="student-form-input">
+
                             <option value="">-- اختر الحالة --</option>
                             <option value="مستجد">مستجد</option>
                             <option value="مستمر">مستمر</option>
                             <option value="متخرج">متخرج</option>
                             <option value="منقطع">منقطع</option>
                             <option value="موقوف">موقوف</option>
+
                         </select>
 
                         <span asp-validation-for="Status"
                               class="student-form-error"></span>
+
                     </div>
 
                     <div class="student-form-field">
+
                         <label asp-for="GraduationAverage"
                                class="student-form-label">
                             معدل التخرج (إن وجد)
@@ -441,12 +580,15 @@
 
                         <span asp-validation-for="GraduationAverage"
                               class="student-form-error"></span>
+
                     </div>
 
                 </div>
+
             </div>
 
             <!-- معلومات التواصل -->
+
             <div class="student-section">
 
                 <h3 class="student-section-title">
@@ -457,6 +599,7 @@
                 <div class="student-form-grid">
 
                     <div class="student-form-field">
+
                         <label asp-for="Phone"
                                class="student-form-label">
                             رقم الهاتف
@@ -468,9 +611,11 @@
 
                         <span asp-validation-for="Phone"
                               class="student-form-error"></span>
+
                     </div>
 
                     <div class="student-form-field">
+
                         <label asp-for="Governorate"
                                class="student-form-label">
                             المحافظة
@@ -481,9 +626,11 @@
 
                         <span asp-validation-for="Governorate"
                               class="student-form-error"></span>
+
                     </div>
 
                     <div class="student-form-field full-width">
+
                         <label asp-for="Address"
                                class="student-form-label">
                             العنوان
@@ -495,12 +642,15 @@
 
                         <span asp-validation-for="Address"
                               class="student-form-error"></span>
+
                     </div>
 
                 </div>
+
             </div>
 
-            <!-- الوثائق -->
+            <!-- الصور والوثائق -->
+
             <div class="student-section">
 
                 <h3 class="student-section-title">
@@ -509,14 +659,21 @@
                 </h3>
 
                 <div class="student-form-note">
-                    هذه الحقول مخصصة لمسارات الصور والوثائق
-                    المحفوظة في النظام.
-                    رفع الملفات الفعلي سنضيفه لاحقاً.
+
+                    <i class="bi bi-info-circle"></i>
+
+                    <span>
+                        هذه الحقول مخصصة لمسارات الصور والوثائق
+                        المحفوظة في النظام.
+                        رفع الملفات الفعلي سنضيفه لاحقاً.
+                    </span>
+
                 </div>
 
                 <div class="student-form-grid">
 
                     <div class="student-form-field">
+
                         <label asp-for="PersonalImage"
                                class="student-form-label">
                             مسار الصورة الشخصية
@@ -525,9 +682,14 @@
                         <input asp-for="PersonalImage"
                                class="student-form-input"
                                placeholder="/uploads/students/photo.jpg" />
+
+                        <span asp-validation-for="PersonalImage"
+                              class="student-form-error"></span>
+
                     </div>
 
                     <div class="student-form-field">
+
                         <label asp-for="NationalIdImage"
                                class="student-form-label">
                             مسار صورة الهوية
@@ -536,9 +698,14 @@
                         <input asp-for="NationalIdImage"
                                class="student-form-input"
                                placeholder="/uploads/students/id.jpg" />
+
+                        <span asp-validation-for="NationalIdImage"
+                              class="student-form-error"></span>
+
                     </div>
 
                     <div class="student-form-field">
+
                         <label asp-for="CertificateImage"
                                class="student-form-label">
                             مسار صورة الشهادة
@@ -547,12 +714,18 @@
                         <input asp-for="CertificateImage"
                                class="student-form-input"
                                placeholder="/uploads/students/certificate.jpg" />
+
+                        <span asp-validation-for="CertificateImage"
+                              class="student-form-error"></span>
+
                     </div>
 
                 </div>
+
             </div>
 
-            <!-- حساب الطالب -->
+            <!-- بيانات حساب الطالب -->
+
             <div class="student-section">
 
                 <h3 class="student-section-title">
@@ -561,13 +734,20 @@
                 </h3>
 
                 <div class="student-form-note">
-                    اسم المستخدم سيكون الرقم الجامعي
-                    الذي ينشئه النظام تلقائياً.
+
+                    <i class="bi bi-info-circle"></i>
+
+                    <span>
+                        اسم المستخدم سيكون الرقم الجامعي
+                        الذي ينشئه النظام تلقائياً.
+                    </span>
+
                 </div>
 
                 <div class="student-form-grid">
 
                     <div class="student-form-field">
+
                         <label asp-for="Password"
                                class="student-form-label">
                             كلمة المرور *
@@ -580,9 +760,11 @@
 
                         <span asp-validation-for="Password"
                               class="student-form-error"></span>
+
                     </div>
 
                     <div class="student-form-field">
+
                         <label asp-for="ConfirmPassword"
                                class="student-form-label">
                             تأكيد كلمة المرور *
@@ -595,25 +777,32 @@
 
                         <span asp-validation-for="ConfirmPassword"
                               class="student-form-error"></span>
+
                     </div>
 
                 </div>
+
             </div>
 
             <!-- أزرار الحفظ والإلغاء -->
+
             <div class="student-form-actions">
 
                 <button type="submit"
                         class="student-save-btn">
+
                     <i class="bi bi-check-circle"></i>
                     حفظ الطالب وإنشاء الحساب
+
                 </button>
 
                 <a asp-controller="Students"
                    asp-action="Index"
                    class="student-cancel-btn">
+
                     <i class="bi bi-arrow-right"></i>
                     إلغاء والعودة
+
                 </a>
 
             </div>
@@ -621,6 +810,7 @@
         </form>
 
     </div>
+
 </div>
 
 @section Scripts {

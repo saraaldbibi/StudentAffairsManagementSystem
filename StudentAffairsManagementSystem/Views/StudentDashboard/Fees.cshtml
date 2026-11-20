@@ -30,16 +30,19 @@
 <style>
     .fees-page {
         direction: rtl;
-        color: #16263f;
+        color: #142d4e;
     }
 
+    /* عنوان الصفحة */
+
     .fees-header {
-        background: #16263f;
-        color: white;
-        border-radius: 16px;
-        border-bottom: 4px solid #c8a66a;
+        background: #142d4e;
+        color: #ffffff;
+        border-radius: 15px;
+        border-bottom: 4px solid #c9a24d;
         padding: 30px;
         margin-bottom: 25px;
+        box-shadow: 0 4px 14px rgba(20,45,78,.08);
     }
 
         .fees-header h2 {
@@ -48,10 +51,18 @@
             margin-bottom: 10px;
         }
 
+            .fees-header h2 i {
+                color: #c9a24d;
+                margin-left: 8px;
+            }
+
         .fees-header p {
             color: #d5dfeb;
             margin-bottom: 0;
+            line-height: 1.9;
         }
+
+    /* بيانات الطالب والفصل */
 
     .fees-student {
         display: flex;
@@ -64,21 +75,32 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            border: 1px solid rgba(200,166,106,.4);
-            background: rgba(200,166,106,.13);
+            border: 1px solid rgba(201,162,77,.4);
+            background: rgba(201,162,77,.13);
             color: #f2d9a8;
             padding: 9px 15px;
-            border-radius: 9px;
+            border-radius: 11px;
             font-size: 13px;
+            font-weight: 700;
         }
+
+    /* عناوين الأقسام */
 
     .fees-title {
         font-size: 19px;
         font-weight: 800;
-        border-right: 4px solid #c8a66a;
+        color: #142d4e;
+        border-right: 4px solid #c9a24d;
         padding-right: 12px;
         margin: 28px 0 17px;
     }
+
+        .fees-title i {
+            color: #c9a24d;
+            margin-left: 7px;
+        }
+
+    /* بطاقات الملخص */
 
     .fees-grid {
         display: grid;
@@ -87,11 +109,11 @@
     }
 
     .fees-card {
-        background: white;
+        background: #ffffff;
         border: 1px solid #e5eaf2;
-        border-radius: 14px;
+        border-radius: 15px;
         padding: 22px;
-        box-shadow: 0 3px 12px rgba(20,40,70,.04);
+        box-shadow: 0 3px 12px rgba(20,45,78,.04);
     }
 
     .fees-icon {
@@ -100,9 +122,9 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        border-radius: 12px;
-        background: #f8f0e2;
-        color: #a17b3f;
+        border-radius: 11px;
+        background: #f8f5ec;
+        color: #c9a24d;
         font-size: 23px;
         margin-bottom: 14px;
     }
@@ -116,23 +138,28 @@
     .fees-value {
         font-size: 25px;
         font-weight: 800;
-        color: #16263f;
+        color: #142d4e;
         overflow-wrap: anywhere;
     }
 
+    /* بطاقة الإجمالي */
+
     .fees-card-highlight {
-        border-top: 4px solid #c8a66a;
+        border-top: 4px solid #c9a24d;
     }
 
         .fees-card-highlight .fees-value {
             color: #a17b3f;
         }
 
+    /* جدول الرسوم */
+
     .fees-table-wrapper {
-        background: white;
+        background: #ffffff;
         border: 1px solid #e5eaf2;
-        border-radius: 14px;
+        border-radius: 15px;
         overflow-x: auto;
+        box-shadow: 0 3px 12px rgba(20,45,78,.04);
     }
 
     .fees-table {
@@ -143,25 +170,40 @@
     }
 
         .fees-table th {
-            background: #16263f;
-            color: white;
+            background: #142d4e;
+            color: #ffffff;
             padding: 16px;
+            font-size: 14px;
+            font-weight: 800;
             white-space: nowrap;
         }
 
         .fees-table td {
             padding: 16px;
             border-bottom: 1px solid #edf0f5;
+            vertical-align: middle;
+            color: #142d4e;
+        }
+
+        .fees-table tbody tr:nth-child(even) {
+            background: #f8f9fb;
         }
 
         .fees-table tbody tr:hover {
-            background: #fafbfd;
+            background: #f1f4f8;
+        }
+
+        .fees-table tbody tr:last-child td {
+            border-bottom: none;
         }
 
         .fees-table tfoot td {
             background: #f8f9fc;
             font-weight: 800;
+            border-top: 2px solid #e5eaf2;
         }
+
+    /* حالة عدم وجود بيانات */
 
     .fees-empty {
         text-align: center;
@@ -172,9 +214,22 @@
         .fees-empty i {
             display: block;
             font-size: 38px;
-            color: #c8a66a;
+            color: #c9a24d;
             margin-bottom: 12px;
         }
+
+        .fees-empty h4 {
+            color: #142d4e;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+
+        .fees-empty p {
+            line-height: 1.9;
+            margin-bottom: 0;
+        }
+
+    /* ملاحظة الرسوم */
 
     .fees-note {
         background: #fff9ec;
@@ -186,8 +241,16 @@
         line-height: 1.9;
     }
 
+        .fees-note i {
+            color: #b9913d;
+            margin-left: 6px;
+        }
+
+    /* أزرار التنقل الموحدة */
+
     .fees-actions {
         display: flex;
+        align-items: center;
         gap: 12px;
         flex-wrap: wrap;
         margin-top: 22px;
@@ -196,30 +259,49 @@
     .fees-button {
         display: inline-flex;
         align-items: center;
+        justify-content: center;
         gap: 9px;
-        text-decoration: none;
-        padding: 12px 20px;
-        border-radius: 10px;
+        min-height: 43px;
+        padding: 9px 18px;
+        border: 1px solid transparent;
+        border-radius: 11px;
+        font-size: 14px;
         font-weight: 700;
-        background: #c8a66a;
-        color: #16263f;
+        text-decoration: none;
+        white-space: nowrap;
+        background: #c9a24d;
+        color: #142d4e;
+        transition: background-color .2s ease, transform .2s ease;
     }
 
-        .fees-button:hover {
-            background: #b79557;
-            color: #16263f;
+        .fees-button i {
+            font-size: 16px;
         }
 
+        .fees-button:hover {
+            background: #b9913d;
+            color: #142d4e;
+            transform: translateY(-1px);
+        }
+
+        .fees-button:focus-visible {
+            outline: 3px solid #142d4e;
+            outline-offset: 3px;
+        }
+
+    /* زر العودة */
+
     .fees-button-secondary {
-        background: white;
-        border: 1px solid #dfe5ed;
-        color: #16263f;
+        background: #eef2f8;
+        color: #142d4e;
     }
 
         .fees-button-secondary:hover {
-            background: #f4f6fa;
-            color: #16263f;
+            background: #dfe7f2;
+            color: #142d4e;
         }
+
+    /* الشاشات الصغيرة */
 
     @@media (max-width: 750px) {
         .fees-grid {
@@ -229,10 +311,29 @@
         .fees-header {
             padding: 22px;
         }
+
+            .fees-header h2 {
+                font-size: 23px;
+            }
+
+        .fees-card {
+            padding: 18px;
+        }
+
+        .fees-actions {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .fees-button {
+            width: 100%;
+        }
     }
 </style>
 
 <div class="fees-page">
+
+    <!-- عنوان الصفحة -->
 
     <div class="fees-header">
 
@@ -276,7 +377,10 @@
 
     @if (activeSemester == null)
     {
+        <!-- لا يوجد فصل فعال -->
+
         <div class="fees-empty fees-card">
+
             <i class="bi bi-calendar-x"></i>
 
             <h4>لا يوجد فصل دراسي فعّال حاليًا</h4>
@@ -285,10 +389,13 @@
                 لا يمكن عرض رسوم الفصل الحالي
                 حتى يتم تفعيل فصل دراسي.
             </p>
+
         </div>
     }
     else
     {
+        <!-- ملخص الرسوم الدراسية -->
+
         <h3 class="fees-title">
             <i class="bi bi-graph-up"></i>
             ملخص الرسوم الدراسية
@@ -296,7 +403,10 @@
 
         <div class="fees-grid">
 
+            <!-- عدد المقررات -->
+
             <div class="fees-card">
+
                 <div class="fees-icon">
                     <i class="bi bi-book"></i>
                 </div>
@@ -308,9 +418,13 @@
                 <div class="fees-value">
                     @registrations.Count
                 </div>
+
             </div>
 
+            <!-- مجموع الساعات -->
+
             <div class="fees-card">
+
                 <div class="fees-icon">
                     <i class="bi bi-clock-history"></i>
                 </div>
@@ -322,9 +436,13 @@
                 <div class="fees-value">
                     @totalHours
                 </div>
+
             </div>
 
+            <!-- سعر الساعة -->
+
             <div class="fees-card">
+
                 <div class="fees-icon">
                     <i class="bi bi-cash-coin"></i>
                 </div>
@@ -338,9 +456,12 @@
                         ? pricePerHour.Value.ToString("N2")
                         : "غير محدد")
                 </div>
+
             </div>
 
         </div>
+
+        <!-- تفاصيل رسوم المقررات -->
 
         <h3 class="fees-title">
             <i class="bi bi-receipt"></i>
@@ -352,6 +473,7 @@
             @if (!registrations.Any())
             {
                 <div class="fees-empty">
+
                     <i class="bi bi-journal-x"></i>
 
                     <h4>لا توجد مقررات مسجلة</h4>
@@ -361,6 +483,7 @@
                         لذلك لا توجد رسوم مقررات
                         محتسبة حتى الآن.
                     </p>
+
                 </div>
             }
             else
@@ -388,13 +511,20 @@
                                 : null;
 
                             <tr>
+
+                                <!-- اسم المقرر -->
+
                                 <td>
                                     @registration.CourseOffering.Course.Name
                                 </td>
 
+                                <!-- عدد الساعات -->
+
                                 <td>
                                     @courseHours
                                 </td>
+
+                                <!-- سعر الساعة -->
 
                                 <td>
                                     @(pricePerHour.HasValue
@@ -402,18 +532,24 @@
                                         : "غير محدد")
                                 </td>
 
+                                <!-- رسوم المقرر -->
+
                                 <td>
                                     @(courseFee.HasValue
                                         ? courseFee.Value.ToString("N2")
                                         : "غير متوفر")
                                 </td>
+
                             </tr>
                         }
 
                     </tbody>
 
+                    <!-- إجمالي الرسوم -->
+
                     <tfoot>
                         <tr>
+
                             <td>الإجمالي</td>
 
                             <td>@totalHours ساعة</td>
@@ -425,6 +561,7 @@
                                     ? estimatedFees.Value.ToString("N2")
                                     : "غير متوفر")
                             </td>
+
                         </tr>
                     </tfoot>
 
@@ -432,6 +569,8 @@
             }
 
         </div>
+
+        <!-- إجمالي الرسوم التقديرية -->
 
         <h3 class="fees-title">
             <i class="bi bi-calculator"></i>
@@ -459,7 +598,10 @@
 
         </div>
 
+        <!-- التنبيه المالي -->
+
         <div class="fees-note">
+
             <i class="bi bi-info-circle"></i>
 
             <strong>تنبيه مهم:</strong>
@@ -474,22 +616,29 @@
             إذا لم يكن سعر الساعة محددًا،
             فستظهر الرسوم على أنها غير متوفرة،
             بدل عرض مبلغ غير صحيح.
+
         </div>
+
+        <!-- أزرار التنقل -->
 
         <div class="fees-actions">
 
             <a asp-controller="StudentDashboard"
                asp-action="Courses"
                class="fees-button">
+
                 <i class="bi bi-journal-plus"></i>
                 تسجيل المقررات
+
             </a>
 
             <a asp-controller="StudentDashboard"
                asp-action="Index"
                class="fees-button fees-button-secondary">
+
                 <i class="bi bi-arrow-right"></i>
                 العودة إلى بوابة الطالب
+
             </a>
 
         </div>

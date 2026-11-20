@@ -1,79 +1,352 @@
-﻿
-@model StudentAffairsManagementSystem.ViewModels.CreateEmployeeViewModel
+﻿@model StudentAffairsManagementSystem.ViewModels.CreateEmployeeViewModel
 
 @{
     ViewData["Title"] = "إضافة موظف جديد";
 }
 
-<div class="container-fluid py-4" dir="rtl">
+<style>
+    .employee-create-page {
+        direction: rtl;
+        max-width: 1100px;
+        margin: 20px auto;
+        color: #142d4e;
+    }
+
+    /* رأس الصفحة */
+
+    .employee-create-header {
+        background: linear-gradient(135deg, #142d4e, #304661);
+        color: #ffffff;
+        padding: 28px 32px;
+        border-radius: 16px 16px 0 0;
+        border-bottom: 4px solid #c9a24d;
+    }
+
+        .employee-create-header h2 {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 25px;
+            font-weight: 800;
+            margin: 0 0 10px;
+        }
+
+            .employee-create-header h2 i {
+                color: #c9a24d;
+                font-size: 27px;
+            }
+
+        .employee-create-header p {
+            color: #d6dfeb;
+            font-size: 14px;
+            line-height: 1.9;
+            margin: 0;
+        }
+
+    /* بطاقة النموذج */
+
+    .employee-create-body {
+        background: #ffffff;
+        padding: 30px;
+        border: 1px solid #e5eaf2;
+        border-radius: 0 0 16px 16px;
+        box-shadow: 0 5px 25px rgba(20,45,78,.05);
+    }
+
+    /* أقسام النموذج */
+
+    .employee-create-section {
+        margin-bottom: 30px;
+        padding-bottom: 26px;
+        border-bottom: 1px solid #e9edf3;
+    }
+
+        .employee-create-section h3 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 18px;
+            font-weight: 800;
+            color: #142d4e;
+            border-right: 4px solid #c9a24d;
+            padding-right: 13px;
+            margin-bottom: 23px;
+        }
+
+            .employee-create-section h3 i {
+                color: #b9913d;
+                font-size: 20px;
+            }
+
+    /* شبكة الحقول */
+
+    .employee-create-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 20px;
+    }
+
+    .employee-create-field {
+        min-width: 0;
+    }
+
+    .employee-create-field-full {
+        grid-column: 1 / -1;
+    }
+
+    .employee-create-field label {
+        display: block;
+        color: #142d4e;
+        font-size: 14px;
+        font-weight: 700;
+        margin-bottom: 9px;
+    }
+
+    .employee-create-field .form-control {
+        width: 100%;
+        min-height: 46px;
+        padding: 11px 14px;
+        border: 1px solid #dce3ed;
+        border-radius: 11px;
+        background-color: #ffffff;
+        color: #142d4e;
+        font-size: 14px;
+        font-family: inherit;
+        transition: border-color .2s ease, box-shadow .2s ease;
+    }
+
+        .employee-create-field .form-control:focus {
+            border-color: #c9a24d;
+            box-shadow: 0 0 0 3px rgba(201,162,77,.14);
+            outline: none;
+        }
+
+        .employee-create-field .form-control::placeholder {
+            color: #98a4b5;
+        }
+
+    .employee-create-required {
+        color: #b42318;
+    }
+
+    /* رسائل التحقق */
+
+    .employee-create-validation {
+        display: block;
+        color: #b42318;
+        font-size: 13px;
+        line-height: 1.7;
+        margin-top: 6px;
+    }
+
+    .employee-create-validation-summary {
+        background: #fff0ee;
+        border: 1px solid #f1d8d5;
+        border-radius: 11px;
+        padding: 15px 18px;
+        margin-bottom: 22px;
+        color: #b42318;
+        font-size: 14px;
+    }
+
+        .employee-create-validation-summary.validation-summary-valid {
+            display: none;
+        }
+
+        .employee-create-validation-summary ul {
+            margin: 0;
+            padding-right: 20px;
+        }
+
+    .employee-create-field .input-validation-error {
+        border-color: #dc756e;
+    }
+
+    /* ملاحظة حساب الدخول */
+
+    .employee-create-note {
+        display: flex;
+        align-items: flex-start;
+        gap: 11px;
+        background: #f7f9fc;
+        border-right: 4px solid #c9a24d;
+        padding: 15px 18px;
+        border-radius: 11px;
+        color: #526174;
+        font-size: 14px;
+        line-height: 1.9;
+        margin-bottom: 22px;
+    }
+
+        .employee-create-note i {
+            color: #b9913d;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+    /* أزرار النموذج */
+
+    .employee-create-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 28px;
+    }
+
+    .employee-create-save,
+    .employee-create-cancel {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+        min-height: 45px;
+        border-radius: 11px;
+        padding: 11px 22px;
+        font-size: 14px;
+        font-weight: 800;
+        font-family: inherit;
+        text-decoration: none;
+        transition: background-color .2s ease;
+    }
+
+    .employee-create-save {
+        background: #c9a24d;
+        color: #142d4e;
+        border: 1px solid transparent;
+        cursor: pointer;
+    }
+
+        .employee-create-save:hover {
+            background: #b9913d;
+            color: #142d4e;
+        }
+
+    .employee-create-cancel {
+        background: #edf1f7;
+        color: #142d4e;
+        border: 1px solid #dfe6ef;
+    }
+
+        .employee-create-cancel:hover {
+            background: #e1e8f2;
+            color: #142d4e;
+        }
+
+        .employee-create-save:focus-visible,
+        .employee-create-cancel:focus-visible {
+            outline: 3px solid #142d4e;
+            outline-offset: 3px;
+        }
+
+    /* الشاشات الصغيرة */
+
+    @@media (max-width: 700px) {
+        .employee-create-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .employee-create-body {
+            padding: 20px;
+        }
+
+        .employee-create-header {
+            padding: 22px;
+        }
+
+            .employee-create-header h2 {
+                font-size: 21px;
+            }
+
+        .employee-create-actions {
+            flex-direction: column;
+        }
+
+        .employee-create-save,
+        .employee-create-cancel {
+            width: 100%;
+        }
+    }
+</style>
+
+<div class="employee-create-page">
 
     <!-- عنوان الصفحة -->
-    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
-        <div>
-            <h2 style="color:#142d4e; font-weight:800;">
-                إضافة موظف جديد
-            </h2>
 
-            <p class="text-muted mb-0">
-                إدخال بيانات الموظف وإنشاء حساب دخول له
-            </p>
-        </div>
+    <div class="employee-create-header">
 
-        <a asp-controller="Employees"
-           asp-action="Index"
-           class="btn btn-outline-secondary">
-            العودة إلى الموظفين
-        </a>
+        <h2>
+            <i class="bi bi-person-plus"></i>
+            إضافة موظف جديد
+        </h2>
+
+        <p>
+            إدخال بيانات الموظف الشخصية ومعلومات التواصل
+            وإنشاء حساب دخول له في النظام.
+        </p>
+
     </div>
 
-    <div class="card border-0 shadow-sm">
+    <div class="employee-create-body">
 
-        <div class="card-header py-3"
-             style="background:#142d4e; color:white;">
-            <h5 class="mb-0">
-                بيانات الموظف
-            </h5>
-        </div>
+        <!-- نموذج إضافة الموظف -->
 
-        <div class="card-body p-4">
+        <form asp-controller="Employees"
+              asp-action="Create"
+              method="post">
 
-            <form asp-controller="Employees"
-                  asp-action="Create"
-                  method="post">
+            @Html.AntiForgeryToken()
 
-                @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly"
+                 class="employee-create-validation-summary"></div>
 
-                <div asp-validation-summary="ModelOnly"
-                     class="text-danger mb-3"></div>
+            <!-- المعلومات الوظيفية -->
 
-                <!-- الرقم الوظيفي -->
-                <div class="mb-4">
-                    <label asp-for="EmployeeNumber"
-                           class="form-label fw-bold">
-                        الرقم الوظيفي
-                    </label>
+            <div class="employee-create-section">
 
-                    <input asp-for="EmployeeNumber"
-                           class="form-control"
-                           placeholder="أدخل الرقم الوظيفي"
-                           autocomplete="off" />
+                <h3>
+                    <i class="bi bi-person-badge"></i>
+                    المعلومات الوظيفية
+                </h3>
 
-                    <span asp-validation-for="EmployeeNumber"
-                          class="text-danger"></span>
+                <div class="employee-create-grid">
+
+                    <div class="employee-create-field employee-create-field-full">
+
+                        <label asp-for="EmployeeNumber">
+                            الرقم الوظيفي
+                            <span class="employee-create-required">*</span>
+                        </label>
+
+                        <input asp-for="EmployeeNumber"
+                               class="form-control"
+                               placeholder="أدخل الرقم الوظيفي"
+                               autocomplete="off" />
+
+                        <span asp-validation-for="EmployeeNumber"
+                              class="employee-create-validation"></span>
+
+                    </div>
+
                 </div>
 
-                <!-- المعلومات الشخصية -->
-                <h5 class="mb-3"
-                    style="color:#142d4e; font-weight:700;">
+            </div>
+
+            <!-- المعلومات الشخصية -->
+
+            <div class="employee-create-section">
+
+                <h3>
+                    <i class="bi bi-person-vcard"></i>
                     المعلومات الشخصية
-                </h5>
+                </h3>
 
-                <div class="row g-3 mb-4">
+                <div class="employee-create-grid">
 
-                    <div class="col-md-4">
-                        <label asp-for="FirstName"
-                               class="form-label fw-bold">
+                    <div class="employee-create-field">
+
+                        <label asp-for="FirstName">
                             الاسم الأول
+                            <span class="employee-create-required">*</span>
                         </label>
 
                         <input asp-for="FirstName"
@@ -81,13 +354,15 @@
                                placeholder="الاسم الأول" />
 
                         <span asp-validation-for="FirstName"
-                              class="text-danger"></span>
+                              class="employee-create-validation"></span>
+
                     </div>
 
-                    <div class="col-md-4">
-                        <label asp-for="FatherName"
-                               class="form-label fw-bold">
+                    <div class="employee-create-field">
+
+                        <label asp-for="FatherName">
                             اسم الأب
+                            <span class="employee-create-required">*</span>
                         </label>
 
                         <input asp-for="FatherName"
@@ -95,13 +370,15 @@
                                placeholder="اسم الأب" />
 
                         <span asp-validation-for="FatherName"
-                              class="text-danger"></span>
+                              class="employee-create-validation"></span>
+
                     </div>
 
-                    <div class="col-md-4">
-                        <label asp-for="LastName"
-                               class="form-label fw-bold">
+                    <div class="employee-create-field">
+
+                        <label asp-for="LastName">
                             الكنية
+                            <span class="employee-create-required">*</span>
                         </label>
 
                         <input asp-for="LastName"
@@ -109,22 +386,28 @@
                                placeholder="الكنية" />
 
                         <span asp-validation-for="LastName"
-                              class="text-danger"></span>
+                              class="employee-create-validation"></span>
+
                     </div>
 
                 </div>
 
-                <!-- معلومات التواصل -->
-                <h5 class="mb-3"
-                    style="color:#142d4e; font-weight:700;">
+            </div>
+
+            <!-- معلومات التواصل -->
+
+            <div class="employee-create-section">
+
+                <h3>
+                    <i class="bi bi-telephone-fill"></i>
                     معلومات التواصل
-                </h5>
+                </h3>
 
-                <div class="row g-3 mb-4">
+                <div class="employee-create-grid">
 
-                    <div class="col-md-6">
-                        <label asp-for="Phone"
-                               class="form-label fw-bold">
+                    <div class="employee-create-field">
+
+                        <label asp-for="Phone">
                             رقم الهاتف
                         </label>
 
@@ -135,12 +418,13 @@
                                dir="ltr" />
 
                         <span asp-validation-for="Phone"
-                              class="text-danger"></span>
+                              class="employee-create-validation"></span>
+
                     </div>
 
-                    <div class="col-md-6">
-                        <label asp-for="Address"
-                               class="form-label fw-bold">
+                    <div class="employee-create-field">
+
+                        <label asp-for="Address">
                             العنوان
                         </label>
 
@@ -149,78 +433,104 @@
                                placeholder="عنوان الموظف" />
 
                         <span asp-validation-for="Address"
-                              class="text-danger"></span>
+                              class="employee-create-validation"></span>
+
                     </div>
 
                 </div>
 
-                <!-- بيانات حساب الدخول -->
-                <h5 class="mb-3"
-                    style="color:#142d4e; font-weight:700;">
-                    بيانات حساب الدخول
-                </h5>
+            </div>
 
-                <div class="alert alert-light border mb-3">
-                    سيكون الرقم الوظيفي هو اسم المستخدم
-                    الذي يستخدمه الموظف لتسجيل الدخول.
+            <!-- بيانات حساب الدخول -->
+
+            <div class="employee-create-section">
+
+                <h3>
+                    <i class="bi bi-shield-lock"></i>
+                    بيانات حساب الدخول
+                </h3>
+
+                <div class="employee-create-note">
+
+                    <i class="bi bi-info-circle"></i>
+
+                    <span>
+                        سيكون الرقم الوظيفي هو اسم المستخدم
+                        الذي يستخدمه الموظف لتسجيل الدخول
+                        إلى النظام.
+                    </span>
+
                 </div>
 
-                <div class="row g-3 mb-4">
+                <div class="employee-create-grid">
 
-                    <div class="col-md-6">
-                        <label asp-for="Password"
-                               class="form-label fw-bold">
+                    <div class="employee-create-field">
+
+                        <label asp-for="Password">
                             كلمة المرور
+                            <span class="employee-create-required">*</span>
                         </label>
 
                         <input asp-for="Password"
+                               type="password"
                                class="form-control"
                                placeholder="أدخل كلمة المرور"
                                autocomplete="new-password"
                                dir="ltr" />
 
                         <span asp-validation-for="Password"
-                              class="text-danger"></span>
+                              class="employee-create-validation"></span>
+
                     </div>
 
-                    <div class="col-md-6">
-                        <label asp-for="ConfirmPassword"
-                               class="form-label fw-bold">
+                    <div class="employee-create-field">
+
+                        <label asp-for="ConfirmPassword">
                             تأكيد كلمة المرور
+                            <span class="employee-create-required">*</span>
                         </label>
 
                         <input asp-for="ConfirmPassword"
+                               type="password"
                                class="form-control"
                                placeholder="أعد إدخال كلمة المرور"
                                autocomplete="new-password"
                                dir="ltr" />
 
                         <span asp-validation-for="ConfirmPassword"
-                              class="text-danger"></span>
+                              class="employee-create-validation"></span>
+
                     </div>
 
                 </div>
 
-                <!-- أزرار الحفظ -->
-                <div class="d-flex gap-3 flex-wrap mt-4">
+            </div>
 
-                    <button type="submit"
-                            class="btn px-5 py-2"
-                            style="background:#c9a24d; color:#142d4e; font-weight:800;">
-                        حفظ الموظف وإنشاء الحساب
-                    </button>
+            <!-- أزرار الحفظ والإلغاء -->
 
-                    <a asp-controller="Employees"
-                       asp-action="Index"
-                       class="btn btn-outline-secondary px-4 py-2">
-                        إلغاء
-                    </a>
+            <div class="employee-create-actions">
 
-                </div>
+                <button type="submit"
+                        class="employee-create-save">
 
-            </form>
+                    <i class="bi bi-check-circle"></i>
+                    حفظ الموظف وإنشاء الحساب
 
-        </div>
+                </button>
+
+                <a asp-controller="Employees"
+                   asp-action="Index"
+                   class="employee-create-cancel">
+
+                    <i class="bi bi-x-circle"></i>
+                    إلغاء
+
+                </a>
+
+            </div>
+
+        </form>
+
     </div>
 
 </div>

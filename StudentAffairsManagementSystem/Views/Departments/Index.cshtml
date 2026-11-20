@@ -1,5 +1,4 @@
-﻿
-@model IEnumerable<StudentAffairsManagementSystem.Models.Department>
+﻿@model IEnumerable<StudentAffairsManagementSystem.Models.Department>
 
 @{
     ViewData["Title"] = "الأقسام الأكاديمية";
@@ -16,7 +15,7 @@
 
 <style>
     .departments-page {
-        color: #16263f;
+        color: #142d4e;
     }
 
     .departments-header {
@@ -28,33 +27,39 @@
         margin-bottom: 25px;
     }
 
-    .departments-header h2 {
-        font-size: 25px;
-        font-weight: bold;
-        margin-bottom: 8px;
-    }
+        .departments-header h2 {
+            font-size: 25px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
 
-    .departments-header p {
-        color: #718096;
-        margin: 0;
-    }
+        .departments-header p {
+            color: #718096;
+            margin: 0;
+        }
+
+    /* زر إضافة قسم */
 
     .departments-add {
         display: inline-flex;
         align-items: center;
+        justify-content: center;
         gap: 9px;
-        background: #c8a66a;
-        color: #16263f;
-        border-radius: 10px;
+        background: #c9a24d;
+        color: #142d4e;
+        border-radius: 11px;
         padding: 12px 20px;
         text-decoration: none;
-        font-weight: bold;
+        font-weight: 800;
+        transition: background-color 0.2s ease;
     }
 
-    .departments-add:hover {
-        background: #b79557;
-        color: #16263f;
-    }
+        .departments-add:hover {
+            background: #b9913d;
+            color: #142d4e;
+        }
+
+    /* بطاقات الإحصائيات */
 
     .departments-stats {
         display: grid;
@@ -66,7 +71,7 @@
     .departments-stat {
         background: white;
         border: 1px solid #e5eaf2;
-        border-top: 4px solid #c8a66a;
+        border-top: 4px solid #c9a24d;
         border-radius: 14px;
         padding: 22px;
     }
@@ -78,9 +83,12 @@
     }
 
     .departments-stat-number {
+        color: #142d4e;
         font-size: 28px;
-        font-weight: bold;
+        font-weight: 800;
     }
+
+    /* بطاقة الجدول */
 
     .departments-card {
         background: white;
@@ -99,11 +107,13 @@
         gap: 15px;
     }
 
-    .departments-card-header h3 {
-        font-size: 19px;
-        font-weight: bold;
-        margin: 0;
-    }
+        .departments-card-header h3 {
+            font-size: 19px;
+            font-weight: 800;
+            margin: 0;
+        }
+
+    /* البحث */
 
     .departments-search {
         width: 280px;
@@ -114,49 +124,57 @@
         outline: none;
     }
 
-    .departments-search:focus {
-        border-color: #c8a66a;
-    }
+        .departments-search:focus {
+            border-color: #c9a24d;
+            box-shadow: 0 0 0 3px rgba(201, 162, 77, 0.12);
+        }
+
+    /* الجدول */
 
     .departments-table {
         width: 100%;
         border-collapse: collapse;
     }
 
-    .departments-table th {
-        background: #f8f9fc;
-        color: #42536c;
-        text-align: right;
-        padding: 17px;
-        font-size: 13px;
-        white-space: nowrap;
-    }
+        .departments-table th {
+            background: #f8f9fc;
+            color: #42536c;
+            text-align: right;
+            padding: 17px;
+            font-size: 13px;
+            font-weight: 800;
+            white-space: nowrap;
+        }
 
-    .departments-table td {
-        padding: 17px;
-        border-top: 1px solid #edf0f5;
-        vertical-align: middle;
-    }
+        .departments-table td {
+            padding: 17px;
+            border-top: 1px solid #edf0f5;
+            vertical-align: middle;
+        }
 
-    .departments-table tbody tr:hover {
-        background: #fcfcfe;
-    }
+        .departments-table tbody tr:hover {
+            background: #fcfcfe;
+        }
+
+    /* رمز القسم */
 
     .department-code {
         background: #eef2f8;
         color: #304661;
         border-radius: 7px;
         padding: 6px 12px;
-        font-weight: bold;
+        font-weight: 700;
         display: inline-block;
     }
+
+    /* حالة القسم */
 
     .department-status {
         display: inline-block;
         padding: 6px 12px;
         border-radius: 8px;
         font-size: 13px;
-        font-weight: bold;
+        font-weight: 700;
     }
 
     .department-status-active {
@@ -169,30 +187,83 @@
         color: #b42318;
     }
 
+    /* أزرار الإجراءات الموحدة */
+
     .department-actions {
         display: flex;
-        gap: 8px;
+        align-items: center;
+        justify-content: center;
         flex-wrap: wrap;
+        gap: 10px;
     }
 
     .department-action {
-        padding: 7px 11px;
-        border-radius: 7px;
-        background: #eef2f8;
-        color: #304661;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-height: 43px;
+        padding: 9px 15px;
+        border-radius: 11px;
+        border: 1px solid transparent;
         text-decoration: none;
-        font-size: 13px;
+        font-size: 14px;
+        font-weight: 700;
+        white-space: nowrap;
+        transition: background-color 0.2s ease, transform 0.2s ease;
     }
 
-    .department-action:hover {
-        background: #dfe7f2;
-        color: #16263f;
+        .department-action i {
+            font-size: 16px;
+        }
+
+    /* عرض التفاصيل */
+
+    .department-action-details {
+        background: #eef2f8;
+        color: #142d4e;
     }
+
+        .department-action-details:hover {
+            background: #dfe7f2;
+            color: #142d4e;
+            transform: translateY(-1px);
+        }
+
+    /* تعديل */
+
+    .department-action-edit {
+        background: #c9a24d;
+        color: #142d4e;
+    }
+
+        .department-action-edit:hover {
+            background: #b9913d;
+            color: #142d4e;
+            transform: translateY(-1px);
+        }
+
+    /* حذف */
 
     .department-action-delete {
         background: #fff0ee;
-        color: #b42318;
+        color: #c62828;
+        border-color: #ffc5bf;
     }
+
+        .department-action-delete:hover {
+            background: #ffe0dc;
+            color: #a91e1e;
+            border-color: #f2a8a0;
+            transform: translateY(-1px);
+        }
+
+    .department-action:focus-visible {
+        outline: 3px solid #142d4e;
+        outline-offset: 3px;
+    }
+
+    /* لا توجد نتائج */
 
     .departments-empty {
         padding: 45px 20px;
@@ -200,12 +271,14 @@
         color: #718096;
     }
 
-    .departments-empty i {
-        display: block;
-        color: #c8a66a;
-        font-size: 40px;
-        margin-bottom: 12px;
-    }
+        .departments-empty i {
+            display: block;
+            color: #c9a24d;
+            font-size: 40px;
+            margin-bottom: 12px;
+        }
+
+    /* رسائل الخطأ */
 
     .departments-alert {
         background: #fff0ee;
@@ -216,20 +289,24 @@
         margin-bottom: 20px;
     }
 
+    /* الشاشات الصغيرة */
+
     @@media (max-width: 800px) {
         .departments-stats {
             grid-template-columns: 1fr;
         }
 
         .departments-table {
-            min-width: 760px;
+            min-width: 850px;
         }
     }
 </style>
 
-<div class="departments-page">
+<div class="departments-page" dir="rtl">
 
+    <!-- عنوان الصفحة -->
     <div class="departments-header">
+
         <div>
             <h2>إدارة الأقسام الأكاديمية</h2>
             <p>عرض الأقسام المسجلة وربطها بكليات الجامعة.</p>
@@ -240,12 +317,16 @@
             <a asp-controller="Departments"
                asp-action="Create"
                class="departments-add">
+
                 <i class="bi bi-plus-circle"></i>
                 إضافة قسم جديد
+
             </a>
         }
+
     </div>
 
+    <!-- رسائل النظام -->
     @if (TempData["Error"] != null)
     {
         <div class="departments-alert">
@@ -253,12 +334,15 @@
         </div>
     }
 
+    <!-- بطاقات الإحصائيات -->
+
     <div class="departments-stats">
 
         <div class="departments-stat">
             <div class="departments-stat-label">
                 إجمالي الأقسام
             </div>
+
             <div class="departments-stat-number">
                 @totalDepartments
             </div>
@@ -268,6 +352,7 @@
             <div class="departments-stat-label">
                 الأقسام الفعالة
             </div>
+
             <div class="departments-stat-number">
                 @activeDepartments
             </div>
@@ -277,6 +362,7 @@
             <div class="departments-stat-label">
                 الأقسام غير الفعالة
             </div>
+
             <div class="departments-stat-number">
                 @inactiveDepartments
             </div>
@@ -284,20 +370,26 @@
 
     </div>
 
+    <!-- جدول الأقسام -->
+
     <div class="departments-card">
 
         <div class="departments-card-header">
+
             <h3>قائمة الأقسام الأكاديمية</h3>
 
             <input type="search"
                    id="departmentSearch"
                    class="departments-search"
-                   placeholder="ابحث عن قسم أو كلية أو رمز..." />
+                   placeholder="ابحث عن قسم أو كلية أو رمز..."
+                   aria-label="البحث في الأقسام الأكاديمية" />
+
         </div>
 
         <div style="overflow-x:auto;">
 
             <table class="departments-table">
+
                 <thead>
                     <tr>
                         <th>رمز القسم</th>
@@ -309,24 +401,31 @@
                 </thead>
 
                 <tbody>
+
                     @foreach (var department in departments)
                     {
                         <tr class="department-data-row">
+
+                            <!-- رمز القسم -->
                             <td>
                                 <span class="department-code">
                                     @department.Code
                                 </span>
                             </td>
 
+                            <!-- اسم القسم -->
                             <td>
                                 <strong>@department.Name</strong>
                             </td>
 
+                            <!-- الكلية -->
                             <td>
                                 @(department.Faculty?.Name ?? "غير محددة")
                             </td>
 
+                            <!-- الحالة -->
                             <td>
+
                                 @if (department.IsActive)
                                 {
                                     <span class="department-status department-status-active">
@@ -339,60 +438,88 @@
                                         غير فعال
                                     </span>
                                 }
+
                             </td>
 
+                            <!-- أزرار الإجراءات -->
                             <td>
+
                                 <div class="department-actions">
+
+                                    <!-- عرض التفاصيل -->
                                     <a asp-controller="Departments"
                                        asp-action="Details"
                                        asp-route-id="@department.Id"
-                                       class="department-action">
-                                        تفاصيل
+                                       class="department-action department-action-details">
+
+                                        <i class="bi bi-eye"></i>
+                                        عرض التفاصيل
+
                                     </a>
 
                                     @if (isAdmin)
                                     {
+                                        <!-- تعديل -->
                                         <a asp-controller="Departments"
                                            asp-action="Edit"
                                            asp-route-id="@department.Id"
-                                           class="department-action">
+                                           class="department-action department-action-edit">
+
+                                            <i class="bi bi-pencil-square"></i>
                                             تعديل
+
                                         </a>
 
+                                        <!-- حذف -->
                                         <a asp-controller="Departments"
                                            asp-action="Delete"
                                            asp-route-id="@department.Id"
                                            class="department-action department-action-delete">
+
+                                            <i class="bi bi-trash3"></i>
                                             حذف
+
                                         </a>
                                     }
+
                                 </div>
+
                             </td>
+
                         </tr>
                     }
+
                 </tbody>
+
             </table>
 
             @if (!departments.Any())
             {
                 <div class="departments-empty">
                     <i class="bi bi-diagram-3"></i>
-                    لا توجد أقسام أكاديمية مسجلة حالياً.
+                    لا توجد أقسام أكاديمية مسجلة حاليًا.
                 </div>
             }
 
             <div id="noDepartmentSearchResults"
                  class="departments-empty"
                  style="display:none;">
+
                 لا توجد أقسام مطابقة للبحث.
+
             </div>
 
         </div>
+
     </div>
+
 </div>
+
+<!-- البحث في الأقسام -->
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
+
         const searchInput =
             document.getElementById("departmentSearch");
 
@@ -402,19 +529,26 @@
         const noResults =
             document.getElementById("noDepartmentSearchResults");
 
-        if (!searchInput) return;
+        if (!searchInput) {
+            return;
+        }
 
         searchInput.addEventListener("input", function () {
+
             const term = this.value.trim().toLowerCase();
+
             let visibleCount = 0;
 
             rows.forEach(function (row) {
+
                 const matches =
                     row.textContent.toLowerCase().includes(term);
 
                 row.style.display = matches ? "" : "none";
 
-                if (matches) visibleCount++;
+                if (matches) {
+                    visibleCount++;
+                }
             });
 
             if (noResults) {
@@ -423,6 +557,8 @@
                         ? "block"
                         : "none";
             }
+
         });
+
     });
 </script>

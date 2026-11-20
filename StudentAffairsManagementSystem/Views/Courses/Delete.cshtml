@@ -1,249 +1,473 @@
-﻿
-@model StudentAffairsManagementSystem.Models.Course
+﻿@model StudentAffairsManagementSystem.Models.Course
 
 @{
     ViewData["Title"] = "حذف المقرر الدراسي";
 }
 
 <style>
-    .delete-course-page {
-        max-width: 800px;
-        margin: 35px auto;
+    .course-delete-page {
         direction: rtl;
+        max-width: 900px;
+        margin: 20px auto;
+        color: #142d4e;
     }
 
-    .delete-course-card {
-        background: white;
-        border-radius: 18px;
-        overflow: hidden;
-        border: 1px solid #e5eaf0;
-        box-shadow: 0 5px 25px rgba(0,0,0,0.06);
-    }
+    /* رأس الصفحة */
 
-    .delete-course-header {
-        background: #14263f;
-        color: white;
+    .course-delete-header {
+        background: linear-gradient(135deg, #142d4e, #304661);
+        color: #ffffff;
         padding: 28px 32px;
-        border-bottom: 4px solid #c9a66b;
+        border-radius: 16px 16px 0 0;
+        border-bottom: 4px solid #c9a24d;
     }
 
-    .delete-course-header h2 {
-        font-size: 24px;
-        font-weight: 700;
-        margin: 0 0 8px;
-    }
+        .course-delete-header h2 {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 25px;
+            font-weight: 800;
+            margin: 0 0 10px;
+        }
 
-    .delete-course-header p {
-        margin: 0;
-        color: #d6dce6;
-    }
+            .course-delete-header h2 i {
+                color: #c9a24d;
+                font-size: 27px;
+            }
 
-    .delete-course-body {
+        .course-delete-header p {
+            color: #d6dfeb;
+            font-size: 14px;
+            line-height: 1.9;
+            margin: 0;
+        }
+
+    /* بطاقة الحذف */
+
+    .course-delete-body {
+        background: #ffffff;
         padding: 30px;
+        border: 1px solid #e5eaf2;
+        border-top: none;
+        border-radius: 0 0 16px 16px;
+        box-shadow: 0 5px 25px rgba(20,45,78,.05);
     }
 
-    .delete-course-warning {
+    /* رسالة التحذير */
+
+    .course-delete-warning {
         display: flex;
-        gap: 14px;
         align-items: flex-start;
-        background: #fff5f3;
-        border: 1px solid #f4c7c1;
-        border-radius: 12px;
-        padding: 20px;
-        margin-bottom: 25px;
-        color: #a52a22;
-    }
-
-    .delete-course-warning i {
-        font-size: 25px;
-    }
-
-    .delete-course-warning strong {
-        display: block;
-        margin-bottom: 7px;
-    }
-
-    .delete-course-warning p {
-        margin: 0;
-        line-height: 1.8;
-    }
-
-    .delete-course-info {
-        background: #f8f9fc;
-        border: 1px solid #edf0f5;
-        border-radius: 12px;
-        padding: 20px;
-        margin-bottom: 25px;
-    }
-
-    .delete-course-row {
-        display: flex;
-        justify-content: space-between;
         gap: 15px;
-        padding: 13px 0;
-        border-bottom: 1px solid #e5eaf0;
+        background: #fff3f1;
+        border: 1px solid #f1d1cc;
+        border-right: 4px solid #b42318;
+        border-radius: 12px;
+        padding: 22px;
+        margin-bottom: 30px;
+        color: #9d2a22;
     }
 
-    .delete-course-row:last-child {
-        border-bottom: none;
+    .course-delete-warning-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 43px;
+        height: 43px;
+        background: #fce3df;
+        border-radius: 11px;
+        flex-shrink: 0;
+        font-size: 23px;
     }
 
-    .delete-course-label {
+    .course-delete-warning-content {
+        min-width: 0;
+    }
+
+        .course-delete-warning-content h3 {
+            color: #9d2a22;
+            font-size: 17px;
+            font-weight: 800;
+            margin: 0 0 10px;
+        }
+
+        .course-delete-warning-content p {
+            color: #a2443c;
+            font-size: 14px;
+            line-height: 2;
+            margin: 0;
+        }
+
+    /* عنوان البيانات */
+
+    .course-delete-section-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #142d4e;
+        font-size: 18px;
+        font-weight: 800;
+        border-right: 4px solid #c9a24d;
+        padding-right: 13px;
+        margin-bottom: 23px;
+    }
+
+        .course-delete-section-title i {
+            color: #b9913d;
+            font-size: 20px;
+        }
+
+    /* بيانات المقرر */
+
+    .course-delete-info {
+        background: #f9fafc;
+        border: 1px solid #e9edf3;
+        border-radius: 12px;
+        padding: 8px 22px;
+        margin-bottom: 25px;
+    }
+
+    .course-delete-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 17px 0;
+        border-bottom: 1px solid #e5eaf2;
+    }
+
+        .course-delete-row:last-child {
+            border-bottom: none;
+        }
+
+    .course-delete-label {
         color: #718096;
+        font-size: 14px;
+        flex-shrink: 0;
     }
 
-    .delete-course-value {
-        font-weight: 700;
-        color: #14263f;
+    .course-delete-value {
+        color: #142d4e;
+        font-size: 15px;
+        font-weight: 800;
         text-align: left;
+        overflow-wrap: anywhere;
+        min-width: 0;
     }
 
-    .delete-course-actions {
+    .course-delete-code {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: #e9eef6;
+        color: #142d4e;
+        border-radius: 8px;
+        padding: 7px 12px;
+        font-weight: 800;
+        direction: ltr;
+    }
+
+    /* ملاحظة الارتباطات */
+
+    .course-delete-note {
+        display: flex;
+        align-items: flex-start;
+        gap: 11px;
+        background: #f7f9fc;
+        border: 1px solid #e9edf3;
+        border-right: 4px solid #c9a24d;
+        border-radius: 11px;
+        padding: 17px 19px;
+        margin-bottom: 28px;
+        color: #42536c;
+        font-size: 14px;
+        line-height: 1.9;
+    }
+
+        .course-delete-note i {
+            color: #b9913d;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+    /* أزرار الإجراءات */
+
+    .course-delete-actions {
         display: flex;
         flex-wrap: wrap;
         gap: 12px;
+        padding-top: 25px;
+        border-top: 1px solid #e9edf3;
     }
 
-    .delete-course-confirm {
+    .course-delete-confirm,
+    .course-delete-cancel {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+        min-height: 45px;
+        padding: 11px 22px;
+        border-radius: 11px;
+        font-size: 14px;
+        font-weight: 800;
+        font-family: inherit;
+        text-decoration: none;
+        transition: background-color .2s ease;
+    }
+
+    /* زر الحذف */
+
+    .course-delete-confirm {
         background: #b42318;
-        color: white;
-        border: none;
-        border-radius: 10px;
-        padding: 13px 24px;
-        font-weight: 700;
+        color: #ffffff;
+        border: 1px solid transparent;
         cursor: pointer;
     }
 
-    .delete-course-confirm:hover {
-        background: #912018;
-    }
+        .course-delete-confirm:hover {
+            background: #912018;
+            color: #ffffff;
+        }
 
-    .delete-course-cancel {
+    /* زر الإلغاء */
+
+    .course-delete-cancel {
         background: #edf1f7;
-        color: #14263f;
-        border-radius: 10px;
-        padding: 13px 24px;
-        font-weight: 600;
-        text-decoration: none;
+        color: #142d4e;
+        border: 1px solid #dfe6ef;
     }
 
-    @@media (max-width: 600px) {
-        .delete-course-body {
-            padding: 20px;
+        .course-delete-cancel:hover {
+            background: #e1e8f2;
+            color: #142d4e;
         }
 
-        .delete-course-row {
+        .course-delete-confirm:focus-visible,
+        .course-delete-cancel:focus-visible {
+            outline: 3px solid #142d4e;
+            outline-offset: 3px;
+        }
+
+    /* الشاشات الصغيرة */
+
+    @@media (max-width: 650px) {
+        .course-delete-page {
+            margin: 15px auto;
+        }
+
+        .course-delete-header,
+        .course-delete-body {
+            padding: 22px;
+        }
+
+            .course-delete-header h2 {
+                font-size: 21px;
+            }
+
+        .course-delete-warning {
+            padding: 17px;
+        }
+
+        .course-delete-info {
+            padding: 5px 17px;
+        }
+
+        .course-delete-row {
             flex-direction: column;
-            gap: 5px;
+            align-items: flex-start;
+            gap: 7px;
         }
 
-        .delete-course-value {
+        .course-delete-value {
             text-align: right;
+        }
+
+        .course-delete-actions {
+            flex-direction: column;
+        }
+
+        .course-delete-confirm,
+        .course-delete-cancel {
+            width: 100%;
         }
     }
 </style>
 
-<div class="delete-course-page">
+<div class="course-delete-page">
 
-    <div class="delete-course-card">
+    <!-- رأس الصفحة -->
 
-        <div class="delete-course-header">
-            <h2>
-                <i class="bi bi-trash3"></i>
-                حذف المقرر الدراسي
-            </h2>
+    <div class="course-delete-header">
 
-            <p>مراجعة بيانات المقرر قبل تأكيد الحذف</p>
-        </div>
+        <h2>
+            <i class="bi bi-trash3"></i>
+            حذف المقرر الدراسي
+        </h2>
 
-        <div class="delete-course-body">
+        <p>
+            مراجعة بيانات المقرر الدراسي
+            قبل تأكيد عملية الحذف.
+        </p>
 
-            <div class="delete-course-warning">
+    </div>
+
+    <!-- محتوى الصفحة -->
+
+    <div class="course-delete-body">
+
+        <!-- رسالة التحذير -->
+
+        <div class="course-delete-warning"
+             role="alert">
+
+            <div class="course-delete-warning-icon">
                 <i class="bi bi-exclamation-triangle-fill"></i>
-
-                <div>
-                    <strong>هل أنت متأكد من حذف هذا المقرر؟</strong>
-
-                    <p>
-                        سيتم حذف المقرر من قاعدة البيانات بعد التأكيد.
-                        لا يمكن التراجع عن هذه العملية من هذه الصفحة.
-                        إذا كان المقرر مرتبطًا بطرح دراسي،
-                        سيمنع النظام حذفه.
-                    </p>
-                </div>
             </div>
 
-            <div class="delete-course-info">
+            <div class="course-delete-warning-content">
 
-                <div class="delete-course-row">
-                    <span class="delete-course-label">
-                        اسم المقرر
-                    </span>
+                <h3>
+                    هل أنت متأكد من حذف هذا المقرر الدراسي؟
+                </h3>
 
-                    <span class="delete-course-value">
-                        @Model.Name
-                    </span>
-                </div>
+                <p>
+                    سيتم حذف المقرر الدراسي من قاعدة البيانات
+                    بعد تأكيد العملية، ولا يمكن التراجع عن الحذف
+                    من هذه الصفحة.
 
-                <div class="delete-course-row">
-                    <span class="delete-course-label">
-                        رمز المقرر
-                    </span>
+                    إذا كان المقرر مرتبطًا بطرح دراسي،
+                    فسيمنع النظام حذفه.
+                </p>
 
-                    <span class="delete-course-value">
+            </div>
+
+        </div>
+
+        <!-- عنوان البيانات -->
+
+        <h3 class="course-delete-section-title">
+
+            <i class="bi bi-journal-text"></i>
+            بيانات المقرر المراد حذفه
+
+        </h3>
+
+        <!-- معلومات المقرر -->
+
+        <div class="course-delete-info">
+
+            <!-- اسم المقرر -->
+
+            <div class="course-delete-row">
+
+                <span class="course-delete-label">
+                    اسم المقرر الدراسي
+                </span>
+
+                <span class="course-delete-value">
+                    @Model.Name
+                </span>
+
+            </div>
+
+            <!-- رمز المقرر -->
+
+            <div class="course-delete-row">
+
+                <span class="course-delete-label">
+                    رمز المقرر
+                </span>
+
+                <span class="course-delete-value">
+
+                    <span class="course-delete-code">
                         @Model.Code
                     </span>
-                </div>
 
-                <div class="delete-course-row">
-                    <span class="delete-course-label">
-                        الساعات المعتمدة
-                    </span>
-
-                    <span class="delete-course-value">
-                        @Model.CreditHours
-                    </span>
-                </div>
-
-                <div class="delete-course-row">
-                    <span class="delete-course-label">
-                        القسم الأكاديمي
-                    </span>
-
-                    <span class="delete-course-value">
-                        @(Model.Department?.Name ?? "غير محدد")
-                    </span>
-                </div>
+                </span>
 
             </div>
 
-            <form asp-controller="Courses"
-                  asp-action="Delete"
-                  asp-route-id="@Model.Id"
-                  method="post">
+            <!-- الساعات المعتمدة -->
 
-                @Html.AntiForgeryToken()
+            <div class="course-delete-row">
 
-                <div class="delete-course-actions">
+                <span class="course-delete-label">
+                    عدد الساعات المعتمدة
+                </span>
 
-                    <button type="submit"
-                            class="delete-course-confirm">
-                        <i class="bi bi-trash3"></i>
-                        نعم، حذف المقرر
-                    </button>
+                <span class="course-delete-value">
+                    @Model.CreditHours
+                </span>
 
-                    <a asp-controller="Courses"
-                       asp-action="Index"
-                       class="delete-course-cancel">
-                        <i class="bi bi-x-circle"></i>
-                        إلغاء والعودة
-                    </a>
+            </div>
 
-                </div>
+            <!-- القسم الأكاديمي -->
 
-            </form>
+            <div class="course-delete-row">
+
+                <span class="course-delete-label">
+                    القسم الأكاديمي
+                </span>
+
+                <span class="course-delete-value">
+                    @(Model.Department?.Name ?? "غير محدد")
+                </span>
+
+            </div>
 
         </div>
+
+        <!-- ملاحظة -->
+
+        <div class="course-delete-note">
+
+            <i class="bi bi-info-circle"></i>
+
+            <span>
+                يُرجى التأكد من اختيار المقرر الصحيح.
+                إذا كان مرتبطًا بطرح دراسي،
+                فلن يسمح النظام بحذفه.
+            </span>
+
+        </div>
+
+        <!-- نموذج الحذف -->
+
+        <form asp-controller="Courses"
+              asp-action="Delete"
+              asp-route-id="@Model.Id"
+              method="post"
+              onsubmit="return confirm('هل أنت متأكد من حذف هذا المقرر الدراسي؟');">
+
+            @Html.AntiForgeryToken()
+
+            <!-- أزرار التأكيد والإلغاء -->
+
+            <div class="course-delete-actions">
+
+                <button type="submit"
+                        class="course-delete-confirm">
+
+                    <i class="bi bi-trash3"></i>
+                    نعم، حذف المقرر
+
+                </button>
+
+                <a asp-controller="Courses"
+                   asp-action="Index"
+                   class="course-delete-cancel">
+
+                    <i class="bi bi-x-circle"></i>
+                    إلغاء والعودة
+
+                </a>
+
+            </div>
+
+        </form>
 
     </div>
 

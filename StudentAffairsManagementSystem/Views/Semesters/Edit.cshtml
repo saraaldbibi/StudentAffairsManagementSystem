@@ -4,350 +4,773 @@
     ViewData["Title"] = "تعديل الفصل الدراسي";
 }
 
-<div class="container-fluid py-4" dir="rtl">
+<style>
+    .semester-edit-page {
+        direction: rtl;
+        max-width: 950px;
+        margin: 20px auto;
+        color: #142d4e;
+    }
 
-    <!-- عنوان الصفحة -->
-    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+    /* رأس الصفحة */
 
-        <div>
-            <h2 style="color:#142d4e; font-weight:800;">
-                تعديل الفصل الدراسي
-            </h2>
+    .semester-edit-header {
+        background: linear-gradient(135deg, #142d4e, #304661);
+        color: #ffffff;
+        padding: 28px 32px;
+        border-radius: 16px 16px 0 0;
+        border-bottom: 4px solid #c9a24d;
+    }
 
-            <p class="text-muted mb-0">
-                تعديل بيانات الفصل الدراسي والتحكم بفترة تسجيل المقررات
-            </p>
-        </div>
+        .semester-edit-header h2 {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 25px;
+            font-weight: 800;
+            margin: 0 0 10px;
+        }
 
-        <a asp-controller="Semesters"
-           asp-action="Index"
-           class="btn btn-outline-secondary">
-            العودة إلى الفصول الدراسية
-        </a>
+            .semester-edit-header h2 i {
+                color: #c9a24d;
+                font-size: 27px;
+            }
+
+        .semester-edit-header p {
+            color: #d6dfeb;
+            font-size: 14px;
+            line-height: 1.9;
+            margin: 0;
+        }
+
+    /* جسم الصفحة */
+
+    .semester-edit-body {
+        background: #ffffff;
+        padding: 30px;
+        border: 1px solid #e5eaf2;
+        border-top: none;
+        border-radius: 0 0 16px 16px;
+        box-shadow: 0 5px 25px rgba(20,45,78,.05);
+    }
+
+    /* أقسام النموذج */
+
+    .semester-edit-section {
+        margin-bottom: 32px;
+    }
+
+    .semester-edit-section-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #142d4e;
+        font-size: 18px;
+        font-weight: 800;
+        border-right: 4px solid #c9a24d;
+        padding-right: 13px;
+        margin: 0 0 23px;
+    }
+
+        .semester-edit-section-title i {
+            color: #b9913d;
+            font-size: 20px;
+        }
+
+    /* شبكة الحقول */
+
+    .semester-edit-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 22px;
+    }
+
+    .semester-edit-field {
+        min-width: 0;
+    }
+
+    .semester-edit-field-full {
+        grid-column: 1 / -1;
+    }
+
+    .semester-edit-label {
+        display: block;
+        color: #142d4e;
+        font-size: 14px;
+        font-weight: 700;
+        margin-bottom: 9px;
+    }
+
+    .semester-edit-required {
+        color: #b42318;
+    }
+
+    .semester-edit-input {
+        display: block;
+        width: 100%;
+        min-height: 46px;
+        padding: 11px 14px;
+        border: 1px solid #dce3ed;
+        border-radius: 11px;
+        background: #ffffff;
+        color: #142d4e;
+        font-size: 14px;
+        font-family: inherit;
+        transition: border-color .2s ease, box-shadow .2s ease;
+    }
+
+        .semester-edit-input:focus {
+            outline: none;
+            border-color: #c9a24d;
+            box-shadow: 0 0 0 3px rgba(201,162,77,.14);
+        }
+
+        .semester-edit-input::placeholder {
+            color: #98a4b5;
+        }
+
+        .semester-edit-input.input-validation-error {
+            border-color: #dc756e;
+        }
+
+    /* النصوص الإرشادية */
+
+    .semester-edit-hint {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        color: #718096;
+        font-size: 13px;
+        line-height: 1.9;
+        margin-top: 9px;
+    }
+
+        .semester-edit-hint i {
+            color: #b9913d;
+            margin-top: 2px;
+            flex-shrink: 0;
+        }
+
+    /* رسائل التحقق */
+
+    .semester-edit-error {
+        display: block;
+        color: #b42318;
+        font-size: 13px;
+        line-height: 1.7;
+        margin-top: 7px;
+    }
+
+    .semester-edit-validation-summary {
+        background: #fff0ee;
+        border: 1px solid #f1d8d5;
+        border-radius: 11px;
+        padding: 15px 18px;
+        margin-bottom: 25px;
+        color: #b42318;
+        font-size: 14px;
+    }
+
+        .semester-edit-validation-summary.validation-summary-valid {
+            display: none;
+        }
+
+        .semester-edit-validation-summary ul {
+            margin: 0;
+            padding-right: 20px;
+        }
+
+    /* خيارات التفعيل */
+
+    .semester-edit-option {
+        background: #f8fafc;
+        border: 1px solid #e5eaf2;
+        border-radius: 12px;
+        padding: 20px;
+    }
+
+    .semester-edit-option-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .semester-edit-checkbox {
+        width: 20px;
+        height: 20px;
+        accent-color: #c9a24d;
+        cursor: pointer;
+        flex-shrink: 0;
+    }
+
+    .semester-edit-option-label {
+        color: #142d4e;
+        font-size: 15px;
+        font-weight: 800;
+        cursor: pointer;
+    }
+
+    .semester-edit-option p {
+        color: #718096;
+        font-size: 13px;
+        line-height: 1.9;
+        margin: 11px 0 0;
+    }
+
+    /* بطاقة التسجيل */
+
+    .semester-edit-registration {
+        border: 1px solid #e3d4b5;
+        border-radius: 13px;
+        overflow: hidden;
+        margin-bottom: 30px;
+    }
+
+    .semester-edit-registration-header {
+        background: #f8f4eb;
+        padding: 17px 22px;
+        border-bottom: 1px solid #e9ddc5;
+    }
+
+        .semester-edit-registration-header h3 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #142d4e;
+            font-size: 18px;
+            font-weight: 800;
+            margin: 0;
+        }
+
+        .semester-edit-registration-header i {
+            color: #b9913d;
+            font-size: 20px;
+        }
+
+    .semester-edit-registration-body {
+        padding: 23px;
+    }
+
+    .semester-edit-registration-description {
+        color: #718096;
+        font-size: 14px;
+        line-height: 1.9;
+        margin: 0 0 25px;
+    }
+
+    /* ملاحظة التسجيل */
+
+    .semester-edit-note {
+        display: flex;
+        align-items: flex-start;
+        gap: 11px;
+        background: #fff9eb;
+        border: 1px solid #eadbb5;
+        border-right: 4px solid #c9a24d;
+        border-radius: 11px;
+        padding: 17px 19px;
+        margin-top: 23px;
+        color: #735b30;
+        font-size: 14px;
+        line-height: 1.9;
+    }
+
+        .semester-edit-note i {
+            color: #b9913d;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+    /* أزرار الإجراءات */
+
+    .semester-edit-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        padding-top: 25px;
+        border-top: 1px solid #e9edf3;
+    }
+
+    .semester-edit-save,
+    .semester-edit-cancel {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+        min-height: 45px;
+        padding: 11px 22px;
+        border-radius: 11px;
+        font-size: 14px;
+        font-weight: 800;
+        font-family: inherit;
+        text-decoration: none;
+        transition: background-color .2s ease;
+    }
+
+    .semester-edit-save {
+        background: #c9a24d;
+        color: #142d4e;
+        border: 1px solid transparent;
+        cursor: pointer;
+    }
+
+        .semester-edit-save:hover {
+            background: #b9913d;
+            color: #142d4e;
+        }
+
+    .semester-edit-cancel {
+        background: #edf1f7;
+        color: #142d4e;
+        border: 1px solid #dfe6ef;
+    }
+
+        .semester-edit-cancel:hover {
+            background: #e1e8f2;
+            color: #142d4e;
+        }
+
+        .semester-edit-save:focus-visible,
+        .semester-edit-cancel:focus-visible {
+            outline: 3px solid #142d4e;
+            outline-offset: 3px;
+        }
+
+    /* الشاشات الصغيرة */
+
+    @@media (max-width: 650px) {
+        .semester-edit-page {
+            margin: 15px auto;
+        }
+
+        .semester-edit-header,
+        .semester-edit-body {
+            padding: 22px;
+        }
+
+            .semester-edit-header h2 {
+                font-size: 21px;
+            }
+
+        .semester-edit-grid {
+            grid-template-columns: 1fr;
+            gap: 24px;
+        }
+
+        .semester-edit-field-full {
+            grid-column: auto;
+        }
+
+        .semester-edit-registration-header,
+        .semester-edit-registration-body {
+            padding: 18px;
+        }
+
+        .semester-edit-actions {
+            flex-direction: column;
+        }
+
+        .semester-edit-save,
+        .semester-edit-cancel {
+            width: 100%;
+        }
+    }
+</style>
+
+<div class="semester-edit-page">
+
+    <!-- رأس الصفحة -->
+
+    <div class="semester-edit-header">
+
+        <h2>
+            <i class="bi bi-pencil-square"></i>
+            تعديل الفصل الدراسي
+        </h2>
+
+        <p>
+            تحديث بيانات الفصل الدراسي
+            والتحكم بمواعيد تسجيل المقررات وحالة التسجيل.
+        </p>
 
     </div>
 
     <!-- نموذج التعديل -->
-    <div class="card border-0 shadow-sm">
 
-        <div class="card-header py-3"
-             style="background:#142d4e; color:white;">
+    <div class="semester-edit-body">
 
-            <h5 class="mb-0">
-                <i class="bi bi-calendar3"></i>
-                بيانات الفصل الدراسي
-            </h5>
+        <form asp-controller="Semesters"
+              asp-action="Edit"
+              asp-route-id="@Model.Id"
+              method="post">
 
-        </div>
+            @Html.AntiForgeryToken()
 
-        <div class="card-body p-4">
+            <!-- معرّف الفصل -->
 
-            <form asp-controller="Semesters"
-                  asp-action="Edit"
-                  asp-route-id="@Model.Id"
-                  method="post">
+            <input asp-for="Id"
+                   type="hidden" />
 
-                @Html.AntiForgeryToken()
+            <!-- رسائل التحقق -->
 
-                <input type="hidden" asp-for="Id" />
+            <div asp-validation-summary="All"
+                 class="semester-edit-validation-summary"></div>
 
-                <!-- رسائل التحقق -->
-                <div asp-validation-summary="All"
-                     class="text-danger mb-3"></div>
+            <!-- البيانات الأساسية -->
 
-                <!-- رقم الفصل والاسم -->
-                <div class="row g-3 mb-4">
+            <section class="semester-edit-section">
 
-                    <div class="col-md-6">
+                <h3 class="semester-edit-section-title">
+                    <i class="bi bi-calendar3"></i>
+                    البيانات الأساسية للفصل
+                </h3>
+
+                <div class="semester-edit-grid">
+
+                    <!-- رقم الفصل -->
+
+                    <div class="semester-edit-field">
 
                         <label asp-for="SemesterNumber"
-                               class="form-label fw-bold">
+                               class="semester-edit-label">
+
                             رقم الفصل الدراسي
+                            <span class="semester-edit-required">*</span>
+
                         </label>
 
                         <input asp-for="SemesterNumber"
                                type="number"
                                min="1"
-                               class="form-control" />
+                               step="1"
+                               class="semester-edit-input"
+                               required />
 
                         <span asp-validation-for="SemesterNumber"
-                              class="text-danger"></span>
+                              class="semester-edit-error"></span>
 
                     </div>
 
-                    <div class="col-md-6">
+                    <!-- اسم الفصل -->
+
+                    <div class="semester-edit-field">
 
                         <label asp-for="Name"
-                               class="form-label fw-bold">
+                               class="semester-edit-label">
+
                             اسم الفصل الدراسي
+                            <span class="semester-edit-required">*</span>
+
                         </label>
 
                         <input asp-for="Name"
-                               class="form-control"
-                               placeholder="اسم الفصل الدراسي" />
+                               class="semester-edit-input"
+                               placeholder="اسم الفصل الدراسي"
+                               required />
 
                         <span asp-validation-for="Name"
-                              class="text-danger"></span>
+                              class="semester-edit-error"></span>
+
+                    </div>
+
+                    <!-- العام الأكاديمي -->
+
+                    <div class="semester-edit-field semester-edit-field-full">
+
+                        <label asp-for="AcademicYear"
+                               class="semester-edit-label">
+
+                            العام الدراسي
+                            <span class="semester-edit-required">*</span>
+
+                        </label>
+
+                        <input asp-for="AcademicYear"
+                               class="semester-edit-input"
+                               placeholder="مثال: 2026-2027"
+                               dir="ltr"
+                               required />
+
+                        <span asp-validation-for="AcademicYear"
+                              class="semester-edit-error"></span>
 
                     </div>
 
                 </div>
 
-                <!-- العام الدراسي -->
-                <div class="mb-4">
+            </section>
 
-                    <label asp-for="AcademicYear"
-                           class="form-label fw-bold">
-                        العام الدراسي
-                    </label>
+            <!-- مواعيد الفصل -->
 
-                    <input asp-for="AcademicYear"
-                           class="form-control"
-                           dir="ltr"
-                           placeholder="مثال: 2026-2027" />
+            <section class="semester-edit-section">
 
-                    <span asp-validation-for="AcademicYear"
-                          class="text-danger"></span>
-
-                </div>
-
-                <!-- مواعيد الفصل -->
-                <h5 class="mb-3"
-                    style="color:#142d4e; font-weight:700;">
+                <h3 class="semester-edit-section-title">
                     <i class="bi bi-calendar-range"></i>
                     مواعيد الفصل الدراسي
-                </h5>
+                </h3>
 
-                <div class="row g-3 mb-4">
+                <div class="semester-edit-grid">
 
-                    <div class="col-md-6">
+                    <!-- بداية الفصل -->
+
+                    <div class="semester-edit-field">
 
                         <label asp-for="StartDate"
-                               class="form-label fw-bold">
+                               class="semester-edit-label">
+
                             تاريخ بداية الفصل
+                            <span class="semester-edit-required">*</span>
+
                         </label>
 
                         <input asp-for="StartDate"
                                type="date"
                                asp-format="{0:yyyy-MM-dd}"
-                               class="form-control"
-                               dir="ltr" />
+                               class="semester-edit-input"
+                               dir="ltr"
+                               required />
 
                         <span asp-validation-for="StartDate"
-                              class="text-danger"></span>
+                              class="semester-edit-error"></span>
 
                     </div>
 
-                    <div class="col-md-6">
+                    <!-- نهاية الفصل -->
+
+                    <div class="semester-edit-field">
 
                         <label asp-for="EndDate"
-                               class="form-label fw-bold">
+                               class="semester-edit-label">
+
                             تاريخ نهاية الفصل
+                            <span class="semester-edit-required">*</span>
+
                         </label>
 
                         <input asp-for="EndDate"
                                type="date"
                                asp-format="{0:yyyy-MM-dd}"
-                               class="form-control"
-                               dir="ltr" />
+                               class="semester-edit-input"
+                               dir="ltr"
+                               required />
 
                         <span asp-validation-for="EndDate"
-                              class="text-danger"></span>
+                              class="semester-edit-error"></span>
 
                     </div>
 
                 </div>
 
-                <!-- حالة الفصل -->
-                <div class="card border mb-4">
+            </section>
 
-                    <div class="card-body">
+            <!-- حالة الفصل -->
 
-                        <div class="form-check form-switch">
+            <section class="semester-edit-section">
 
-                            <input asp-for="IsActive"
-                                   class="form-check-input"
+                <h3 class="semester-edit-section-title">
+                    <i class="bi bi-sliders"></i>
+                    حالة الفصل الدراسي
+                </h3>
+
+                <div class="semester-edit-option">
+
+                    <div class="semester-edit-option-row">
+
+                        <input asp-for="IsActive"
+                               type="checkbox"
+                               class="semester-edit-checkbox" />
+
+                        <label asp-for="IsActive"
+                               class="semester-edit-option-label">
+
+                            الفصل الدراسي فعّال
+
+                        </label>
+
+                    </div>
+
+                    <p>
+                        تفعيل الفصل الدراسي لا يعني فتح
+                        تسجيل المقررات تلقائيًا.
+                        يتم التحكم بالتسجيل بشكل مستقل.
+                    </p>
+
+                </div>
+
+            </section>
+
+            <!-- التحكم بفترة التسجيل -->
+
+            <div class="semester-edit-registration">
+
+                <div class="semester-edit-registration-header">
+
+                    <h3>
+                        <i class="bi bi-journal-plus"></i>
+                        التحكم بفترة تسجيل المقررات
+                    </h3>
+
+                </div>
+
+                <div class="semester-edit-registration-body">
+
+                    <p class="semester-edit-registration-description">
+                        من هنا تحدد إدارة الجامعة الفترة
+                        المسموح خلالها بتسجيل المقررات.
+                        خارج هذه الفترة يجب أن يكون التسجيل مغلقًا
+                        وفق قواعد النظام.
+                    </p>
+
+                    <!-- مواعيد التسجيل -->
+
+                    <div class="semester-edit-grid">
+
+                        <!-- بداية التسجيل -->
+
+                        <div class="semester-edit-field">
+
+                            <label asp-for="RegistrationStartDate"
+                                   class="semester-edit-label">
+
+                                <i class="bi bi-calendar-plus"></i>
+                                بداية فترة التسجيل
+
+                            </label>
+
+                            <input asp-for="RegistrationStartDate"
+                                   type="datetime-local"
+                                   asp-format="{0:yyyy-MM-ddTHH:mm}"
+                                   class="semester-edit-input"
+                                   dir="ltr" />
+
+                            <span asp-validation-for="RegistrationStartDate"
+                                  class="semester-edit-error"></span>
+
+                            <div class="semester-edit-hint">
+
+                                <i class="bi bi-info-circle"></i>
+
+                                <span>
+                                    حدد تاريخ وساعة بدء التسجيل.
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                        <!-- نهاية التسجيل -->
+
+                        <div class="semester-edit-field">
+
+                            <label asp-for="RegistrationEndDate"
+                                   class="semester-edit-label">
+
+                                <i class="bi bi-calendar-x"></i>
+                                نهاية فترة التسجيل
+
+                            </label>
+
+                            <input asp-for="RegistrationEndDate"
+                                   type="datetime-local"
+                                   asp-format="{0:yyyy-MM-ddTHH:mm}"
+                                   class="semester-edit-input"
+                                   dir="ltr" />
+
+                            <span asp-validation-for="RegistrationEndDate"
+                                  class="semester-edit-error"></span>
+
+                            <div class="semester-edit-hint">
+
+                                <i class="bi bi-info-circle"></i>
+
+                                <span>
+                                    حدد تاريخ وساعة انتهاء التسجيل.
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- السماح بالتسجيل -->
+
+                    <div class="semester-edit-option"
+                         style="margin-top:24px;">
+
+                        <div class="semester-edit-option-row">
+
+                            <input asp-for="IsRegistrationOpen"
                                    type="checkbox"
-                                   role="switch" />
+                                   class="semester-edit-checkbox" />
 
-                            <label asp-for="IsActive"
-                                   class="form-check-label fw-bold">
-                                الفصل الدراسي فعّال
+                            <label asp-for="IsRegistrationOpen"
+                                   class="semester-edit-option-label">
+
+                                السماح للطلاب بتسجيل المقررات
+
                             </label>
 
                         </div>
 
-                        <small class="text-muted d-block mt-2">
-                            تفعيل الفصل الدراسي لا يعني فتح تسجيل المقررات.
-                            فتح التسجيل يتم بشكل مستقل من القسم التالي.
-                        </small>
+                        <span asp-validation-for="IsRegistrationOpen"
+                              class="semester-edit-error"></span>
 
-                    </div>
-
-                </div>
-
-                <!-- ====================================== -->
-                <!-- التحكم بفترة تسجيل المقررات -->
-                <!-- ====================================== -->
-
-                <div class="card mb-4"
-                     style="border:1px solid #d9c397; border-radius:12px; overflow:hidden;">
-
-                    <div class="card-header py-3"
-                         style="background:#142d4e; color:white;">
-
-                        <h5 class="mb-0 fw-bold">
-                            <i class="bi bi-journal-plus"
-                               style="color:#c9a24d;"></i>
-
-                            التحكم بفترة تسجيل المقررات
-                        </h5>
-
-                    </div>
-
-                    <div class="card-body p-4">
-
-                        <p class="text-muted mb-4">
-                            من هنا تحدد إدارة الجامعة المدة التي
-                            يُسمح خلالها للطلاب بتسجيل المقررات.
-                            خارج هذه المدة، يجب أن يكون التسجيل مغلقًا.
+                        <p>
+                            عند تفعيل هذا الخيار، يُسمح
+                            بالتسجيل فقط إذا كان الفصل فعّالًا
+                            والوقت الحالي ضمن الفترة المحددة،
+                            وبعد تطبيق التحقق في بوابة الطالب.
                         </p>
 
-                        <!-- بداية ونهاية التسجيل -->
-                        <div class="row g-3 mb-4">
+                    </div>
 
-                            <div class="col-md-6">
+                    <!-- ملاحظة -->
 
-                                <label asp-for="RegistrationStartDate"
-                                       class="form-label fw-bold">
-                                    <i class="bi bi-calendar-plus"></i>
-                                    بداية فترة التسجيل
-                                </label>
+                    <div class="semester-edit-note">
 
-                                <input asp-for="RegistrationStartDate"
-                                       type="datetime-local"
-                                       asp-format="{0:yyyy-MM-ddTHH:mm}"
-                                       class="form-control"
-                                       dir="ltr" />
+                        <i class="bi bi-info-circle"></i>
 
-                                <span asp-validation-for="RegistrationStartDate"
-                                      class="text-danger"></span>
-
-                                <small class="text-muted d-block mt-2">
-                                    حدد تاريخ وساعة بدء التسجيل.
-                                </small>
-
-                            </div>
-
-                            <div class="col-md-6">
-
-                                <label asp-for="RegistrationEndDate"
-                                       class="form-label fw-bold">
-                                    <i class="bi bi-calendar-x"></i>
-                                    نهاية فترة التسجيل
-                                </label>
-
-                                <input asp-for="RegistrationEndDate"
-                                       type="datetime-local"
-                                       asp-format="{0:yyyy-MM-ddTHH:mm}"
-                                       class="form-control"
-                                       dir="ltr" />
-
-                                <span asp-validation-for="RegistrationEndDate"
-                                      class="text-danger"></span>
-
-                                <small class="text-muted d-block mt-2">
-                                    حدد تاريخ وساعة انتهاء التسجيل.
-                                </small>
-
-                            </div>
-
-                        </div>
-
-                        <!-- فتح أو إغلاق التسجيل -->
-                        <div class="p-3"
-                             style="background:#f7f9fc;
-                            border:1px solid #e3e8f0;
-                            border-radius:10px;">
-
-                            <div class="form-check form-switch">
-
-                                <input asp-for="IsRegistrationOpen"
-                                       class="form-check-input"
-                                       type="checkbox"
-                                       role="switch" />
-
-                                <label asp-for="IsRegistrationOpen"
-                                       class="form-check-label fw-bold"
-                                       style="color:#142d4e;">
-                                    السماح للطلاب بتسجيل المقررات
-                                </label>
-
-                            </div>
-
-                            <span asp-validation-for="IsRegistrationOpen"
-                                  class="text-danger"></span>
-
-                            <small class="text-muted d-block mt-2">
-                                عند تفعيل هذا الخيار، يُسمح بالتسجيل
-                                فقط إذا كان الفصل فعّالًا والوقت الحالي
-                                ضمن الفترة المحددة، بعد تطبيق التحقق
-                                في بوابة الطالب.
-                            </small>
-
-                        </div>
-
-                        <!-- ملاحظة -->
-                        <div class="alert mt-4 mb-0"
-                             style="background:#fff8e8;
-                            border:1px solid #ead7a6;
-                            color:#775b29;">
-
-                            <i class="bi bi-info-circle"></i>
-
-                            <strong>ملاحظة:</strong>
-
+                        <span>
                             يجب تحديد تاريخ بداية ونهاية التسجيل
                             قبل تفعيل السماح بالتسجيل.
 
                             يمكن للإدارة إغلاق التسجيل في أي وقت
                             بإلغاء تفعيل الخيار، حتى لو لم تنتهِ
-                            الفترة المحددة بعد.
-
-                        </div>
+                            الفترة المحددة.
+                        </span>
 
                     </div>
 
                 </div>
 
-                <!-- أزرار الحفظ والإلغاء -->
-                <div class="d-flex flex-wrap gap-3 mt-4">
+            </div>
 
-                    <button type="submit"
-                            class="btn px-5 py-2"
-                            style="background:#c9a24d;
-                        color:#142d4e;
-                        font-weight:800;">
+            <!-- أزرار الإجراءات -->
 
-                        <i class="bi bi-check-circle"></i>
-                        حفظ التعديلات
+            <div class="semester-edit-actions">
 
-                    </button>
+                <button type="submit"
+                        class="semester-edit-save">
 
-                    <a asp-controller="Semesters"
-                       asp-action="Details"
-                       asp-route-id="@Model.Id"
-                       class="btn btn-outline-secondary px-4 py-2">
+                    <i class="bi bi-check-circle"></i>
+                    حفظ التعديلات
 
-                        إلغاء
+                </button>
 
-                    </a>
+                <a asp-controller="Semesters"
+                   asp-action="Details"
+                   asp-route-id="@Model.Id"
+                   class="semester-edit-cancel">
 
-                </div>
+                    <i class="bi bi-x-circle"></i>
+                    إلغاء والعودة
 
-            </form>
+                </a>
 
-        </div>
+            </div>
+
+        </form>
 
     </div>
 

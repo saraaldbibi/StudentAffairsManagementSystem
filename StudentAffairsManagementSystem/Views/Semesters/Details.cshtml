@@ -1,202 +1,834 @@
-﻿
-@model StudentAffairsManagementSystem.Models.Semester
+﻿@model StudentAffairsManagementSystem.Models.Semester
 
 @{
     ViewData["Title"] = "تفاصيل الفصل الدراسي";
 
     bool isAdmin = User.IsInRole("Admin");
+
+    bool isActive = Model.IsActive;
+    bool isRegistrationOpen = Model.IsRegistrationOpen;
+
+    bool hasRegistrationPeriod =
+        Model.RegistrationStartDate.HasValue &&
+        Model.RegistrationEndDate.HasValue;
+
+    bool isWithinRegistrationPeriod =
+        hasRegistrationPeriod &&
+        DateTime.Now >= Model.RegistrationStartDate!.Value &&
+        DateTime.Now <= Model.RegistrationEndDate!.Value;
+
+    bool canRegisterNow =
+        isActive &&
+        isRegistrationOpen &&
+        isWithinRegistrationPeriod;
 }
 
-<div class="container-fluid py-4" dir="rtl">
+<style>
+    .semester-details-page {
+        direction: rtl;
+        max-width: 950px;
+        margin: 20px auto;
+        color: #142d4e;
+    }
 
-    <!-- عنوان الصفحة -->
-    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+    /* رأس الصفحة */
 
-        <div>
-            <h2 style="color:#142d4e; font-weight:800;">
-                تفاصيل الفصل الدراسي
-            </h2>
+    .semester-details-header {
+        background: linear-gradient(135deg, #142d4e, #304661);
+        color: #ffffff;
+        padding: 28px 32px;
+        border-radius: 16px 16px 0 0;
+        border-bottom: 4px solid #c9a24d;
+    }
 
-            <p class="text-muted mb-0">
-                عرض المعلومات المسجلة للفصل الدراسي
-            </p>
-        </div>
+        .semester-details-header h2 {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 25px;
+            font-weight: 800;
+            margin: 0 0 10px;
+        }
 
-        <a asp-controller="Semesters"
-           asp-action="Index"
-           class="btn btn-outline-secondary">
-            العودة إلى الفصول الدراسية
-        </a>
+            .semester-details-header h2 i {
+                color: #c9a24d;
+                font-size: 27px;
+            }
+
+        .semester-details-header p {
+            color: #d6dfeb;
+            font-size: 14px;
+            line-height: 1.9;
+            margin: 0;
+        }
+
+    /* جسم الصفحة */
+
+    .semester-details-body {
+        background: #ffffff;
+        padding: 30px;
+        border: 1px solid #e5eaf2;
+        border-top: none;
+        border-radius: 0 0 16px 16px;
+        box-shadow: 0 5px 25px rgba(20,45,78,.05);
+    }
+
+    /* بطاقة تعريف الفصل */
+
+    .semester-details-profile {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 20px;
+        padding: 22px;
+        background: #f7f9fc;
+        border: 1px solid #e7ecf3;
+        border-radius: 13px;
+        margin-bottom: 32px;
+    }
+
+    .semester-details-profile-name {
+        color: #142d4e;
+        font-size: 24px;
+        font-weight: 800;
+        margin: 0 0 9px;
+        overflow-wrap: anywhere;
+    }
+
+    .semester-details-profile-year {
+        color: #718096;
+        font-size: 14px;
+        margin: 0;
+    }
+
+    /* شارات الحالة */
+
+    .semester-details-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 9px 15px;
+        border-radius: 30px;
+        font-size: 13px;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+    .semester-details-badge-active {
+        background: #e7f5eb;
+        color: #247247;
+    }
+
+    .semester-details-badge-inactive {
+        background: #edf1f5;
+        color: #64748b;
+    }
+
+    .semester-details-badge-open {
+        background: #e7f5eb;
+        color: #247247;
+    }
+
+    .semester-details-badge-closed {
+        background: #fff0ee;
+        color: #a43c35;
+    }
+
+    /* الأقسام */
+
+    .semester-details-section {
+        margin-bottom: 32px;
+    }
+
+    .semester-details-section-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #142d4e;
+        font-size: 18px;
+        font-weight: 800;
+        border-right: 4px solid #c9a24d;
+        padding-right: 13px;
+        margin: 0 0 22px;
+    }
+
+        .semester-details-section-title i {
+            color: #b9913d;
+            font-size: 20px;
+        }
+
+    /* شبكة المعلومات */
+
+    .semester-details-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+    }
+
+    .semester-details-item {
+        background: #f8fafc;
+        border: 1px solid #e7ecf3;
+        border-radius: 12px;
+        padding: 19px 20px;
+        min-width: 0;
+    }
+
+    .semester-details-item-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #718096;
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 11px;
+    }
+
+        .semester-details-item-label i {
+            color: #b9913d;
+            font-size: 16px;
+        }
+
+    .semester-details-item-value {
+        color: #142d4e;
+        font-size: 17px;
+        font-weight: 800;
+        line-height: 1.7;
+        overflow-wrap: anywhere;
+    }
+
+    .semester-details-item-value-muted {
+        color: #8a96a8;
+        font-size: 15px;
+        font-weight: 600;
+    }
+
+    .semester-details-date {
+        direction: ltr;
+        unicode-bidi: isolate;
+        display: inline-block;
+    }
+
+    /* رسائل الحالة */
+
+    .semester-details-status {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 18px 20px;
+        border-radius: 12px;
+        font-size: 14px;
+        line-height: 1.9;
+    }
+
+        .semester-details-status i {
+            font-size: 21px;
+            margin-top: 2px;
+            flex-shrink: 0;
+        }
+
+    .semester-details-status-active {
+        background: #edf8f0;
+        border: 1px solid #d5eadc;
+        color: #286744;
+    }
+
+    .semester-details-status-inactive {
+        background: #f2f4f7;
+        border: 1px solid #e2e6ec;
+        color: #64748b;
+    }
+
+    .semester-details-status-warning {
+        background: #fff9eb;
+        border: 1px solid #eadbb5;
+        color: #735b30;
+    }
+
+    /* بطاقة التسجيل */
+
+    .semester-details-registration {
+        border: 1px solid #e3d4b5;
+        border-radius: 13px;
+        overflow: hidden;
+        margin-bottom: 32px;
+    }
+
+    .semester-details-registration-header {
+        background: #f8f4eb;
+        border-bottom: 1px solid #e9ddc5;
+        padding: 17px 22px;
+    }
+
+        .semester-details-registration-header h3 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #142d4e;
+            font-size: 18px;
+            font-weight: 800;
+            margin: 0;
+        }
+
+        .semester-details-registration-header i {
+            color: #b9913d;
+            font-size: 20px;
+        }
+
+    .semester-details-registration-body {
+        padding: 23px;
+    }
+
+    .semester-details-registration-description {
+        color: #718096;
+        font-size: 14px;
+        line-height: 1.9;
+        margin: 0 0 23px;
+    }
+
+    .semester-details-registration-state {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 14px;
+        background: #f8fafc;
+        border: 1px solid #e7ecf3;
+        border-radius: 12px;
+        padding: 18px 20px;
+        margin-top: 22px;
+    }
+
+    .semester-details-registration-state-label {
+        color: #142d4e;
+        font-size: 14px;
+        font-weight: 800;
+    }
+
+    .semester-details-registration-state-note {
+        color: #718096;
+        font-size: 13px;
+        line-height: 1.9;
+        margin-top: 12px;
+    }
+
+    /* أزرار الإجراءات */
+
+    .semester-details-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        padding-top: 25px;
+        border-top: 1px solid #e9edf3;
+    }
+
+    .semester-details-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+        min-height: 45px;
+        padding: 11px 20px;
+        border-radius: 11px;
+        font-size: 14px;
+        font-weight: 800;
+        text-decoration: none;
+        transition: background-color .2s ease;
+    }
+
+    .semester-details-btn-edit {
+        background: #c9a24d;
+        color: #142d4e;
+        border: 1px solid transparent;
+    }
+
+        .semester-details-btn-edit:hover {
+            background: #b9913d;
+            color: #142d4e;
+        }
+
+    .semester-details-btn-delete {
+        background: #fff0ee;
+        color: #a43c35;
+        border: 1px solid #f0d5d1;
+    }
+
+        .semester-details-btn-delete:hover {
+            background: #fce2de;
+            color: #a43c35;
+        }
+
+    .semester-details-btn-back {
+        background: #edf1f7;
+        color: #142d4e;
+        border: 1px solid #dfe6ef;
+    }
+
+        .semester-details-btn-back:hover {
+            background: #e1e8f2;
+            color: #142d4e;
+        }
+
+    .semester-details-btn:focus-visible {
+        outline: 3px solid #142d4e;
+        outline-offset: 3px;
+    }
+
+    /* الشاشات الصغيرة */
+
+    @@media (max-width: 650px) {
+        .semester-details-page {
+            margin: 15px auto;
+        }
+
+        .semester-details-header,
+        .semester-details-body {
+            padding: 22px;
+        }
+
+            .semester-details-header h2 {
+                font-size: 21px;
+            }
+
+        .semester-details-profile-name {
+            font-size: 21px;
+        }
+
+        .semester-details-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .semester-details-registration-header,
+        .semester-details-registration-body {
+            padding: 18px;
+        }
+
+        .semester-details-actions {
+            flex-direction: column;
+        }
+
+        .semester-details-btn {
+            width: 100%;
+        }
+    }
+</style>
+
+<div class="semester-details-page">
+
+    <!-- رأس الصفحة -->
+
+    <div class="semester-details-header">
+
+        <h2>
+            <i class="bi bi-calendar3"></i>
+            تفاصيل الفصل الدراسي
+        </h2>
+
+        <p>
+            عرض البيانات المسجلة للفصل الدراسي
+            ومواعيده وحالة تسجيل المقررات.
+        </p>
 
     </div>
 
-    <!-- بطاقة التفاصيل -->
-    <div class="card border-0 shadow-sm">
+    <div class="semester-details-body">
 
-        <div class="card-header py-3"
-             style="background:#142d4e; color:white;">
+        <!-- بطاقة تعريف الفصل -->
 
-            <h5 class="mb-0">
-                معلومات الفصل الدراسي
-            </h5>
+        <div class="semester-details-profile">
+
+            <div>
+
+                <h3 class="semester-details-profile-name">
+                    @Model.Name
+                </h3>
+
+                <p class="semester-details-profile-year">
+                    العام الدراسي: @Model.AcademicYear
+                </p>
+
+            </div>
+
+            <div>
+
+                @if (isActive)
+                {
+                    <span class="semester-details-badge semester-details-badge-active">
+                        <i class="bi bi-check-circle"></i>
+                        فصل فعّال
+                    </span>
+                }
+                else
+                {
+                    <span class="semester-details-badge semester-details-badge-inactive">
+                        <i class="bi bi-dash-circle"></i>
+                        فصل غير فعّال
+                    </span>
+                }
+
+            </div>
 
         </div>
 
-        <div class="card-body p-4">
+        <!-- المعلومات الأساسية -->
 
-            <!-- الاسم والحالة -->
-            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+        <section class="semester-details-section">
 
-                <div>
-                    <h3 style="color:#142d4e; font-weight:800;">
+            <h3 class="semester-details-section-title">
+                <i class="bi bi-info-circle"></i>
+                المعلومات الأساسية
+            </h3>
+
+            <div class="semester-details-grid">
+
+                <!-- اسم الفصل -->
+
+                <div class="semester-details-item">
+
+                    <div class="semester-details-item-label">
+                        <i class="bi bi-calendar3"></i>
+                        اسم الفصل الدراسي
+                    </div>
+
+                    <div class="semester-details-item-value">
                         @Model.Name
-                    </h3>
+                    </div>
 
-                    <span class="text-muted">
-                        العام الدراسي: @Model.AcademicYear
-                    </span>
                 </div>
 
-                <div>
-                    @if (Model.IsActive)
+                <!-- رقم الفصل -->
+
+                <div class="semester-details-item">
+
+                    <div class="semester-details-item-label">
+                        <i class="bi bi-hash"></i>
+                        رقم الفصل الدراسي
+                    </div>
+
+                    <div class="semester-details-item-value">
+                        @Model.SemesterNumber
+                    </div>
+
+                </div>
+
+                <!-- العام الدراسي -->
+
+                <div class="semester-details-item">
+
+                    <div class="semester-details-item-label">
+                        <i class="bi bi-calendar-event"></i>
+                        العام الدراسي
+                    </div>
+
+                    <div class="semester-details-item-value">
+                        @Model.AcademicYear
+                    </div>
+
+                </div>
+
+                <!-- حالة الفصل -->
+
+                <div class="semester-details-item">
+
+                    <div class="semester-details-item-label">
+                        <i class="bi bi-toggle-on"></i>
+                        حالة الفصل
+                    </div>
+
+                    <div class="semester-details-item-value">
+
+                        @if (isActive)
+                        {
+                            <span class="semester-details-badge semester-details-badge-active">
+                                فعّال
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="semester-details-badge semester-details-badge-inactive">
+                                غير فعّال
+                            </span>
+                        }
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- مواعيد الفصل -->
+
+        <section class="semester-details-section">
+
+            <h3 class="semester-details-section-title">
+                <i class="bi bi-calendar-range"></i>
+                مواعيد الفصل الدراسي
+            </h3>
+
+            <div class="semester-details-grid">
+
+                <!-- بداية الفصل -->
+
+                <div class="semester-details-item">
+
+                    <div class="semester-details-item-label">
+                        <i class="bi bi-calendar-plus"></i>
+                        تاريخ بداية الفصل
+                    </div>
+
+                    <div class="semester-details-item-value">
+                        <span class="semester-details-date">
+                            @Model.StartDate.ToString("yyyy/MM/dd")
+                        </span>
+                    </div>
+
+                </div>
+
+                <!-- نهاية الفصل -->
+
+                <div class="semester-details-item">
+
+                    <div class="semester-details-item-label">
+                        <i class="bi bi-calendar-x"></i>
+                        تاريخ نهاية الفصل
+                    </div>
+
+                    <div class="semester-details-item-value">
+                        <span class="semester-details-date">
+                            @Model.EndDate.ToString("yyyy/MM/dd")
+                        </span>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- حالة الفصل -->
+
+        <section class="semester-details-section">
+
+            <h3 class="semester-details-section-title">
+                <i class="bi bi-check2-circle"></i>
+                حالة الفصل الدراسي
+            </h3>
+
+            @if (isActive)
+            {
+                <div class="semester-details-status semester-details-status-active">
+
+                    <i class="bi bi-check-circle-fill"></i>
+
+                    <span>
+                        هذا الفصل الدراسي مسجل في النظام
+                        بحالة فعّال.
+                    </span>
+
+                </div>
+            }
+            else
+            {
+                <div class="semester-details-status semester-details-status-inactive">
+
+                    <i class="bi bi-dash-circle-fill"></i>
+
+                    <span>
+                        هذا الفصل الدراسي مسجل في النظام
+                        بحالة غير فعّال.
+                    </span>
+
+                </div>
+            }
+
+        </section>
+
+        <!-- فترة تسجيل المقررات -->
+
+        <div class="semester-details-registration">
+
+            <div class="semester-details-registration-header">
+
+                <h3>
+                    <i class="bi bi-journal-check"></i>
+                    فترة تسجيل المقررات
+                </h3>
+
+            </div>
+
+            <div class="semester-details-registration-body">
+
+                <p class="semester-details-registration-description">
+                    توضح المعلومات التالية فترة التسجيل
+                    المحددة لهذا الفصل، وحالة السماح
+                    بتسجيل المقررات.
+                </p>
+
+                <div class="semester-details-grid">
+
+                    <!-- بداية التسجيل -->
+
+                    <div class="semester-details-item">
+
+                        <div class="semester-details-item-label">
+                            <i class="bi bi-calendar-plus"></i>
+                            بداية فترة التسجيل
+                        </div>
+
+                        <div class="semester-details-item-value">
+
+                            @if (Model.RegistrationStartDate.HasValue)
+                            {
+                                <span class="semester-details-date">
+                                    @Model.RegistrationStartDate.Value.ToString("yyyy/MM/dd HH:mm")
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="semester-details-item-value-muted">
+                                    لم يتم تحديد موعد
+                                </span>
+                            }
+
+                        </div>
+
+                    </div>
+
+                    <!-- نهاية التسجيل -->
+
+                    <div class="semester-details-item">
+
+                        <div class="semester-details-item-label">
+                            <i class="bi bi-calendar-x"></i>
+                            نهاية فترة التسجيل
+                        </div>
+
+                        <div class="semester-details-item-value">
+
+                            @if (Model.RegistrationEndDate.HasValue)
+                            {
+                                <span class="semester-details-date">
+                                    @Model.RegistrationEndDate.Value.ToString("yyyy/MM/dd HH:mm")
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="semester-details-item-value-muted">
+                                    لم يتم تحديد موعد
+                                </span>
+                            }
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- حالة فتح التسجيل -->
+
+                <div class="semester-details-registration-state">
+
+                    <div class="semester-details-registration-state-label">
+                        <i class="bi bi-journal-check"></i>
+                        إعداد السماح بتسجيل المقررات
+                    </div>
+
+                    @if (isRegistrationOpen)
                     {
-                        <span class="badge bg-success px-4 py-2">
-                            فصل فعال
+                        <span class="semester-details-badge semester-details-badge-open">
+                            <i class="bi bi-check-circle"></i>
+                            مفعّل
                         </span>
                     }
                     else
                     {
-                        <span class="badge bg-secondary px-4 py-2">
-                            فصل غير فعال
+                        <span class="semester-details-badge semester-details-badge-closed">
+                            <i class="bi bi-x-circle"></i>
+                            غير مفعّل
                         </span>
                     }
-                </div>
-
-            </div>
-
-            <hr />
-
-            <!-- المعلومات الأساسية -->
-            <h5 class="mb-3"
-                style="color:#142d4e; font-weight:700;">
-                المعلومات الأساسية
-            </h5>
-
-            <div class="row g-4 mb-4">
-
-                <div class="col-md-6">
-                    <div class="text-muted mb-2">
-                        رقم الفصل الدراسي
-                    </div>
-
-                    <div class="fw-bold fs-5">
-                        @Model.SemesterNumber
-                    </div>
-                </div>
-
-                <div class="col-md-6">
-                    <div class="text-muted mb-2">
-                        العام الدراسي
-                    </div>
-
-                    <div class="fw-bold fs-5">
-                        @Model.AcademicYear
-                    </div>
-                </div>
-
-            </div>
-
-            <hr />
-
-            <!-- التواريخ -->
-            <h5 class="mb-3"
-                style="color:#142d4e; font-weight:700;">
-                مواعيد الفصل الدراسي
-            </h5>
-
-            <div class="row g-4 mb-4">
-
-                <div class="col-md-6">
-
-                    <div class="text-muted mb-2">
-                        تاريخ بداية الفصل
-                    </div>
-
-                    <div class="fw-bold fs-5" dir="ltr"
-                         style="text-align:right;">
-                        @Model.StartDate.ToString("yyyy/MM/dd")
-                    </div>
 
                 </div>
 
-                <div class="col-md-6">
+                <p class="semester-details-registration-state-note">
+                    هذا الإعداد يحدد ما إذا كانت الإدارة
+                    قد فعّلت خيار التسجيل، ولا يعني وحده
+                    أن التسجيل متاح للطلاب في الوقت الحالي.
+                </p>
 
-                    <div class="text-muted mb-2">
-                        تاريخ نهاية الفصل
-                    </div>
-
-                    <div class="fw-bold fs-5" dir="ltr"
-                         style="text-align:right;">
-                        @Model.EndDate.ToString("yyyy/MM/dd")
-                    </div>
-
-                </div>
-
-            </div>
-
-            <hr />
-
-            <!-- حالة الفصل -->
-            <h5 class="mb-3"
-                style="color:#142d4e; font-weight:700;">
-                حالة الفصل الدراسي
-            </h5>
-
-            <div class="mb-4">
-
-                @if (Model.IsActive)
+                <!-- التوفر وفق الإعدادات والتواريخ -->
+                @if (canRegisterNow)
                 {
-                    <div class="alert alert-success mb-0">
-                        هذا الفصل مسجل في النظام بحالة فعال.
+                    <div class="semester-details-status semester-details-status-active">
+
+                        <i class="bi bi-check-circle-fill"></i>
+
+                        <span>
+                            الفصل فعّال، وخيار التسجيل مفعّل،
+                            والوقت الحالي ضمن فترة التسجيل المحددة.
+                            تبقى صلاحيات الطالب وبقية شروط التسجيل
+                            خاضعة للتحقق داخل النظام.
+                        </span>
+
                     </div>
                 }
                 else
                 {
-                    <div class="alert alert-secondary mb-0">
-                        هذا الفصل مسجل في النظام بحالة غير فعال.
+                    <div class="semester-details-status semester-details-status-warning">
+
+                        <i class="bi bi-info-circle"></i>
+
+                        <span>
+                            التسجيل غير متاح حاليًا وفق حالة الفصل
+                            وإعداد فتح التسجيل والتواريخ المحددة.
+                            يمكن مراجعة هذه الإعدادات من صفحة
+                            تعديل الفصل الدراسي.
+                        </span>
+
                     </div>
                 }
 
             </div>
 
-            <!-- الأزرار -->
-            <div class="d-flex flex-wrap gap-3 mt-4">
+        </div>
 
-                @if (isAdmin)
-                {
-                    <a asp-controller="Semesters"
-                       asp-action="Edit"
-                       asp-route-id="@Model.Id"
-                       class="btn px-4 py-2"
-                       style="background:#c9a24d; color:#142d4e; font-weight:800;">
-                        تعديل الفصل الدراسي
-                    </a>
+        <!-- أزرار الإجراءات -->
 
-                    <a asp-controller="Semesters"
-                       asp-action="Delete"
-                       asp-route-id="@Model.Id"
-                       class="btn btn-outline-danger px-4 py-2">
-                        حذف الفصل الدراسي
-                    </a>
-                }
+        <div class="semester-details-actions">
 
+            @if (isAdmin)
+            {
                 <a asp-controller="Semesters"
-                   asp-action="Index"
-                   class="btn btn-outline-secondary px-4 py-2">
-                    رجوع
+                   asp-action="Edit"
+                   asp-route-id="@Model.Id"
+                   class="semester-details-btn semester-details-btn-edit">
+
+                    <i class="bi bi-pencil-square"></i>
+                    تعديل الفصل الدراسي
+
                 </a>
 
-            </div>
+                <a asp-controller="Semesters"
+                   asp-action="Delete"
+                   asp-route-id="@Model.Id"
+                   class="semester-details-btn semester-details-btn-delete">
+
+                    <i class="bi bi-trash3"></i>
+                    حذف الفصل الدراسي
+
+                </a>
+            }
+
+            <a asp-controller="Semesters"
+               asp-action="Index"
+               class="semester-details-btn semester-details-btn-back">
+
+                <i class="bi bi-arrow-right"></i>
+                العودة إلى الفصول الدراسية
+
+            </a>
 
         </div>
 

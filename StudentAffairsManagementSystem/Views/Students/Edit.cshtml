@@ -1,5 +1,4 @@
-﻿
-@model StudentAffairsManagementSystem.ViewModels.EditStudentViewModel
+﻿@model StudentAffairsManagementSystem.ViewModels.EditStudentViewModel
 
 @using StudentAffairsManagementSystem.Models
 
@@ -16,78 +15,116 @@
 <style>
     .edit-student-page {
         direction: rtl;
-        max-width: 1150px;
-        margin: 25px auto;
-        color: #14263f;
+        max-width: 1100px;
+        margin: 20px auto;
+        color: #142d4e;
     }
+
+    /* رأس الصفحة */
 
     .edit-student-header {
-        background: #14263f;
-        color: white;
+        background: linear-gradient(135deg, #142d4e, #304661);
+        color: #ffffff;
         padding: 28px 32px;
         border-radius: 16px 16px 0 0;
-        border-bottom: 4px solid #c9a66b;
+        border-bottom: 4px solid #c9a24d;
     }
 
-    .edit-student-header h2 {
-        font-size: 25px;
-        font-weight: 700;
-        margin-bottom: 10px;
-    }
+        .edit-student-header h2 {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 25px;
+            font-weight: 800;
+            margin: 0 0 10px;
+        }
 
-    .edit-student-header p {
-        color: #d6dce6;
-        margin: 0;
-    }
+            .edit-student-header h2 i {
+                color: #c9a24d;
+                font-size: 27px;
+            }
+
+        .edit-student-header p {
+            color: #d6dfeb;
+            font-size: 14px;
+            line-height: 1.9;
+            margin: 0;
+        }
+
+    /* بطاقة المحتوى */
 
     .edit-student-body {
-        background: white;
-        padding: 32px;
-        border: 1px solid #e5eaf0;
+        background: #ffffff;
+        padding: 30px;
+        border: 1px solid #e5eaf2;
         border-radius: 0 0 16px 16px;
-        box-shadow: 0 5px 25px rgba(0,0,0,0.05);
+        box-shadow: 0 5px 25px rgba(20,45,78,.05);
     }
 
+    /* الرقم الجامعي */
+
     .student-number-box {
-        background: #f5f0e6;
-        border: 1px solid #e3d1aa;
-        border-radius: 12px;
-        padding: 20px;
+        background: #f8f5ec;
+        border: 1px solid #eadbb7;
+        border-right: 4px solid #c9a24d;
+        border-radius: 11px;
+        padding: 20px 22px;
         margin-bottom: 28px;
     }
 
-    .student-number-box label {
-        display: block;
-        color: #80642e;
-        font-weight: 700;
-        margin-bottom: 8px;
-    }
+        .student-number-box label {
+            display: block;
+            color: #80642e;
+            font-size: 14px;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
 
-    .student-number-box strong {
-        font-size: 24px;
-        color: #14263f;
-        letter-spacing: 1px;
-    }
+        .student-number-box strong {
+            display: block;
+            font-size: 24px;
+            font-weight: 800;
+            color: #142d4e;
+            letter-spacing: 1px;
+            overflow-wrap: anywhere;
+        }
 
-    .student-number-box small {
-        display: block;
-        color: #80642e;
-        margin-top: 8px;
-    }
+        .student-number-box small {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #80642e;
+            font-size: 12px;
+            line-height: 1.8;
+            margin-top: 10px;
+        }
+
+    /* أقسام النموذج */
 
     .edit-section {
-        margin-bottom: 32px;
-        padding-bottom: 25px;
+        margin-bottom: 30px;
+        padding-bottom: 26px;
         border-bottom: 1px solid #e9edf3;
     }
 
-    .edit-section h3 {
-        font-size: 19px;
-        font-weight: 700;
-        border-right: 4px solid #c9a66b;
-        padding-right: 12px;
-        margin-bottom: 22px;
-    }
+        .edit-section h3 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 18px;
+            font-weight: 800;
+            color: #142d4e;
+            border-right: 4px solid #c9a24d;
+            padding-right: 13px;
+            margin-bottom: 23px;
+        }
+
+            .edit-section h3 i {
+                color: #b9913d;
+                font-size: 20px;
+            }
+
+    /* شبكة الحقول */
 
     .edit-grid {
         display: grid;
@@ -99,84 +136,158 @@
         min-width: 0;
     }
 
-    .edit-field label {
-        display: block;
-        font-weight: 700;
-        font-size: 14px;
-        margin-bottom: 8px;
-    }
+        .edit-field label {
+            display: block;
+            color: #142d4e;
+            font-weight: 700;
+            font-size: 14px;
+            margin-bottom: 9px;
+        }
 
-    .edit-field .form-control,
-    .edit-field .form-select {
-        border: 1px solid #dce3ed;
-        border-radius: 9px;
-        padding: 11px 13px;
-        width: 100%;
-        background-color: white;
-        color: #14263f;
-    }
+        .edit-field .form-control,
+        .edit-field .form-select {
+            width: 100%;
+            min-height: 46px;
+            padding: 11px 14px;
+            border: 1px solid #dce3ed;
+            border-radius: 11px;
+            background-color: #ffffff;
+            color: #142d4e;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color .2s ease, box-shadow .2s ease;
+        }
 
-    .edit-field .form-control:focus,
-    .edit-field .form-select:focus {
-        border-color: #c9a66b;
-        box-shadow: 0 0 0 3px rgba(201,166,107,0.15);
-        outline: none;
-    }
+            .edit-field .form-control:focus,
+            .edit-field .form-select:focus {
+                border-color: #c9a24d;
+                box-shadow: 0 0 0 3px rgba(201,162,77,.14);
+                outline: none;
+            }
 
-    .edit-field textarea {
-        min-height: 100px;
-        resize: vertical;
-    }
+        .edit-field textarea.form-control {
+            min-height: 105px;
+            resize: vertical;
+        }
 
     .edit-field-full {
         grid-column: 1 / -1;
     }
 
     .edit-required {
-        color: #c0392b;
+        color: #b42318;
     }
 
+    /* رسائل التحقق */
+
     .edit-validation {
-        color: #c0392b;
-        font-size: 13px;
         display: block;
-        margin-top: 5px;
+        color: #b42318;
+        font-size: 13px;
+        line-height: 1.7;
+        margin-top: 6px;
     }
+
+    .edit-validation-summary {
+        background: #fff0ee;
+        border: 1px solid #f1d8d5;
+        border-radius: 11px;
+        padding: 15px 18px;
+        margin-bottom: 22px;
+        color: #b42318;
+        font-size: 14px;
+    }
+
+        .edit-validation-summary.validation-summary-valid {
+            display: none;
+        }
+
+        .edit-validation-summary ul {
+            margin: 0;
+            padding-right: 20px;
+        }
+
+    .edit-field .input-validation-error {
+        border-color: #dc756e;
+    }
+
+    /* ملاحظات النموذج */
+
+    .edit-form-note {
+        display: flex;
+        align-items: flex-start;
+        gap: 11px;
+        background: #f7f9fc;
+        border-right: 4px solid #c9a24d;
+        padding: 15px 18px;
+        border-radius: 11px;
+        color: #526174;
+        font-size: 14px;
+        line-height: 1.9;
+        margin-top: 20px;
+    }
+
+        .edit-form-note i {
+            color: #b9913d;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+    /* أزرار الصفحة */
 
     .edit-actions {
         display: flex;
         flex-wrap: wrap;
         gap: 12px;
-        margin-top: 25px;
+        margin-top: 28px;
+    }
+
+    .edit-save-btn,
+    .edit-cancel-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+        min-height: 45px;
+        border-radius: 11px;
+        padding: 11px 22px;
+        font-size: 14px;
+        font-weight: 800;
+        font-family: inherit;
+        text-decoration: none;
+        transition: background-color .2s ease;
     }
 
     .edit-save-btn {
-        border: none;
-        background: #c9a66b;
-        color: #14263f;
-        padding: 13px 28px;
-        border-radius: 10px;
-        font-weight: 700;
+        border: 1px solid transparent;
+        background: #c9a24d;
+        color: #142d4e;
         cursor: pointer;
     }
 
-    .edit-save-btn:hover {
-        background: #b99454;
-    }
+        .edit-save-btn:hover {
+            background: #b9913d;
+            color: #142d4e;
+        }
 
     .edit-cancel-btn {
-        background: #eef1f6;
-        color: #14263f;
-        padding: 13px 25px;
-        border-radius: 10px;
-        font-weight: 700;
-        text-decoration: none;
+        background: #edf1f7;
+        color: #142d4e;
+        border: 1px solid #dfe6ef;
     }
 
-    .edit-cancel-btn:hover {
-        background: #e0e5ed;
-        color: #14263f;
-    }
+        .edit-cancel-btn:hover {
+            background: #e1e8f2;
+            color: #142d4e;
+        }
+
+        .edit-save-btn:focus-visible,
+        .edit-cancel-btn:focus-visible {
+            outline: 3px solid #142d4e;
+            outline-offset: 3px;
+        }
+
+    /* الشاشات الصغيرة */
 
     @@media (max-width: 700px) {
         .edit-grid {
@@ -190,31 +301,62 @@
         .edit-student-header {
             padding: 22px;
         }
+
+            .edit-student-header h2 {
+                font-size: 21px;
+            }
+
+        .edit-actions {
+            flex-direction: column;
+        }
+
+        .edit-save-btn,
+        .edit-cancel-btn {
+            width: 100%;
+        }
+
+        .student-number-box strong {
+            font-size: 20px;
+        }
     }
 </style>
 
 <div class="edit-student-page">
 
+    <!-- عنوان الصفحة -->
+
     <div class="edit-student-header">
+
         <h2>
             <i class="bi bi-pencil-square"></i>
             تعديل بيانات الطالب
         </h2>
+
         <p>
-            تعديل المعلومات الشخصية والأكاديمية ومعلومات التواصل
+            تعديل المعلومات الشخصية والأكاديمية
+            ومعلومات التواصل الخاصة بالطالب
         </p>
+
     </div>
 
     <div class="edit-student-body">
 
+        <!-- الرقم الجامعي -->
+
         <div class="student-number-box">
+
             <label>الرقم الجامعي</label>
+
             <strong>@Model.UniversityNumber</strong>
+
             <small>
                 <i class="bi bi-lock"></i>
                 الرقم الجامعي ثابت ولا يمكن تغييره من هذه الصفحة.
             </small>
+
         </div>
+
+        <!-- نموذج التعديل -->
 
         <form asp-controller="Students"
               asp-action="Edit"
@@ -226,120 +368,160 @@
             <input asp-for="Id" type="hidden" />
 
             <div asp-validation-summary="ModelOnly"
-                 class="edit-validation"></div>
+                 class="edit-validation-summary"></div>
 
             <!-- المعلومات الشخصية -->
+
             <div class="edit-section">
 
                 <h3>
-                    <i class="bi bi-person"></i>
+                    <i class="bi bi-person-vcard"></i>
                     المعلومات الشخصية
                 </h3>
 
                 <div class="edit-grid">
 
                     <div class="edit-field">
+
                         <label asp-for="FirstName">
                             الاسم الأول
                             <span class="edit-required">*</span>
                         </label>
+
                         <input asp-for="FirstName"
                                class="form-control" />
+
                         <span asp-validation-for="FirstName"
                               class="edit-validation"></span>
+
                     </div>
 
                     <div class="edit-field">
+
                         <label asp-for="FatherName">
                             اسم الأب
                             <span class="edit-required">*</span>
                         </label>
+
                         <input asp-for="FatherName"
                                class="form-control" />
+
                         <span asp-validation-for="FatherName"
                               class="edit-validation"></span>
+
                     </div>
 
                     <div class="edit-field">
+
                         <label asp-for="MotherName">
                             اسم الأم
                             <span class="edit-required">*</span>
                         </label>
+
                         <input asp-for="MotherName"
                                class="form-control" />
+
                         <span asp-validation-for="MotherName"
                               class="edit-validation"></span>
+
                     </div>
 
                     <div class="edit-field">
+
                         <label asp-for="LastName">
                             الكنية
                             <span class="edit-required">*</span>
                         </label>
+
                         <input asp-for="LastName"
                                class="form-control" />
+
                         <span asp-validation-for="LastName"
                               class="edit-validation"></span>
+
                     </div>
 
                     <div class="edit-field">
+
                         <label asp-for="BirthDate">
                             تاريخ الميلاد
                         </label>
+
                         <input asp-for="BirthDate"
                                type="date"
-                               class="form-control"
-                               asp-format="{0:yyyy-MM-dd}" />
+                               asp-format="{0:yyyy-MM-dd}"
+                               class="form-control" />
+
                         <span asp-validation-for="BirthDate"
                               class="edit-validation"></span>
+
                     </div>
 
                     <div class="edit-field">
-                        <label asp-for="Gender">الجنس</label>
+
+                        <label asp-for="Gender">
+                            الجنس
+                        </label>
+
                         <select asp-for="Gender"
                                 class="form-select">
+
                             <option value="">اختر الجنس</option>
                             <option value="ذكر">ذكر</option>
                             <option value="أنثى">أنثى</option>
+
                         </select>
+
                         <span asp-validation-for="Gender"
                               class="edit-validation"></span>
+
                     </div>
 
                     <div class="edit-field">
+
                         <label asp-for="NationalId">
                             الرقم الوطني
                         </label>
+
                         <input asp-for="NationalId"
                                class="form-control" />
+
                         <span asp-validation-for="NationalId"
                               class="edit-validation"></span>
+
                     </div>
 
                     <div class="edit-field">
+
                         <label asp-for="Nationality">
                             الجنسية
                         </label>
+
                         <input asp-for="Nationality"
                                class="form-control" />
+
                         <span asp-validation-for="Nationality"
                               class="edit-validation"></span>
+
                     </div>
 
                 </div>
+
             </div>
 
             <!-- المعلومات الأكاديمية -->
+
             <div class="edit-section">
 
                 <h3>
-                    <i class="bi bi-mortarboard"></i>
+                    <i class="bi bi-mortarboard-fill"></i>
                     المعلومات الأكاديمية
                 </h3>
 
                 <div class="edit-grid">
 
                     <div class="edit-field">
+
                         <label asp-for="DepartmentId">
                             القسم الأكاديمي
                             <span class="edit-required">*</span>
@@ -347,9 +529,8 @@
 
                         <select asp-for="DepartmentId"
                                 class="form-select">
-                            <option value="0">
-                                اختر القسم
-                            </option>
+
+                            <option value="0">اختر القسم</option>
 
                             @foreach (var department in departments)
                             {
@@ -357,13 +538,16 @@
                                     @department.Name
                                 </option>
                             }
+
                         </select>
 
                         <span asp-validation-for="DepartmentId"
                               class="edit-validation"></span>
+
                     </div>
 
                     <div class="edit-field">
+
                         <label asp-for="AdmissionSemesterId">
                             فصل القبول
                             <span class="edit-required">*</span>
@@ -371,9 +555,8 @@
 
                         <select asp-for="AdmissionSemesterId"
                                 class="form-select">
-                            <option value="0">
-                                اختر فصل القبول
-                            </option>
+
+                            <option value="0">اختر فصل القبول</option>
 
                             @foreach (var semester in semesters)
                             {
@@ -381,22 +564,24 @@
                                     @semester.Name
                                 </option>
                             }
+
                         </select>
 
                         <span asp-validation-for="AdmissionSemesterId"
                               class="edit-validation"></span>
+
                     </div>
 
                     <div class="edit-field">
+
                         <label asp-for="GraduationSemesterId">
                             فصل التخرج
                         </label>
 
                         <select asp-for="GraduationSemesterId"
                                 class="form-select">
-                            <option value="">
-                                لم يتخرج بعد
-                            </option>
+
+                            <option value="">لم يتخرج بعد</option>
 
                             @foreach (var semester in semesters)
                             {
@@ -404,32 +589,39 @@
                                     @semester.Name
                                 </option>
                             }
+
                         </select>
 
                         <span asp-validation-for="GraduationSemesterId"
                               class="edit-validation"></span>
+
                     </div>
 
                     <div class="edit-field">
+
                         <label asp-for="Status">
                             الحالة الدراسية
                         </label>
 
                         <select asp-for="Status"
                                 class="form-select">
+
                             <option value="">اختر الحالة</option>
                             <option value="مستجد">مستجد</option>
                             <option value="مستمر">مستمر</option>
                             <option value="متخرج">متخرج</option>
                             <option value="منقطع">منقطع</option>
                             <option value="موقوف">موقوف</option>
+
                         </select>
 
                         <span asp-validation-for="Status"
                               class="edit-validation"></span>
+
                     </div>
 
                     <div class="edit-field">
+
                         <label asp-for="GraduationAverage">
                             معدل التخرج
                         </label>
@@ -441,56 +633,74 @@
 
                         <span asp-validation-for="GraduationAverage"
                               class="edit-validation"></span>
+
                     </div>
 
                 </div>
+
             </div>
 
             <!-- معلومات التواصل -->
+
             <div class="edit-section">
 
                 <h3>
-                    <i class="bi bi-telephone"></i>
+                    <i class="bi bi-telephone-fill"></i>
                     معلومات التواصل
                 </h3>
 
                 <div class="edit-grid">
 
                     <div class="edit-field">
+
                         <label asp-for="Phone">
                             رقم الهاتف
                         </label>
+
                         <input asp-for="Phone"
                                type="tel"
                                class="form-control" />
+
                         <span asp-validation-for="Phone"
                               class="edit-validation"></span>
+
                     </div>
 
                     <div class="edit-field">
+
                         <label asp-for="Governorate">
                             المحافظة
                         </label>
+
                         <input asp-for="Governorate"
                                class="form-control" />
+
                         <span asp-validation-for="Governorate"
                               class="edit-validation"></span>
+
                     </div>
 
                     <div class="edit-field edit-field-full">
+
                         <label asp-for="Address">
                             العنوان
                         </label>
+
                         <textarea asp-for="Address"
+                                  rows="3"
                                   class="form-control"></textarea>
+
                         <span asp-validation-for="Address"
                               class="edit-validation"></span>
+
                     </div>
 
                 </div>
+
             </div>
 
             <!-- الصور والوثائق -->
+
             <div class="edit-section">
 
                 <h3>
@@ -501,59 +711,83 @@
                 <div class="edit-grid">
 
                     <div class="edit-field">
+
                         <label asp-for="PersonalImage">
                             مسار الصورة الشخصية
                         </label>
+
                         <input asp-for="PersonalImage"
                                class="form-control" />
+
                         <span asp-validation-for="PersonalImage"
                               class="edit-validation"></span>
+
                     </div>
 
                     <div class="edit-field">
+
                         <label asp-for="NationalIdImage">
                             مسار صورة الهوية
                         </label>
+
                         <input asp-for="NationalIdImage"
                                class="form-control" />
+
                         <span asp-validation-for="NationalIdImage"
                               class="edit-validation"></span>
+
                     </div>
 
                     <div class="edit-field">
+
                         <label asp-for="CertificateImage">
                             مسار صورة الشهادة
                         </label>
+
                         <input asp-for="CertificateImage"
                                class="form-control" />
+
                         <span asp-validation-for="CertificateImage"
                               class="edit-validation"></span>
+
                     </div>
 
                 </div>
 
-                <p class="text-muted mt-3">
+                <div class="edit-form-note">
+
                     <i class="bi bi-info-circle"></i>
-                    هذه الحقول مخصصة لمسارات الملفات.
-                    رفع الصور من الجهاز رح نضيفه لاحقًا.
-                </p>
+
+                    <span>
+                        هذه الحقول مخصصة لمسارات الصور والوثائق
+                        المحفوظة في النظام.
+                        رفع الملفات الفعلي سنضيفه لاحقاً.
+                    </span>
+
+                </div>
+
             </div>
 
-            <!-- أزرار الصفحة -->
+            <!-- أزرار الحفظ والإلغاء -->
+
             <div class="edit-actions">
 
                 <button type="submit"
                         class="edit-save-btn">
+
                     <i class="bi bi-check-circle"></i>
                     حفظ التعديلات
+
                 </button>
 
                 <a asp-controller="Students"
                    asp-action="Details"
                    asp-route-id="@Model.Id"
                    class="edit-cancel-btn">
+
                     <i class="bi bi-x-circle"></i>
                     إلغاء
+
                 </a>
 
             </div>
@@ -561,6 +795,7 @@
         </form>
 
     </div>
+
 </div>
 
 @section Scripts {

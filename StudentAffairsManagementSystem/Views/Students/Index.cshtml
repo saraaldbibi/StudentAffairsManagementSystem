@@ -6,7 +6,8 @@
     var students = Model?.ToList()
         ?? new List<StudentAffairsManagementSystem.Models.Student>();
 
-    bool canDeleteStudents = ViewBag.CanDeleteStudents is bool allowed && allowed;
+    bool canDeleteStudents =
+        ViewBag.CanDeleteStudents is bool allowed && allowed;
 
     var totalStudents = students.Count;
 
@@ -30,8 +31,10 @@
 <style>
     .students-page {
         direction: rtl;
-        color: #14263f;
+        color: #142d4e;
     }
+
+    /* رأس الصفحة */
 
     .students-header {
         display: flex;
@@ -44,7 +47,7 @@
 
         .students-header h2 {
             font-size: 26px;
-            font-weight: 700;
+            font-weight: 800;
             margin-bottom: 8px;
         }
 
@@ -53,22 +56,28 @@
             margin: 0;
         }
 
+    /* زر إضافة طالب */
+
     .students-add-btn {
         display: inline-flex;
         align-items: center;
-        gap: 8px;
-        background: #c9a66b;
-        color: #14263f;
+        justify-content: center;
+        gap: 9px;
+        background: #c9a24d;
+        color: #142d4e;
         padding: 12px 20px;
-        border-radius: 10px;
+        border-radius: 11px;
         text-decoration: none;
-        font-weight: 700;
+        font-weight: 800;
+        transition: background-color 0.2s ease;
     }
 
         .students-add-btn:hover {
-            background: #b99555;
-            color: #14263f;
+            background: #b9913d;
+            color: #142d4e;
         }
+
+    /* بطاقات الإحصائيات */
 
     .students-stats {
         display: grid;
@@ -82,7 +91,7 @@
         border: 1px solid #e5eaf0;
         border-radius: 14px;
         padding: 22px;
-        border-right: 4px solid #c9a66b;
+        border-right: 4px solid #c9a24d;
     }
 
     .students-stat-label {
@@ -94,8 +103,10 @@
     .students-stat-value {
         font-size: 30px;
         font-weight: 800;
-        color: #14263f;
+        color: #142d4e;
     }
+
+    /* بطاقة جدول الطلاب */
 
     .students-table-card {
         background: white;
@@ -111,9 +122,11 @@
 
         .students-table-title h4 {
             margin: 0;
-            font-weight: 700;
+            font-weight: 800;
             font-size: 19px;
         }
+
+    /* البحث والتصفية */
 
     .students-filters {
         display: grid;
@@ -129,13 +142,16 @@
         border-radius: 10px;
         padding: 12px 15px;
         background: white;
-        color: #14263f;
+        color: #142d4e;
     }
 
         .students-filter-input:focus {
             outline: none;
-            border-color: #c9a66b;
+            border-color: #c9a24d;
+            box-shadow: 0 0 0 3px rgba(201, 162, 77, 0.12);
         }
+
+    /* الجدول */
 
     .students-table-wrapper {
         overflow-x: auto;
@@ -148,7 +164,7 @@
     }
 
         .students-table thead {
-            background: #14263f;
+            background: #142d4e;
             color: white;
         }
 
@@ -169,78 +185,92 @@
             background: #fafbfd;
         }
 
+    /* الرقم الجامعي */
+
     .students-number {
         font-weight: 700;
-        color: #14263f;
+        color: #142d4e;
         direction: ltr;
         display: inline-block;
     }
 
+    /* أزرار الإجراءات الموحدة */
+
     .students-actions {
         display: flex;
         align-items: center;
+        justify-content: center;
         flex-wrap: wrap;
-        gap: 8px;
+        gap: 10px;
     }
 
-    /* زر عرض التفاصيل */
-    .students-details-btn {
+    .students-action-btn {
         display: inline-flex;
         align-items: center;
-        gap: 6px;
-        padding: 8px 13px;
-        border-radius: 8px;
-        background: #edf1f7;
-        color: #14263f;
+        justify-content: center;
+        gap: 8px;
+        min-height: 43px;
+        padding: 9px 15px;
+        border-radius: 11px;
+        border: 1px solid transparent;
         text-decoration: none;
-        font-weight: 600;
+        font-size: 14px;
+        font-weight: 700;
         white-space: nowrap;
+        transition: background-color 0.2s ease, transform 0.2s ease;
+    }
+
+        .students-action-btn i {
+            font-size: 16px;
+        }
+
+    /* عرض التفاصيل */
+
+    .students-details-btn {
+        background: #eef2f8;
+        color: #142d4e;
     }
 
         .students-details-btn:hover {
-            background: #dce5f0;
-            color: #14263f;
+            background: #dfe7f2;
+            color: #142d4e;
+            transform: translateY(-1px);
         }
 
-    /* زر تعديل الطالب */
+    /* تعديل */
+
     .students-edit-btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        padding: 8px 13px;
-        border-radius: 8px;
-        background: #c9a66b;
-        color: #14263f;
-        border: 1px solid #b99555;
-        text-decoration: none;
-        font-weight: 700;
-        white-space: nowrap;
+        background: #c9a24d;
+        color: #142d4e;
     }
 
         .students-edit-btn:hover {
-            background: #b99555;
-            color: #14263f;
+            background: #b9913d;
+            color: #142d4e;
+            transform: translateY(-1px);
         }
 
-    /* زر الحذف */
+    /* حذف */
+
     .students-delete-btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        padding: 8px 13px;
-        border-radius: 8px;
-        background: #fff0f0;
-        color: #a52d2d;
-        border: 1px solid #efc4c4;
-        text-decoration: none;
-        font-weight: 600;
-        white-space: nowrap;
+        background: #fff0ee;
+        color: #c62828;
+        border-color: #ffc5bf;
     }
 
         .students-delete-btn:hover {
-            background: #ffe1e1;
-            color: #922424;
+            background: #ffe0dc;
+            color: #a91e1e;
+            border-color: #f2a8a0;
+            transform: translateY(-1px);
         }
+
+    .students-action-btn:focus-visible {
+        outline: 3px solid #142d4e;
+        outline-offset: 3px;
+    }
+
+    /* لا توجد نتائج */
 
     .students-empty {
         text-align: center;
@@ -250,10 +280,12 @@
 
         .students-empty i {
             font-size: 42px;
-            color: #c9a66b;
+            color: #c9a24d;
             display: block;
             margin-bottom: 15px;
         }
+
+    /* عدد الطلاب الظاهرين */
 
     .students-count-footer {
         padding: 15px 22px;
@@ -261,6 +293,8 @@
         font-size: 13px;
         border-top: 1px solid #edf0f5;
     }
+
+    /* الشاشات الصغيرة */
 
     @@media (max-width: 700px) {
         .students-stats,
@@ -277,6 +311,7 @@
 <div class="students-page">
 
     <!-- رأس الصفحة -->
+
     <div class="students-header">
 
         <div>
@@ -302,6 +337,7 @@
     </div>
 
     <!-- الإحصائيات -->
+
     <div class="students-stats">
 
         <div class="students-stat-card">
@@ -319,7 +355,7 @@
         <div class="students-stat-card">
 
             <div class="students-stat-label">
-                الأقسام التي تضم طلاباً
+                الأقسام التي تضم طلابًا
             </div>
 
             <div class="students-stat-value">
@@ -331,6 +367,7 @@
     </div>
 
     <!-- جدول الطلاب -->
+
     <div class="students-table-card">
 
         <div class="students-table-title">
@@ -343,15 +380,18 @@
         </div>
 
         <!-- البحث والتصفية -->
+
         <div class="students-filters">
 
             <input type="text"
                    id="studentSearch"
                    class="students-filter-input"
-                   placeholder="ابحث باسم الطالب أو الرقم الجامعي..." />
+                   placeholder="ابحث باسم الطالب أو الرقم الجامعي..."
+                   aria-label="البحث عن طالب" />
 
             <select id="departmentFilter"
-                    class="students-filter-input">
+                    class="students-filter-input"
+                    aria-label="تصفية الطلاب حسب القسم">
 
                 <option value="">جميع الأقسام</option>
 
@@ -396,50 +436,64 @@
                         <tr class="student-row"
                             data-department="@student.DepartmentId">
 
+                            <!-- الرقم الجامعي -->
+
                             <td>
                                 <span class="students-number">
                                     @student.UniversityNumber
                                 </span>
                             </td>
 
+                            <!-- اسم الطالب -->
+
                             <td>
                                 <strong>@fullName</strong>
                             </td>
+
+                            <!-- القسم الأكاديمي -->
 
                             <td>
                                 @(student.Department?.Name ?? "غير محدد")
                             </td>
 
+                            <!-- فصل القبول -->
+
                             <td>
                                 @(student.AdmissionSemester?.Name ?? "غير محدد")
                             </td>
 
+                            <!-- رقم الهاتف -->
+
                             <td>
                                 @(student.Phone ?? "غير محدد")
                             </td>
+
+                            <!-- الإجراءات -->
 
                             <td>
 
                                 <div class="students-actions">
 
                                     <!-- عرض التفاصيل -->
+
                                     <a asp-controller="Students"
                                        asp-action="Details"
                                        asp-route-id="@student.Id"
-                                       class="students-details-btn">
+                                       class="students-action-btn students-details-btn"
+                                       aria-label="عرض تفاصيل الطالب @fullName">
 
                                         <i class="bi bi-eye"></i>
                                         عرض التفاصيل
 
                                     </a>
 
-                                    <!-- تعديل الطالب: المدير فقط -->
+                                    <!-- تعديل: المدير فقط -->
                                     @if (User.IsInRole("Admin"))
                                     {
                                         <a asp-controller="Students"
                                            asp-action="Edit"
                                            asp-route-id="@student.Id"
-                                           class="students-edit-btn"
+                                           class="students-action-btn students-edit-btn"
                                            aria-label="تعديل الطالب @fullName">
 
                                             <i class="bi bi-pencil-square"></i>
@@ -448,13 +502,13 @@
                                         </a>
                                     }
 
-                                    <!-- حذف الطالب -->
+                                    <!-- حذف: حسب الصلاحية -->
                                     @if (canDeleteStudents)
                                     {
                                         <a asp-controller="Students"
                                            asp-action="Delete"
                                            asp-route-id="@student.Id"
-                                           class="students-delete-btn"
+                                           class="students-action-btn students-delete-btn"
                                            aria-label="حذف الطالب @fullName">
 
                                             <i class="bi bi-trash3"></i>
@@ -476,7 +530,8 @@
 
         </div>
 
-        <!-- عدم وجود نتائج -->
+        <!-- عدم وجود نتائج بحث -->
+
         <div id="noSearchResults"
              class="students-empty"
              style="display:none;">
@@ -493,7 +548,7 @@
 
                 <i class="bi bi-person-lines-fill"></i>
 
-                لا يوجد طلاب مسجلون حالياً.
+                لا يوجد طلاب مسجلون حاليًا.
 
                 <div>
                     يمكنكم إضافة أول طالب من الزر الموجود بالأعلى.
@@ -502,7 +557,8 @@
             </div>
         }
 
-        <!-- عدد الطلاب -->
+        <!-- عدد الطلاب الظاهرين -->
+
         <div class="students-count-footer">
 
             عدد الطلاب الظاهرين:
@@ -516,6 +572,8 @@
     </div>
 
 </div>
+
+<!-- البحث والفلترة -->
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
@@ -534,6 +592,10 @@
 
         const noResults =
             document.getElementById("noSearchResults");
+
+        if (!searchInput || !departmentFilter) {
+            return;
+        }
 
         function filterStudents() {
 
@@ -568,15 +630,18 @@
                 if (show) {
                     count++;
                 }
-
             });
 
-            visibleCount.textContent = count;
+            if (visibleCount) {
+                visibleCount.textContent = count;
+            }
 
-            noResults.style.display =
-                rows.length > 0 && count === 0
-                    ? "block"
-                    : "none";
+            if (noResults) {
+                noResults.style.display =
+                    rows.length > 0 && count === 0
+                        ? "block"
+                        : "none";
+            }
         }
 
         searchInput.addEventListener(

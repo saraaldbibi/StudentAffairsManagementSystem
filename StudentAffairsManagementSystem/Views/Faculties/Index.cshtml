@@ -1,5 +1,4 @@
-﻿
-@model IEnumerable<StudentAffairsManagementSystem.Models.Faculty>
+﻿@model IEnumerable<StudentAffairsManagementSystem.Models.Faculty>
 
 @{
     ViewData["Title"] = "إدارة الكليات";
@@ -7,15 +6,17 @@
     var faculties = Model?.ToList()
         ?? new List<StudentAffairsManagementSystem.Models.Faculty>();
 
-    var isAdmin = User.IsInRole("Admin");
+    bool isAdmin = User.IsInRole("Admin");
 }
 
 <style>
     .faculties-page {
         max-width: 900px;
         margin: 0 auto;
-        color: #16263f;
+        color: #142d4e;
     }
+
+    /* عنوان الصفحة */
 
     .faculties-header {
         display: flex;
@@ -26,37 +27,51 @@
         margin-bottom: 25px;
     }
 
-    .faculties-header h2 {
-        font-size: 25px;
-        font-weight: bold;
-        margin-bottom: 8px;
-    }
+        .faculties-header h2 {
+            font-size: 25px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
 
-    .faculties-header p {
-        color: #718096;
-        margin: 0;
-    }
+        .faculties-header p {
+            color: #718096;
+            margin: 0;
+        }
+
+    /* زر إضافة كلية */
 
     .faculties-add {
-        background: #c8a66a;
-        color: #16263f;
-        border-radius: 10px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+        background: #c9a24d;
+        color: #142d4e;
+        border-radius: 11px;
         padding: 12px 20px;
         text-decoration: none;
-        font-weight: bold;
+        font-weight: 800;
+        transition: background-color 0.2s ease;
     }
+
+        .faculties-add:hover {
+            background: #b9913d;
+            color: #142d4e;
+        }
+
+    /* بطاقة اختيار الكلية */
 
     .faculties-card {
         background: white;
         border: 1px solid #e5eaf2;
-        border-top: 4px solid #c8a66a;
+        border-top: 4px solid #c9a24d;
         border-radius: 15px;
         padding: 28px;
     }
 
     .faculties-label {
         display: block;
-        font-weight: bold;
+        font-weight: 800;
         margin-bottom: 12px;
     }
 
@@ -66,14 +81,17 @@
         border-radius: 10px;
         padding: 14px;
         background: white;
-        color: #16263f;
+        color: #142d4e;
         font-size: 16px;
     }
 
-    .faculties-select:focus {
-        outline: none;
-        border-color: #c8a66a;
-    }
+        .faculties-select:focus {
+            outline: none;
+            border-color: #c9a24d;
+            box-shadow: 0 0 0 3px rgba(201, 162, 77, 0.12);
+        }
+
+    /* بيانات الكلية المحددة */
 
     .faculty-details {
         display: none;
@@ -85,16 +103,18 @@
 
     .faculty-name {
         font-size: 22px;
-        font-weight: bold;
+        font-weight: 800;
         margin-bottom: 14px;
     }
+
+    /* حالة الكلية */
 
     .faculty-status {
         display: inline-block;
         border-radius: 8px;
         padding: 7px 13px;
         font-size: 13px;
-        font-weight: bold;
+        font-weight: 700;
     }
 
     .faculty-active {
@@ -107,35 +127,113 @@
         color: #b42318;
     }
 
+    /* أزرار الإجراءات الموحدة */
+
     .faculty-actions {
         display: flex;
+        align-items: center;
+        justify-content: flex-start;
         flex-wrap: wrap;
         gap: 10px;
         margin-top: 20px;
     }
 
     .faculty-action {
-        background: #e7edf5;
-        color: #16263f;
-        padding: 10px 15px;
-        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-height: 43px;
+        padding: 9px 15px;
+        border-radius: 11px;
+        border: 1px solid transparent;
         text-decoration: none;
+        font-size: 14px;
+        font-weight: 700;
+        white-space: nowrap;
+        transition: background-color 0.2s ease, transform 0.2s ease;
     }
+
+        .faculty-action i {
+            font-size: 16px;
+        }
+
+    /* زر عرض التفاصيل */
+
+    .faculty-action-details {
+        background: #eef2f8;
+        color: #142d4e;
+    }
+
+        .faculty-action-details:hover {
+            background: #dfe7f2;
+            color: #142d4e;
+            transform: translateY(-1px);
+        }
+
+    /* زر تعديل */
+
+    .faculty-edit {
+        background: #c9a24d;
+        color: #142d4e;
+    }
+
+        .faculty-edit:hover {
+            background: #b9913d;
+            color: #142d4e;
+            transform: translateY(-1px);
+        }
+
+    /* زر حذف */
 
     .faculty-delete {
         background: #fff0ee;
-        color: #b42318;
+        color: #c62828;
+        border-color: #ffc5bf;
     }
+
+        .faculty-delete:hover {
+            background: #ffe0dc;
+            color: #a91e1e;
+            border-color: #f2a8a0;
+            transform: translateY(-1px);
+        }
+
+    .faculty-action:focus-visible {
+        outline: 3px solid #142d4e;
+        outline-offset: 3px;
+    }
+
+    /* الرسائل */
 
     .faculties-message {
         color: #718096;
         margin-top: 15px;
     }
+
+    /* الشاشات الصغيرة */
+
+    @@media (max-width: 600px) {
+        .faculties-card {
+            padding: 18px;
+        }
+
+        .faculty-details {
+            padding: 16px;
+        }
+
+        .faculty-actions {
+            gap: 8px;
+        }
+    }
 </style>
 
-<div class="faculties-page">
+<div class="faculties-page" dir="rtl">
+
+    <!-- عنوان الصفحة -->
 
     <div class="faculties-header">
+
         <div>
             <h2>إدارة الكليات</h2>
             <p>اختر كلية لعرض بياناتها وإدارتها.</p>
@@ -146,11 +244,22 @@
             <a asp-controller="Faculties"
                asp-action="Create"
                class="faculties-add">
+
                 <i class="bi bi-plus-circle"></i>
                 إضافة كلية جديدة
+
             </a>
         }
+
     </div>
+
+    <!-- رسائل النظام -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["Success"]
+        </div>
+    }
 
     @if (TempData["Error"] != null)
     {
@@ -159,16 +268,23 @@
         </div>
     }
 
+    <!-- اختيار الكلية -->
+
     <div class="faculties-card">
 
         <label for="facultySelect"
                class="faculties-label">
+
             الكلية
+
         </label>
 
         <select id="facultySelect"
                 class="faculties-select">
-            <option value="">-- اختر الكلية --</option>
+
+            <option value="">
+                -- اختر الكلية --
+            </option>
 
             @foreach (var faculty in faculties)
             {
@@ -176,15 +292,17 @@
                     @faculty.Name
                 </option>
             }
+
         </select>
 
         @if (!faculties.Any())
         {
             <p class="faculties-message">
-                لا توجد كليات مسجلة حالياً.
+                لا توجد كليات مسجلة حاليًا.
             </p>
         }
 
+        <!-- تفاصيل الكليات -->
         @foreach (var faculty in faculties)
         {
             <div class="faculty-details"
@@ -194,6 +312,7 @@
                     @faculty.Name
                 </div>
 
+                <!-- حالة الكلية -->
                 @if (faculty.IsActive)
                 {
                     <span class="faculty-status faculty-active">
@@ -207,59 +326,99 @@
                     </span>
                 }
 
+                <!-- أزرار الإجراءات -->
+
                 <div class="faculty-actions">
+
+                    <!-- عرض التفاصيل -->
 
                     <a asp-controller="Faculties"
                        asp-action="Details"
                        asp-route-id="@faculty.Id"
-                       class="faculty-action">
+                       class="faculty-action faculty-action-details">
+
+                        <i class="bi bi-eye"></i>
                         عرض التفاصيل
+
                     </a>
 
                     @if (isAdmin)
                     {
+                        <!-- تعديل -->
+
                         <a asp-controller="Faculties"
                            asp-action="Edit"
                            asp-route-id="@faculty.Id"
-                           class="faculty-action">
-                            تعديل الكلية
+                           class="faculty-action faculty-edit">
+
+                            <i class="bi bi-pencil-square"></i>
+                            تعديل
+
                         </a>
+
+                        <!-- حذف -->
 
                         <a asp-controller="Faculties"
                            asp-action="Delete"
                            asp-route-id="@faculty.Id"
                            class="faculty-action faculty-delete">
-                            حذف الكلية
+
+                            <i class="bi bi-trash3"></i>
+                            حذف
+
                         </a>
                     }
+
                 </div>
+
             </div>
         }
 
     </div>
+
 </div>
+
+<!-- إظهار الكلية المحددة -->
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        const select = document.getElementById("facultySelect");
-        const details = document.querySelectorAll(".faculty-details");
 
-        if (!select) return;
+        const select =
+            document.getElementById("facultySelect");
 
-        select.addEventListener("change", function () {
+        const details =
+            document.querySelectorAll(".faculty-details");
+
+        if (!select) {
+            return;
+        }
+
+        function showSelectedFaculty() {
+
             details.forEach(function (item) {
                 item.style.display = "none";
             });
 
-            if (!this.value) return;
+            if (!select.value) {
+                return;
+            }
 
-            const selected = document.getElementById(
-                "faculty-" + this.value
-            );
+            const selected =
+                document.getElementById(
+                    "faculty-" + select.value
+                );
 
             if (selected) {
                 selected.style.display = "block";
             }
-        });
+        }
+
+        select.addEventListener(
+            "change",
+            showSelectedFaculty
+        );
+
+        showSelectedFaculty();
+
     });
 </script>

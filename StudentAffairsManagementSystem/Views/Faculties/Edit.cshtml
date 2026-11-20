@@ -1,0 +1,445 @@
+﻿@model StudentAffairsManagementSystem.Models.Faculty
+
+@{
+    ViewData["Title"] = "تعديل الكلية";
+}
+
+<style>
+    .faculty-edit-page {
+        direction: rtl;
+        max-width: 900px;
+        margin: 20px auto;
+        color: #142d4e;
+    }
+
+    /* رأس الصفحة */
+
+    .faculty-edit-header {
+        background: linear-gradient(135deg, #142d4e, #304661);
+        color: #ffffff;
+        padding: 28px 32px;
+        border-radius: 16px 16px 0 0;
+        border-bottom: 4px solid #c9a24d;
+    }
+
+        .faculty-edit-header h2 {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 25px;
+            font-weight: 800;
+            margin: 0 0 10px;
+        }
+
+            .faculty-edit-header h2 i {
+                color: #c9a24d;
+                font-size: 27px;
+            }
+
+        .faculty-edit-header p {
+            color: #d6dfeb;
+            font-size: 14px;
+            line-height: 1.9;
+            margin: 0;
+        }
+
+    /* بطاقة النموذج */
+
+    .faculty-edit-body {
+        background: #ffffff;
+        padding: 30px;
+        border: 1px solid #e5eaf2;
+        border-top: none;
+        border-radius: 0 0 16px 16px;
+        box-shadow: 0 5px 25px rgba(20,45,78,.05);
+    }
+
+    /* عنوان القسم */
+
+    .faculty-edit-section-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #142d4e;
+        font-size: 18px;
+        font-weight: 800;
+        border-right: 4px solid #c9a24d;
+        padding-right: 13px;
+        margin-bottom: 25px;
+    }
+
+        .faculty-edit-section-title i {
+            color: #b9913d;
+            font-size: 20px;
+        }
+
+    /* حقول الإدخال */
+
+    .faculty-edit-field {
+        margin-bottom: 25px;
+    }
+
+    .faculty-edit-label {
+        display: block;
+        color: #142d4e;
+        font-size: 14px;
+        font-weight: 700;
+        margin-bottom: 9px;
+    }
+
+    .faculty-edit-required {
+        color: #b42318;
+    }
+
+    .faculty-edit-input {
+        width: 100%;
+        min-height: 46px;
+        padding: 11px 14px;
+        border: 1px solid #dce3ed;
+        border-radius: 11px;
+        background: #ffffff;
+        color: #142d4e;
+        font-size: 14px;
+        font-family: inherit;
+        transition: border-color .2s ease, box-shadow .2s ease;
+    }
+
+        .faculty-edit-input:focus {
+            outline: none;
+            border-color: #c9a24d;
+            box-shadow: 0 0 0 3px rgba(201,162,77,.14);
+        }
+
+        .faculty-edit-input::placeholder {
+            color: #98a4b5;
+        }
+
+        .faculty-edit-input.input-validation-error {
+            border-color: #dc756e;
+        }
+
+    /* رسائل التحقق */
+
+    .faculty-edit-error {
+        display: block;
+        color: #b42318;
+        font-size: 13px;
+        line-height: 1.7;
+        margin-top: 7px;
+    }
+
+    .faculty-edit-validation-summary {
+        background: #fff0ee;
+        border: 1px solid #f1d8d5;
+        border-radius: 11px;
+        padding: 15px 18px;
+        margin-bottom: 22px;
+        color: #b42318;
+        font-size: 14px;
+    }
+
+        .faculty-edit-validation-summary.validation-summary-valid {
+            display: none;
+        }
+
+        .faculty-edit-validation-summary ul {
+            margin: 0;
+            padding-right: 20px;
+        }
+
+    /* حالة الكلية */
+
+    .faculty-edit-status {
+        background: #f7f9fc;
+        border: 1px solid #e9edf3;
+        border-right: 4px solid #c9a24d;
+        border-radius: 11px;
+        padding: 18px 20px;
+        margin-bottom: 25px;
+    }
+
+    .faculty-edit-status-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .faculty-edit-status input[type="checkbox"] {
+        width: 19px;
+        height: 19px;
+        margin: 0;
+        accent-color: #c9a24d;
+        cursor: pointer;
+        flex-shrink: 0;
+    }
+
+    .faculty-edit-status label {
+        color: #142d4e;
+        font-size: 14px;
+        font-weight: 800;
+        cursor: pointer;
+    }
+
+    .faculty-edit-status-description {
+        color: #718096;
+        font-size: 13px;
+        line-height: 1.9;
+        margin-top: 12px;
+    }
+
+    /* الملاحظة */
+
+    .faculty-edit-note {
+        display: flex;
+        align-items: flex-start;
+        gap: 11px;
+        background: #f8f9fc;
+        border: 1px solid #e9edf3;
+        border-radius: 11px;
+        padding: 15px 18px;
+        color: #526174;
+        font-size: 14px;
+        line-height: 1.9;
+        margin-bottom: 30px;
+    }
+
+        .faculty-edit-note i {
+            color: #b9913d;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+    /* أزرار النموذج */
+
+    .faculty-edit-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        padding-top: 25px;
+        border-top: 1px solid #e9edf3;
+    }
+
+    .faculty-edit-save,
+    .faculty-edit-cancel {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+        min-height: 45px;
+        padding: 11px 22px;
+        border-radius: 11px;
+        font-size: 14px;
+        font-weight: 800;
+        font-family: inherit;
+        text-decoration: none;
+        transition: background-color .2s ease;
+    }
+
+    .faculty-edit-save {
+        background: #c9a24d;
+        color: #142d4e;
+        border: 1px solid transparent;
+        cursor: pointer;
+    }
+
+        .faculty-edit-save:hover {
+            background: #b9913d;
+            color: #142d4e;
+        }
+
+    .faculty-edit-cancel {
+        background: #edf1f7;
+        color: #142d4e;
+        border: 1px solid #dfe6ef;
+    }
+
+        .faculty-edit-cancel:hover {
+            background: #e1e8f2;
+            color: #142d4e;
+        }
+
+        .faculty-edit-save:focus-visible,
+        .faculty-edit-cancel:focus-visible {
+            outline: 3px solid #142d4e;
+            outline-offset: 3px;
+        }
+
+    /* الشاشات الصغيرة */
+
+    @@media (max-width: 650px) {
+        .faculty-edit-page {
+            margin: 15px auto;
+        }
+
+        .faculty-edit-header,
+        .faculty-edit-body {
+            padding: 22px;
+        }
+
+            .faculty-edit-header h2 {
+                font-size: 21px;
+            }
+
+        .faculty-edit-status {
+            padding: 16px;
+        }
+
+        .faculty-edit-actions {
+            flex-direction: column;
+        }
+
+        .faculty-edit-save,
+        .faculty-edit-cancel {
+            width: 100%;
+        }
+    }
+</style>
+
+<div class="faculty-edit-page">
+
+    <!-- عنوان الصفحة -->
+
+    <div class="faculty-edit-header">
+
+        <h2>
+            <i class="bi bi-pencil-square"></i>
+            تعديل بيانات الكلية
+        </h2>
+
+        <p>
+            تعديل اسم الكلية وحالة تفعيلها في
+            نظام إدارة شؤون الطلاب.
+        </p>
+
+    </div>
+
+    <div class="faculty-edit-body">
+
+        <!-- نموذج تعديل الكلية -->
+
+        <form asp-controller="Faculties"
+              asp-action="Edit"
+              asp-route-id="@Model.Id"
+              method="post">
+
+            @Html.AntiForgeryToken()
+
+            <!-- معرّف الكلية -->
+
+            <input type="hidden"
+                   asp-for="Id" />
+
+            <!-- أخطاء التحقق -->
+
+            <div asp-validation-summary="ModelOnly"
+                 class="faculty-edit-validation-summary"></div>
+
+            <!-- بيانات الكلية -->
+
+            <h3 class="faculty-edit-section-title">
+                <i class="bi bi-building"></i>
+                بيانات الكلية
+            </h3>
+
+            <!-- اسم الكلية -->
+
+            <div class="faculty-edit-field">
+
+                <label asp-for="Name"
+                       class="faculty-edit-label">
+
+                    اسم الكلية
+                    <span class="faculty-edit-required">*</span>
+
+                </label>
+
+                <input asp-for="Name"
+                       class="faculty-edit-input"
+                       placeholder="أدخل اسم الكلية"
+                       required />
+
+                <span asp-validation-for="Name"
+                      class="faculty-edit-error"></span>
+
+            </div>
+
+            <!-- حالة الكلية -->
+
+            <div class="faculty-edit-field">
+
+                <label class="faculty-edit-label">
+                    حالة الكلية
+                </label>
+
+                <div class="faculty-edit-status">
+
+                    <div class="faculty-edit-status-row">
+
+                        <input asp-for="IsActive"
+                               type="checkbox"
+                               role="switch" />
+
+                        <label asp-for="IsActive">
+                            الكلية فعّالة
+                        </label>
+
+                    </div>
+
+                    <div class="faculty-edit-status-description">
+                        عند إلغاء التفعيل، ستُحفظ الكلية
+                        في النظام بحالة غير فعّالة دون حذفها.
+                    </div>
+
+                </div>
+
+                <span asp-validation-for="IsActive"
+                      class="faculty-edit-error"></span>
+
+            </div>
+
+            <!-- ملاحظة -->
+
+            <div class="faculty-edit-note">
+
+                <i class="bi bi-info-circle"></i>
+
+                <span>
+                    <strong>ملاحظة:</strong>
+                    سيتم تحديث بيانات الكلية الحالية فقط،
+                    دون إنشاء كلية جديدة.
+                </span>
+
+            </div>
+
+            <!-- أزرار الحفظ والإلغاء -->
+
+            <div class="faculty-edit-actions">
+
+                <button type="submit"
+                        class="faculty-edit-save">
+
+                    <i class="bi bi-check-circle"></i>
+                    حفظ التعديلات
+
+                </button>
+
+                <a asp-controller="Faculties"
+                   asp-action="Index"
+                   class="faculty-edit-cancel">
+
+                    <i class="bi bi-x-circle"></i>
+                    إلغاء والعودة
+
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

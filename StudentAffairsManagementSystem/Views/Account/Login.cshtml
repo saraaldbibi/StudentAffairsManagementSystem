@@ -1,5 +1,4 @@
-﻿
-@model StudentAffairsManagementSystem.Controllers.AccountController.LoginViewModel
+﻿@model StudentAffairsManagementSystem.Controllers.AccountController.LoginViewModel
 
 @{
     Layout = null;
@@ -8,193 +7,460 @@
 
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
+
     <title>تسجيل الدخول - الجامعة الدولية للعلوم والنهضة</title>
 
+    <link rel="stylesheet"
+          href="~/lib/bootstrap/dist/css/bootstrap.rtl.min.css" />
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
     <style>
-        * {
-            box-sizing: border-box;
-        }
+            :root {
+                --navy: #142d4e;
+                --navy-light: #304661;
+                --gold: #c9a24d;
+                --gold-hover: #b9913d;
+                --border: #dfe5ed;
+                --muted: #718096;
+            }
 
-        body {
-            margin: 0;
-            font-family: Tahoma, Arial, sans-serif;
-            background: #ffffff;
-            color: #16263e;
-        }
+            * {
+                box-sizing: border-box;
+            }
 
-        .login-container {
-            display: flex;
-            min-height: 100vh;
-        }
+            body {
+                margin: 0;
+                font-family: Tahoma, Arial, sans-serif;
+                background: #ffffff;
+                color: var(--navy);
+            }
 
-        .login-form-side {
-            width: 45%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 45px;
-        }
+            /* الهيكل الرئيسي */
 
-        .login-box {
-            width: 100%;
-            max-width: 430px;
-        }
-
-        .login-box h1 {
-            font-size: 32px;
-            margin-bottom: 12px;
-        }
-
-        .subtitle {
-            color: #718096;
-            margin-bottom: 35px;
-        }
-
-        .form-group {
-            margin-bottom: 22px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 9px;
-            font-size: 15px;
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 15px;
-            border: 1px solid #d8dfeb;
-            border-radius: 10px;
-            font-size: 15px;
-            outline: none;
-        }
-
-        .form-control:focus {
-            border-color: #c6a368;
-        }
-
-        .remember-me {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 25px;
-        }
-
-        .remember-me label {
-            margin: 0;
-        }
-
-        .login-button {
-            width: 100%;
-            padding: 16px;
-            background: #c6a368;
-            color: #16263e;
-            border: none;
-            border-radius: 10px;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .login-button:hover {
-            background: #b59053;
-        }
-
-        .validation-error {
-            color: #b42318;
-            font-size: 14px;
-            margin-bottom: 15px;
-        }
-
-        .brand-side {
-            width: 55%;
-            background: #16263e;
-            color: white;
-            padding: 55px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-
-        .brand-header {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .brand-header img {
-            width: 75px;
-            height: 75px;
-            object-fit: contain;
-            border-radius: 50%;
-            background: white;
-        }
-
-        .brand-name {
-            font-size: 22px;
-            font-weight: bold;
-        }
-
-        .brand-content h2 {
-            font-size: 40px;
-            line-height: 1.6;
-            margin-bottom: 15px;
-        }
-
-        .brand-content p {
-            font-size: 18px;
-            color: #c5cedd;
-            line-height: 1.9;
-        }
-
-        .gold-line {
-            width: 75px;
-            height: 5px;
-            background: #c6a368;
-        }
-
-        .copyright {
-            color: #c5cedd;
-            font-size: 13px;
-        }
-
-        @@media (max-width: 850px) {
             .login-container {
-                flex-direction: column;
+                display: flex;
+                min-height: 100vh;
             }
 
-            .brand-side,
+            /* جهة نموذج تسجيل الدخول */
+
             .login-form-side {
-                width: 100%;
+                width: 45%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 45px;
+                background: #ffffff;
             }
+
+            .login-box {
+                width: 100%;
+                max-width: 430px;
+            }
+
+            /* عنوان تسجيل الدخول */
+
+            .login-heading {
+                margin-bottom: 30px;
+            }
+
+            .login-heading-icon {
+                width: 56px;
+                height: 56px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 15px;
+                background: #f8f5ec;
+                color: var(--gold);
+                font-size: 27px;
+                margin-bottom: 20px;
+            }
+
+            .login-box h1 {
+                color: var(--navy);
+                font-size: 30px;
+                font-weight: 800;
+                margin-bottom: 12px;
+            }
+
+            .subtitle {
+                color: var(--muted);
+                font-size: 14px;
+                line-height: 1.9;
+                margin-bottom: 0;
+            }
+
+            /* حقول النموذج */
+
+            .form-group {
+                margin-bottom: 22px;
+            }
+
+                .form-group label {
+                    display: block;
+                    color: var(--navy);
+                    margin-bottom: 10px;
+                    font-size: 14px;
+                    font-weight: 700;
+                }
+
+            .input-wrapper {
+                position: relative;
+            }
+
+            .input-icon {
+                position: absolute;
+                right: 15px;
+                top: 50%;
+                transform: translateY(-50%);
+                color: #94a3b8;
+                font-size: 18px;
+                pointer-events: none;
+            }
+
+            .login-input {
+                width: 100%;
+                min-height: 50px;
+                padding: 12px 44px 12px 15px;
+                border: 1px solid var(--border);
+                border-radius: 11px;
+                font-size: 14px;
+                color: var(--navy);
+                background: #ffffff;
+                outline: none;
+                transition: border-color .2s ease, box-shadow .2s ease;
+            }
+
+                .login-input::placeholder {
+                    color: #a0aec0;
+                }
+
+                .login-input:focus {
+                    border-color: var(--gold);
+                    box-shadow: 0 0 0 3px rgba(201,162,77,.13);
+                }
+
+            /* تذكرني */
+
+            .remember-me {
+                display: flex;
+                align-items: center;
+                gap: 9px;
+                margin-bottom: 25px;
+            }
+
+                .remember-me input {
+                    width: 17px;
+                    height: 17px;
+                    accent-color: var(--gold);
+                    cursor: pointer;
+                }
+
+                .remember-me label {
+                    margin: 0;
+                    color: var(--navy);
+                    font-size: 14px;
+                    cursor: pointer;
+                }
+
+            /* زر تسجيل الدخول */
+
+            .login-button {
+                width: 100%;
+                min-height: 48px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                gap: 10px;
+                padding: 12px 20px;
+                background: var(--gold);
+                color: var(--navy);
+                border: 1px solid transparent;
+                border-radius: 11px;
+                font-size: 16px;
+                font-weight: 800;
+                cursor: pointer;
+                transition: background-color .2s ease, transform .2s ease;
+            }
+
+                .login-button:hover {
+                    background: var(--gold-hover);
+                    color: var(--navy);
+                    transform: translateY(-1px);
+                }
+
+                .login-button:focus-visible {
+                    outline: 3px solid var(--navy);
+                    outline-offset: 3px;
+                }
+
+                .login-button i {
+                    font-size: 19px;
+                }
+
+            /* رسائل التحقق */
+
+            .validation-error {
+                display: block;
+                color: #b42318;
+                font-size: 13px;
+                line-height: 1.8;
+                margin-top: 6px;
+            }
+
+            .validation-summary-errors {
+                background: #fff0ee;
+                border: 1px solid #f1d8d5;
+                border-radius: 11px;
+                padding: 12px 15px;
+                margin-bottom: 20px;
+                color: #b42318;
+            }
+
+                .validation-summary-errors ul {
+                    margin: 0;
+                    padding-right: 20px;
+                }
+
+            .validation-summary-valid {
+                display: none;
+            }
+
+            .input-validation-error {
+                border-color: #dc756e;
+            }
+
+            /* جهة هوية الجامعة */
 
             .brand-side {
-                min-height: 280px;
-                padding: 30px;
+                width: 55%;
+                background: linear-gradient( 135deg, #142d4e, #304661 );
+                color: #ffffff;
+                padding: 55px;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                position: relative;
+                overflow: hidden;
+            }
+
+                .brand-side::before {
+                    content: "";
+                    position: absolute;
+                    width: 320px;
+                    height: 320px;
+                    border: 1px solid rgba(201,162,77,.14);
+                    border-radius: 50%;
+                    left: -130px;
+                    top: -130px;
+                    pointer-events: none;
+                }
+
+                .brand-side::after {
+                    content: "";
+                    position: absolute;
+                    width: 420px;
+                    height: 420px;
+                    border: 1px solid rgba(255,255,255,.07);
+                    border-radius: 50%;
+                    left: -180px;
+                    bottom: -180px;
+                    pointer-events: none;
+                }
+
+            /* شعار الجامعة */
+
+            .brand-header {
+                display: flex;
+                align-items: center;
+                gap: 15px;
+                position: relative;
+                z-index: 1;
+            }
+
+                .brand-header img {
+                    width: 75px;
+                    height: 75px;
+                    object-fit: contain;
+                    border-radius: 50%;
+                    background: #ffffff;
+                    padding: 4px;
+                    border: 3px solid rgba(201,162,77,.35);
+                    flex-shrink: 0;
+                }
+
+            .brand-name {
+                color: #ffffff;
+                font-size: 22px;
+                font-weight: 800;
+                line-height: 1.8;
+            }
+
+            /* المحتوى التعريفي */
+
+            .brand-content {
+                position: relative;
+                z-index: 1;
+                max-width: 570px;
+            }
+
+            .gold-line {
+                width: 75px;
+                height: 5px;
+                background: var(--gold);
+                border-radius: 5px;
+                margin-bottom: 25px;
             }
 
             .brand-content h2 {
-                font-size: 25px;
+                color: #ffffff;
+                font-size: 38px;
+                font-weight: 800;
+                line-height: 1.6;
+                margin-bottom: 18px;
             }
 
-            .login-form-side {
-                padding: 35px 20px;
+            .brand-content p {
+                font-size: 17px;
+                color: #d5dfeb;
+                line-height: 2;
+                margin-bottom: 0;
             }
-        }
+
+            /* حقوق الجامعة */
+
+            .copyright {
+                color: #c5cedd;
+                font-size: 13px;
+                position: relative;
+                z-index: 1;
+            }
+
+            /* الشاشات المتوسطة */
+
+            @@media (max-width: 1050px) {
+                .login-form-side {
+                    padding: 35px;
+                }
+
+                .brand-side {
+                    padding: 35px;
+                }
+
+                .brand-content h2 {
+                    font-size: 30px;
+                }
+
+                .brand-name {
+                    font-size: 19px;
+                }
+            }
+
+            /* الشاشات الصغيرة */
+
+            @@media (max-width: 850px) {
+                .login-container {
+                    flex-direction: column;
+                }
+
+                .brand-side,
+                .login-form-side {
+                    width: 100%;
+                }
+
+                .brand-side {
+                    min-height: 280px;
+                    padding: 30px;
+                    gap: 30px;
+                }
+
+                .brand-header img {
+                    width: 65px;
+                    height: 65px;
+                }
+
+                .brand-name {
+                    font-size: 17px;
+                }
+
+                .brand-content h2 {
+                    font-size: 25px;
+                }
+
+                .brand-content p {
+                    font-size: 14px;
+                }
+
+                .login-form-side {
+                    padding: 35px 20px;
+                }
+
+                .login-box {
+                    max-width: 500px;
+                }
+            }
+
+            @@media (max-width: 500px) {
+                .login-box h1 {
+                    font-size: 25px;
+                }
+
+                .brand-side {
+                    padding: 24px 20px;
+                }
+
+                .brand-content h2 {
+                    font-size: 22px;
+                }
+
+                .brand-header {
+                    gap: 12px;
+                }
+
+                .brand-name {
+                    font-size: 15px;
+                }
+            }
     </style>
 </head>
 
 <body>
+
     <div class="login-container">
 
+        <!-- نموذج تسجيل الدخول -->
+
         <div class="login-form-side">
+
             <div class="login-box">
 
-                <h1>مرحباً بعودتك</h1>
-                <p class="subtitle">سجّل الدخول إلى حسابك للمتابعة</p>
+                <!-- عنوان الصفحة -->
+
+                <div class="login-heading">
+
+                    <div class="login-heading-icon">
+                        <i class="bi bi-shield-lock"></i>
+                    </div>
+
+                    <h1>مرحباً بعودتك</h1>
+
+                    <p class="subtitle">
+                        سجّل الدخول إلى حسابك للمتابعة
+                        إلى نظام إدارة شؤون الطلاب.
+                    </p>
+
+                </div>
+
+                <!-- نموذج تسجيل الدخول -->
 
                 <form asp-controller="Account"
                       asp-action="Login"
@@ -202,55 +468,111 @@
 
                     @Html.AntiForgeryToken()
 
+                    <!-- أخطاء تسجيل الدخول -->
+
                     <div asp-validation-summary="ModelOnly"
                          class="validation-error"></div>
 
+                    <!-- اسم المستخدم أو الرقم الجامعي -->
+
                     <div class="form-group">
-                        <label asp-for="UserNumber">اسم المستخدم أو الرقم الجامعي</label>
-                        <input asp-for="UserNumber"
-                               class="form-control"
-                               placeholder="أدخل اسم المستخدم أو الرقم الجامعي"
-                               autocomplete="username" />
+
+                        <label asp-for="UserNumber">
+                            اسم المستخدم أو الرقم الجامعي
+                        </label>
+
+                        <div class="input-wrapper">
+
+                            <i class="bi bi-person input-icon"></i>
+
+                            <input asp-for="UserNumber"
+                                   class="login-input"
+                                   placeholder="أدخل اسم المستخدم أو الرقم الجامعي"
+                                   autocomplete="username"
+                                   required />
+
+                        </div>
+
                         <span asp-validation-for="UserNumber"
                               class="validation-error"></span>
+
                     </div>
+
+                    <!-- كلمة المرور -->
 
                     <div class="form-group">
-                        <label asp-for="Password">كلمة المرور</label>
-                        <input asp-for="Password"
-                               type="password"
-                               class="form-control"
-                               placeholder="أدخل كلمة المرور"
-                               autocomplete="current-password" />
+
+                        <label asp-for="Password">
+                            كلمة المرور
+                        </label>
+
+                        <div class="input-wrapper">
+
+                            <i class="bi bi-lock input-icon"></i>
+
+                            <input asp-for="Password"
+                                   type="password"
+                                   class="login-input"
+                                   placeholder="أدخل كلمة المرور"
+                                   autocomplete="current-password"
+                                   required />
+
+                        </div>
+
                         <span asp-validation-for="Password"
                               class="validation-error"></span>
+
                     </div>
+
+                    <!-- تذكرني -->
 
                     <div class="remember-me">
+
                         <input asp-for="RememberMe" />
-                        <label asp-for="RememberMe">تذكرني</label>
+
+                        <label asp-for="RememberMe">
+                            تذكرني
+                        </label>
+
                     </div>
 
-                    <button type="submit" class="login-button">
+                    <!-- زر تسجيل الدخول -->
+
+                    <button type="submit"
+                            class="login-button">
+
+                        <i class="bi bi-box-arrow-in-left"></i>
                         تسجيل الدخول
+
                     </button>
+
                 </form>
 
             </div>
+
         </div>
+
+        <!-- هوية الجامعة -->
 
         <div class="brand-side">
 
+            <!-- شعار الجامعة واسمها -->
+
             <div class="brand-header">
+
                 <img src="~/images/iusr-logo.jfif"
                      alt="شعار الجامعة الدولية للعلوم والنهضة" />
 
                 <div class="brand-name">
                     الجامعة الدولية للعلوم والنهضة
                 </div>
+
             </div>
 
+            <!-- تعريف النظام -->
+
             <div class="brand-content">
+
                 <div class="gold-line"></div>
 
                 <h2>
@@ -263,14 +585,18 @@
                     والرسوم الجامعية بسهولة وأمان،
                     ضمن نظام متكامل يخدم الجامعة.
                 </p>
+
             </div>
 
+            <!-- حقوق الجامعة -->
+
             <div class="copyright">
-                © 2026 الجامعة الدولية للعلوم والنهضة
+                © @DateTime.Now.Year الجامعة الدولية للعلوم والنهضة
             </div>
 
         </div>
 
     </div>
+
 </body>
 </html>

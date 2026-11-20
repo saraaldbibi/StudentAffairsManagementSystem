@@ -6,7 +6,11 @@
     .registration-page {
         direction: rtl;
         color: #142d4e;
+        padding-top: 20px;
+        padding-bottom: 25px;
     }
+
+    /* عنوان الصفحة */
 
     .registration-page-header {
         margin-bottom: 28px;
@@ -22,32 +26,44 @@
         .registration-page-header p {
             color: #718096;
             margin-bottom: 0;
+            line-height: 1.9;
         }
+
+    /* بطاقة البحث */
 
     .registration-search-card {
         background: #ffffff;
-        border: 1px solid #e2e7ee;
-        border-radius: 12px;
+        border: 1px solid #e5eaf0;
+        border-radius: 15px;
         overflow: hidden;
-        box-shadow: 0 3px 12px rgba(20,45,78,.05);
+        box-shadow: 0 3px 12px rgba(20, 45, 78, 0.05);
     }
 
     .registration-card-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
         background: #142d4e;
         color: #ffffff;
         padding: 18px 24px;
         font-size: 18px;
-        font-weight: 700;
+        font-weight: 800;
     }
+
+        .registration-card-header i {
+            font-size: 20px;
+        }
 
     .registration-card-body {
         padding: 30px;
     }
 
+    /* حقل الرقم الجامعي */
+
     .registration-field-label {
         display: block;
-        font-weight: 700;
-        margin-bottom: 10px;
+        font-weight: 800;
+        margin-bottom: 12px;
         color: #142d4e;
     }
 
@@ -55,46 +71,100 @@
         width: 100%;
         min-height: 48px;
         border: 1px solid #d6dee9;
-        border-radius: 8px;
+        border-radius: 11px;
         padding: 12px 15px;
-        background: #fff;
+        background: #ffffff;
         color: #142d4e;
+        font-size: 15px;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
     }
 
         .registration-number-input:focus {
             outline: none;
             border-color: #c9a24d;
-            box-shadow: 0 0 0 3px rgba(201,162,77,.14);
+            box-shadow: 0 0 0 3px rgba(201, 162, 77, 0.14);
         }
+
+        .registration-number-input::placeholder {
+            color: #9aa5b5;
+        }
+
+    /* زر البحث الموحد */
 
     .registration-search-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+        width: 100%;
+        min-height: 48px;
+        padding: 12px 20px;
         background: #c9a24d;
         color: #142d4e;
-        border: none;
-        border-radius: 8px;
-        padding: 12px 24px;
-        min-height: 48px;
+        border: 1px solid transparent;
+        border-radius: 11px;
+        font-size: 15px;
         font-weight: 800;
+        cursor: pointer;
         white-space: nowrap;
+        transition: background-color 0.2s ease, transform 0.2s ease;
     }
 
-        .registration-search-button:hover {
-            background: #b99343;
+        .registration-search-button i {
+            font-size: 17px;
         }
+
+        .registration-search-button:hover {
+            background: #b9913d;
+            color: #142d4e;
+            transform: translateY(-1px);
+        }
+
+        .registration-search-button:focus-visible {
+            outline: 3px solid #142d4e;
+            outline-offset: 3px;
+        }
+
+    /* صندوق الملاحظة */
 
     .registration-info-box {
         background: #f8f9fc;
-        border: 1px solid #e2e7ee;
-        border-radius: 9px;
+        border: 1px solid #e5eaf0;
+        border-radius: 11px;
         padding: 18px 20px;
         color: #52647b;
         line-height: 1.9;
         margin-top: 24px;
     }
 
+    /* رسائل النظام */
+
+    .registration-alert {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border-radius: 11px;
+        padding: 15px 18px;
+        margin-bottom: 20px;
+    }
+
+        .registration-alert i {
+            font-size: 19px;
+        }
+
+    /* الشاشات الصغيرة */
+
     @@media (max-width: 768px) {
+        .registration-page-header h2 {
+            font-size: 23px;
+        }
+
         .registration-card-body {
             padding: 20px;
+        }
+
+        .registration-card-header {
+            padding: 17px 20px;
         }
 
         .registration-search-button {
@@ -103,12 +173,14 @@
     }
 </style>
 
-<div class="container-fluid py-4 registration-page">
+<div class="container-fluid registration-page" dir="rtl">
 
     <!-- عنوان الصفحة -->
+
     <div class="registration-page-header">
 
         <h2>
+            <i class="bi bi-journal-check"></i>
             تسجيل المقررات الدراسية
         </h2>
 
@@ -119,29 +191,49 @@
 
     </div>
 
+    <!-- رسائل الخطأ -->
     @if (TempData["Error"] != null)
     {
-        <div class="alert alert-danger">
+        <div class="alert alert-danger registration-alert">
+
             <i class="bi bi-exclamation-circle"></i>
-            @TempData["Error"]
+
+            <span>
+                @TempData["Error"]
+            </span>
+
         </div>
     }
 
+    <!-- رسائل النجاح -->
     @if (TempData["Success"] != null)
     {
-        <div class="alert alert-success">
+        <div class="alert alert-success registration-alert">
+
             <i class="bi bi-check-circle"></i>
-            @TempData["Success"]
+
+            <span>
+                @TempData["Success"]
+            </span>
+
         </div>
     }
 
-    <!-- بطاقة البحث -->
+    <!-- بطاقة البحث عن طالب -->
+
     <div class="registration-search-card">
 
+        <!-- عنوان البطاقة -->
+
         <div class="registration-card-header">
+
             <i class="bi bi-search"></i>
+
             البحث عن طالب
+
         </div>
+
+        <!-- محتوى البطاقة -->
 
         <div class="registration-card-body">
 
@@ -149,12 +241,18 @@
                   asp-action="StudentCourses"
                   method="get">
 
+                <!-- الرقم الجامعي -->
+
                 <label for="universityNumber"
                        class="registration-field-label">
+
                     الرقم الجامعي
+
                 </label>
 
                 <div class="row g-3 align-items-end">
+
+                    <!-- حقل إدخال الرقم الجامعي -->
 
                     <div class="col-md-9">
 
@@ -168,12 +266,15 @@
 
                     </div>
 
+                    <!-- زر البحث -->
+
                     <div class="col-md-3">
 
                         <button type="submit"
-                                class="registration-search-button w-100">
+                                class="registration-search-button">
 
                             <i class="bi bi-search"></i>
+
                             بحث
 
                         </button>
@@ -183,8 +284,6 @@
                 </div>
 
             </form>
-
-         
 
         </div>
 

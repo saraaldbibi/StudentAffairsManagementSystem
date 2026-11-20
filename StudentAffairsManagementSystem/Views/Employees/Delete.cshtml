@@ -1,5 +1,4 @@
-﻿
-@model StudentAffairsManagementSystem.Models.Employee
+﻿@model StudentAffairsManagementSystem.Models.Employee
 
 @{
     ViewData["Title"] = "حذف الموظف";
@@ -8,129 +7,422 @@
         $"{Model.FirstName} {Model.FatherName} {Model.LastName}";
 }
 
-<div class="container-fluid py-4" dir="rtl">
+<style>
+    .employee-delete-page {
+        direction: rtl;
+        max-width: 900px;
+        margin: 20px auto;
+        color: #142d4e;
+    }
+
+    /* رأس الصفحة */
+
+    .employee-delete-header {
+        background: linear-gradient(135deg, #142d4e, #304661);
+        color: #ffffff;
+        padding: 28px 32px;
+        border-radius: 16px 16px 0 0;
+        border-bottom: 4px solid #c9a24d;
+    }
+
+        .employee-delete-header h2 {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 25px;
+            font-weight: 800;
+            margin: 0 0 10px;
+        }
+
+            .employee-delete-header h2 i {
+                color: #c9a24d;
+                font-size: 27px;
+            }
+
+        .employee-delete-header p {
+            color: #d6dfeb;
+            font-size: 14px;
+            line-height: 1.9;
+            margin: 0;
+        }
+
+    /* بطاقة الصفحة */
+
+    .employee-delete-body {
+        background: #ffffff;
+        padding: 30px;
+        border: 1px solid #e5eaf2;
+        border-top: none;
+        border-radius: 0 0 16px 16px;
+        box-shadow: 0 5px 25px rgba(20,45,78,.05);
+    }
+
+    /* رسالة التحذير */
+
+    .employee-delete-warning {
+        display: flex;
+        align-items: flex-start;
+        gap: 15px;
+        background: #fff6ed;
+        border: 1px solid #f2d5bc;
+        border-right: 4px solid #d97735;
+        padding: 20px;
+        border-radius: 11px;
+        margin-bottom: 30px;
+    }
+
+    .employee-delete-warning-icon {
+        color: #bd5e22;
+        font-size: 28px;
+        flex-shrink: 0;
+    }
+
+    .employee-delete-warning h3 {
+        color: #9d451c;
+        font-size: 18px;
+        font-weight: 800;
+        margin: 0 0 10px;
+    }
+
+    .employee-delete-warning p {
+        color: #80533a;
+        font-size: 14px;
+        line-height: 2;
+        margin: 0 0 10px;
+    }
+
+        .employee-delete-warning p:last-child {
+            margin-bottom: 0;
+        }
+
+    /* عنوان بيانات الموظف */
+
+    .employee-delete-section-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #142d4e;
+        font-size: 18px;
+        font-weight: 800;
+        border-right: 4px solid #c9a24d;
+        padding-right: 13px;
+        margin-bottom: 23px;
+    }
+
+        .employee-delete-section-title i {
+            color: #b9913d;
+            font-size: 20px;
+        }
+
+    /* شبكة بيانات الموظف */
+
+    .employee-delete-info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+        margin-bottom: 30px;
+    }
+
+    .employee-delete-info-item {
+        background: #f8f9fc;
+        border: 1px solid #edf0f5;
+        border-radius: 11px;
+        padding: 17px 19px;
+        min-width: 0;
+    }
+
+    .employee-delete-info-label {
+        display: block;
+        color: #718096;
+        font-size: 13px;
+        margin-bottom: 9px;
+    }
+
+    .employee-delete-info-value {
+        display: block;
+        color: #142d4e;
+        font-size: 14px;
+        font-weight: 800;
+        line-height: 1.9;
+        overflow-wrap: anywhere;
+    }
+
+    .employee-delete-not-available {
+        color: #8491a3;
+        font-weight: 500;
+    }
+
+    /* أزرار الإجراءات */
+
+    .employee-delete-actions {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        gap: 12px;
+        padding-top: 25px;
+        border-top: 1px solid #e9edf3;
+    }
+
+    .employee-delete-confirm,
+    .employee-delete-cancel {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+        min-height: 45px;
+        padding: 11px 22px;
+        border-radius: 11px;
+        font-size: 14px;
+        font-weight: 800;
+        font-family: inherit;
+        text-decoration: none;
+        transition: background-color .2s ease;
+    }
+
+    .employee-delete-confirm {
+        background: #fff0ee;
+        color: #b42318;
+        border: 1px solid #f1d8d5;
+        cursor: pointer;
+    }
+
+        .employee-delete-confirm:hover {
+            background: #f9dfdc;
+            color: #982626;
+        }
+
+    .employee-delete-cancel {
+        background: #edf1f7;
+        color: #142d4e;
+        border: 1px solid #dfe6ef;
+    }
+
+        .employee-delete-cancel:hover {
+            background: #e1e8f2;
+            color: #142d4e;
+        }
+
+        .employee-delete-confirm:focus-visible,
+        .employee-delete-cancel:focus-visible {
+            outline: 3px solid #142d4e;
+            outline-offset: 3px;
+        }
+
+    /* الشاشات الصغيرة */
+
+    @@media (max-width: 650px) {
+        .employee-delete-page {
+            margin: 15px auto;
+        }
+
+        .employee-delete-header,
+        .employee-delete-body {
+            padding: 22px;
+        }
+
+            .employee-delete-header h2 {
+                font-size: 21px;
+            }
+
+        .employee-delete-warning {
+            padding: 16px;
+        }
+
+            .employee-delete-warning h3 {
+                font-size: 16px;
+            }
+
+        .employee-delete-info-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .employee-delete-actions {
+            flex-direction: column;
+        }
+
+        .employee-delete-confirm,
+        .employee-delete-cancel {
+            width: 100%;
+        }
+    }
+</style>
+
+<div class="employee-delete-page">
 
     <!-- عنوان الصفحة -->
-    <div class="mb-4">
-        <h2 style="color:#142d4e; font-weight:800;">
-            حذف الموظف
+
+    <div class="employee-delete-header">
+
+        <h2>
+            <i class="bi bi-person-x"></i>
+            تأكيد حذف الموظف
         </h2>
 
-        <p class="text-muted">
-            تأكيد حذف الموظف من قائمة الموظفين النشطين
+        <p>
+            يرجى مراجعة بيانات الموظف قبل تأكيد حذفه
+            من قائمة الموظفين النشطين.
         </p>
+
     </div>
 
-    <!-- رسالة التحذير -->
-    <div class="alert alert-warning border-0 shadow-sm mb-4">
-        <h5 class="fw-bold mb-2">
-            ⚠️ هل أنت متأكد من حذف هذا الموظف؟
-        </h5>
+    <div class="employee-delete-body">
 
-        <p class="mb-2">
-            عند تأكيد الحذف، سيتم إخفاء الموظف من قائمة الموظفين،
-            وتعطيل حساب الدخول والصلاحيات المرتبطة به.
-        </p>
+        <!-- رسالة التحذير -->
 
-        <p class="mb-0">
-            <strong>ملاحظة:</strong>
-            لن يتم حذف سجل الموظف نهائيًا من قاعدة البيانات،
-            وستبقى بياناته محفوظة لأغراض التوثيق.
-        </p>
-    </div>
+        <div class="employee-delete-warning"
+             role="alert">
 
-    <!-- بطاقة بيانات الموظف -->
-    <div class="card border-0 shadow-sm mb-4">
+            <i class="bi bi-exclamation-triangle-fill employee-delete-warning-icon"></i>
 
-        <div class="card-header py-3"
-             style="background:#142d4e; color:white;">
-            <h5 class="mb-0">
-                بيانات الموظف المراد حذفه
-            </h5>
-        </div>
+            <div>
 
-        <div class="card-body p-4">
+                <h3>
+                    هل أنت متأكد من حذف هذا الموظف؟
+                </h3>
 
-            <div class="row g-4">
+                <p>
+                    عند تأكيد الحذف، سيتم إخفاء الموظف من قائمة
+                    الموظفين، وتعطيل حساب الدخول والصلاحيات
+                    المرتبطة به.
+                </p>
 
-                <div class="col-md-6">
-                    <div class="text-muted mb-1">
-                        الاسم الكامل
-                    </div>
-
-                    <div class="fw-bold">
-                        @fullName
-                    </div>
-                </div>
-
-                <div class="col-md-6">
-                    <div class="text-muted mb-1">
-                        الرقم الوظيفي
-                    </div>
-
-                    <div class="fw-bold">
-                        @Model.EmployeeNumber
-                    </div>
-                </div>
-
-                <div class="col-md-6">
-                    <div class="text-muted mb-1">
-                        رقم الهاتف
-                    </div>
-
-                    <div class="fw-bold">
-                        @(string.IsNullOrWhiteSpace(Model.Phone)
-                            ? "غير مسجل"
-                            : Model.Phone)
-                    </div>
-                </div>
-
-                <div class="col-md-6">
-                    <div class="text-muted mb-1">
-                        العنوان
-                    </div>
-
-                    <div class="fw-bold">
-                        @(string.IsNullOrWhiteSpace(Model.Address)
-                            ? "غير مسجل"
-                            : Model.Address)
-                    </div>
-                </div>
+                <p>
+                    <strong>ملاحظة:</strong>
+                    لن يتم حذف سجل الموظف نهائيًا من قاعدة البيانات،
+                    وستبقى بياناته محفوظة لأغراض التوثيق.
+                </p>
 
             </div>
 
         </div>
-    </div>
 
-    <!-- نموذج تأكيد الحذف -->
-    <form asp-controller="Employees"
-          asp-action="Delete"
-          asp-route-id="@Model.Id"
-          method="post">
+        <!-- بيانات الموظف -->
 
-        @Html.AntiForgeryToken()
+        <h3 class="employee-delete-section-title">
+            <i class="bi bi-person-vcard"></i>
+            بيانات الموظف المراد حذفه
+        </h3>
 
-        <input type="hidden"
-               name="id"
-               value="@Model.Id" />
+        <div class="employee-delete-info-grid">
 
-        <div class="d-flex flex-wrap gap-3">
+            <!-- الاسم الكامل -->
 
-            <button type="submit"
-                    class="btn btn-danger px-5 py-2 fw-bold"
-                    onclick="return confirm('هل أنت متأكد من حذف هذا الموظف وتعطيل حسابه؟');">
-                تأكيد حذف الموظف
-            </button>
+            <div class="employee-delete-info-item">
 
-            <a asp-controller="Employees"
-               asp-action="Details"
-               asp-route-id="@Model.Id"
-               class="btn btn-outline-secondary px-4 py-2">
-                إلغاء والعودة
-            </a>
+                <span class="employee-delete-info-label">
+                    الاسم الكامل
+                </span>
+
+                <span class="employee-delete-info-value">
+                    @fullName
+                </span>
+
+            </div>
+
+            <!-- الرقم الوظيفي -->
+
+            <div class="employee-delete-info-item">
+
+                <span class="employee-delete-info-label">
+                    الرقم الوظيفي
+                </span>
+
+                <span class="employee-delete-info-value"
+                      dir="ltr"
+                      style="text-align:right;">
+                    @Model.EmployeeNumber
+                </span>
+
+            </div>
+
+            <!-- رقم الهاتف -->
+
+            <div class="employee-delete-info-item">
+
+                <span class="employee-delete-info-label">
+                    رقم الهاتف
+                </span>
+
+                @if (!string.IsNullOrWhiteSpace(Model.Phone))
+                {
+                    <span class="employee-delete-info-value"
+                          dir="ltr"
+                          style="text-align:right;">
+                        @Model.Phone
+                    </span>
+                }
+                else
+                {
+                    <span class="employee-delete-info-value employee-delete-not-available">
+                        غير مسجل
+                    </span>
+                }
+
+            </div>
+
+            <!-- العنوان -->
+
+            <div class="employee-delete-info-item">
+
+                <span class="employee-delete-info-label">
+                    العنوان
+                </span>
+
+                @if (!string.IsNullOrWhiteSpace(Model.Address))
+                {
+                    <span class="employee-delete-info-value">
+                        @Model.Address
+                    </span>
+                }
+                else
+                {
+                    <span class="employee-delete-info-value employee-delete-not-available">
+                        غير مسجل
+                    </span>
+                }
+
+            </div>
 
         </div>
 
-    </form>
+        <!-- نموذج تأكيد الحذف -->
+
+        <form asp-controller="Employees"
+              asp-action="Delete"
+              asp-route-id="@Model.Id"
+              method="post"
+              onsubmit="return confirm('هل أنت متأكد من حذف هذا الموظف وتعطيل حسابه؟');">
+
+            @Html.AntiForgeryToken()
+
+            <input type="hidden"
+                   name="id"
+                   value="@Model.Id" />
+
+            <div class="employee-delete-actions">
+
+                <button type="submit"
+                        class="employee-delete-confirm">
+
+                    <i class="bi bi-trash3"></i>
+                    تأكيد حذف الموظف
+
+                </button>
+
+                <a asp-controller="Employees"
+                   asp-action="Details"
+                   asp-route-id="@Model.Id"
+                   class="employee-delete-cancel">
+
+                    <i class="bi bi-x-circle"></i>
+                    إلغاء والعودة للتفاصيل
+
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
 
 </div>

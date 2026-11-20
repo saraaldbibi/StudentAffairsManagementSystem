@@ -1,0 +1,470 @@
+﻿@model StudentAffairsManagementSystem.Models.Faculty
+
+@{
+    ViewData["Title"] = "حذف الكلية";
+}
+
+<style>
+    .faculty-delete-page {
+        direction: rtl;
+        max-width: 900px;
+        margin: 20px auto;
+        color: #142d4e;
+    }
+
+    /* رأس الصفحة */
+
+    .faculty-delete-header {
+        background: linear-gradient(135deg, #142d4e, #304661);
+        color: #ffffff;
+        padding: 28px 32px;
+        border-radius: 16px 16px 0 0;
+        border-bottom: 4px solid #c9a24d;
+    }
+
+        .faculty-delete-header h2 {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 25px;
+            font-weight: 800;
+            margin: 0 0 10px;
+        }
+
+            .faculty-delete-header h2 i {
+                color: #c9a24d;
+                font-size: 27px;
+            }
+
+        .faculty-delete-header p {
+            color: #d6dfeb;
+            font-size: 14px;
+            line-height: 1.9;
+            margin: 0;
+        }
+
+    /* محتوى الصفحة */
+
+    .faculty-delete-body {
+        background: #ffffff;
+        padding: 30px;
+        border: 1px solid #e5eaf2;
+        border-top: none;
+        border-radius: 0 0 16px 16px;
+        box-shadow: 0 5px 25px rgba(20,45,78,.05);
+    }
+
+    /* رسالة التحذير */
+
+    .faculty-delete-warning {
+        display: flex;
+        align-items: flex-start;
+        gap: 15px;
+        background: #fff1ef;
+        border: 1px solid #f2d4d0;
+        border-right: 4px solid #c43c32;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 28px;
+    }
+
+    .faculty-delete-warning-icon {
+        color: #b42318;
+        font-size: 27px;
+        line-height: 1;
+        flex-shrink: 0;
+    }
+
+    .faculty-delete-warning h3 {
+        color: #a9271d;
+        font-size: 17px;
+        font-weight: 800;
+        margin: 0 0 12px;
+    }
+
+    .faculty-delete-warning p {
+        color: #75413c;
+        font-size: 14px;
+        line-height: 1.9;
+        margin: 0 0 8px;
+    }
+
+        .faculty-delete-warning p:last-child {
+            margin-bottom: 0;
+        }
+
+    /* عنوان القسم */
+
+    .faculty-delete-section-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #142d4e;
+        font-size: 18px;
+        font-weight: 800;
+        border-right: 4px solid #c9a24d;
+        padding-right: 13px;
+        margin-bottom: 25px;
+    }
+
+        .faculty-delete-section-title i {
+            color: #b9913d;
+            font-size: 20px;
+        }
+
+    /* بيانات الكلية */
+
+    .faculty-delete-info {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 18px;
+    }
+
+    .faculty-delete-field {
+        background: #f8f9fc;
+        border: 1px solid #e9edf3;
+        border-radius: 12px;
+        padding: 18px 20px;
+    }
+
+    .faculty-delete-label {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        color: #718096;
+        font-size: 13px;
+        font-weight: 700;
+        margin-bottom: 12px;
+    }
+
+        .faculty-delete-label i {
+            color: #b9913d;
+            font-size: 17px;
+        }
+
+    .faculty-delete-value {
+        color: #142d4e;
+        font-size: 17px;
+        font-weight: 800;
+        line-height: 1.8;
+        overflow-wrap: anywhere;
+    }
+
+    .faculty-delete-name {
+        font-size: 21px;
+    }
+
+    /* حالة الكلية */
+
+    .faculty-delete-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 15px;
+        border-radius: 999px;
+        font-size: 13px;
+        font-weight: 800;
+    }
+
+        .faculty-delete-status.active {
+            background: #e8f6ed;
+            border: 1px solid #ccebd6;
+            color: #237a48;
+        }
+
+        .faculty-delete-status.inactive {
+            background: #edf1f5;
+            border: 1px solid #dce3ea;
+            color: #66758a;
+        }
+
+    /* ملاحظة الحذف النهائي */
+
+    .faculty-delete-note {
+        display: flex;
+        align-items: flex-start;
+        gap: 11px;
+        background: #fffaf0;
+        border: 1px solid #f0e2c3;
+        border-radius: 11px;
+        padding: 16px 18px;
+        color: #665532;
+        font-size: 14px;
+        line-height: 1.9;
+        margin-top: 25px;
+        margin-bottom: 28px;
+    }
+
+        .faculty-delete-note i {
+            color: #b9913d;
+            font-size: 19px;
+            flex-shrink: 0;
+        }
+
+    /* أزرار الصفحة */
+
+    .faculty-delete-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        padding-top: 25px;
+        border-top: 1px solid #e9edf3;
+    }
+
+    .faculty-delete-confirm,
+    .faculty-delete-cancel {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+        min-height: 45px;
+        padding: 11px 22px;
+        border-radius: 11px;
+        font-size: 14px;
+        font-weight: 800;
+        font-family: inherit;
+        text-decoration: none;
+        transition: background-color .2s ease;
+    }
+
+    /* زر إلغاء الحذف */
+
+    .faculty-delete-cancel {
+        background: #edf1f7;
+        color: #142d4e;
+        border: 1px solid #dfe6ef;
+    }
+
+        .faculty-delete-cancel:hover {
+            background: #e1e8f2;
+            color: #142d4e;
+        }
+
+    /* زر تأكيد الحذف */
+
+    .faculty-delete-confirm {
+        background: #b42318;
+        color: #ffffff;
+        border: 1px solid transparent;
+        cursor: pointer;
+    }
+
+        .faculty-delete-confirm:hover {
+            background: #921d14;
+            color: #ffffff;
+        }
+
+        .faculty-delete-confirm:focus-visible,
+        .faculty-delete-cancel:focus-visible {
+            outline: 3px solid #142d4e;
+            outline-offset: 3px;
+        }
+
+    /* الشاشات الصغيرة */
+
+    @@media (max-width: 650px) {
+        .faculty-delete-page {
+            margin: 15px auto;
+        }
+
+        .faculty-delete-header,
+        .faculty-delete-body {
+            padding: 22px;
+        }
+
+            .faculty-delete-header h2 {
+                font-size: 21px;
+            }
+
+        .faculty-delete-warning {
+            padding: 16px;
+        }
+
+        .faculty-delete-field {
+            padding: 16px;
+        }
+
+        .faculty-delete-actions {
+            flex-direction: column;
+        }
+
+        .faculty-delete-confirm,
+        .faculty-delete-cancel {
+            width: 100%;
+        }
+    }
+</style>
+
+<div class="faculty-delete-page">
+
+    <!-- عنوان الصفحة -->
+
+    <div class="faculty-delete-header">
+
+        <h2>
+            <i class="bi bi-trash3"></i>
+            حذف الكلية
+        </h2>
+
+        <p>
+            مراجعة بيانات الكلية قبل تأكيد
+            حذفها من نظام إدارة شؤون الطلاب.
+        </p>
+
+    </div>
+
+    <div class="faculty-delete-body">
+
+        <!-- رسالة التحذير -->
+
+        <div class="faculty-delete-warning"
+             role="alert">
+
+            <i class="bi bi-exclamation-triangle-fill faculty-delete-warning-icon"></i>
+
+            <div>
+
+                <h3>
+                    تنبيه: تأكيد حذف الكلية
+                </h3>
+
+                <p>
+                    هل أنت متأكد من رغبتك في حذف هذه الكلية؟
+                </p>
+
+                <p>
+                    لا يمكن حذف الكلية إذا كانت مرتبطة
+                    بأقسام دراسية، وذلك للحفاظ على
+                    البيانات الأكاديمية.
+                </p>
+
+            </div>
+
+        </div>
+
+        <!-- بيانات الكلية -->
+
+        <h3 class="faculty-delete-section-title">
+            <i class="bi bi-building"></i>
+            بيانات الكلية المطلوب حذفها
+        </h3>
+
+        <div class="faculty-delete-info">
+
+            <!-- اسم الكلية -->
+
+            <div class="faculty-delete-field">
+
+                <div class="faculty-delete-label">
+                    <i class="bi bi-building"></i>
+                    اسم الكلية
+                </div>
+
+                <div class="faculty-delete-value faculty-delete-name">
+                    @Model.Name
+                </div>
+
+            </div>
+
+            <!-- حالة الكلية -->
+
+            <div class="faculty-delete-field">
+
+                <div class="faculty-delete-label">
+                    <i class="bi bi-toggle-on"></i>
+                    حالة الكلية
+                </div>
+
+                @if (Model.IsActive)
+                {
+                    <span class="faculty-delete-status active">
+                        <i class="bi bi-check-circle-fill"></i>
+                        كلية فعّالة
+                    </span>
+                }
+                else
+                {
+                    <span class="faculty-delete-status inactive">
+                        <i class="bi bi-dash-circle-fill"></i>
+                        كلية غير فعّالة
+                    </span>
+                }
+
+            </div>
+
+            <!-- الرقم التعريفي للكلية -->
+
+            <div class="faculty-delete-field">
+
+                <div class="faculty-delete-label">
+                    <i class="bi bi-hash"></i>
+                    الرقم التعريفي للكلية
+                </div>
+
+                <div class="faculty-delete-value">
+                    @Model.Id
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- ملاحظة مهمة -->
+
+        <div class="faculty-delete-note">
+
+            <i class="bi bi-info-circle"></i>
+
+            <span>
+                <strong>ملاحظة مهمة:</strong>
+                حذف الكلية نهائي وليس حذفًا منطقيًا.
+                إذا كانت مرتبطة بأقسام دراسية،
+                فسيمنع النظام حذفها.
+            </span>
+
+        </div>
+
+        <!-- نموذج تأكيد الحذف -->
+
+        <form asp-controller="Faculties"
+              asp-action="Delete"
+              asp-route-id="@Model.Id"
+              method="post"
+              onsubmit="return confirm('هل أنت متأكد من حذف هذه الكلية نهائيًا؟');">
+
+            @Html.AntiForgeryToken()
+
+            <input type="hidden"
+                   name="id"
+                   value="@Model.Id" />
+
+            <div class="faculty-delete-actions">
+
+                <!-- إلغاء الحذف -->
+
+                <a asp-controller="Faculties"
+                   asp-action="Index"
+                   class="faculty-delete-cancel">
+
+                    <i class="bi bi-x-circle"></i>
+                    إلغاء والعودة
+
+                </a>
+
+                <!-- تأكيد الحذف -->
+
+                <button type="submit"
+                        class="faculty-delete-confirm">
+
+                    <i class="bi bi-trash3"></i>
+                    تأكيد حذف الكلية
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>

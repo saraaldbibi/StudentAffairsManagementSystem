@@ -1,11 +1,7 @@
-﻿
-@model StudentAffairsManagementSystem.Models.CourseOffering
+﻿@model StudentAffairsManagementSystem.Models.CourseOffering
 
 @{
     ViewData["Title"] = "حذف المقرر المطروح";
-
-    string employeeName =
-        $"{Model.Employee.FirstName} {Model.Employee.LastName}";
 }
 
 <div class="container-fluid py-4" dir="rtl">
@@ -32,17 +28,17 @@
                 </h5>
 
                 <p class="mb-2">
-                    هل أنتِ متأكدة من رغبتك بحذف هذا المقرر المطروح؟
+                    هل أنت متأكد من رغبتك في حذف هذا المقرر المطروح؟
                 </p>
 
                 <p class="mb-0">
-                    لا يمكن حذف الطرح إذا كان مرتبطًا بتسجيلات طلاب،
-                    وذلك للحفاظ على السجلات الأكاديمية.
+                    لا يمكن حذف المقرر المطروح إذا كان مرتبطًا
+                    بتسجيلات طلاب، وذلك للحفاظ على السجلات الأكاديمية.
                 </p>
 
             </div>
 
-            <!-- تفاصيل الطرح -->
+            <!-- تفاصيل المقرر المطروح -->
             <div class="card border-0 shadow-sm">
 
                 <div class="card-header py-3"
@@ -60,6 +56,7 @@
 
                         <!-- اسم المقرر -->
                         <div class="col-md-6">
+
                             <div class="text-muted mb-2">
                                 اسم المقرر الدراسي
                             </div>
@@ -68,10 +65,12 @@
                                  style="color:#142d4e;">
                                 @Model.Course.Name
                             </div>
+
                         </div>
 
                         <!-- رمز المقرر -->
                         <div class="col-md-6">
+
                             <div class="text-muted mb-2">
                                 رمز المقرر
                             </div>
@@ -79,10 +78,12 @@
                             <div class="fw-bold">
                                 @Model.Course.Code
                             </div>
+
                         </div>
 
                         <!-- الفصل الدراسي -->
                         <div class="col-md-6">
+
                             <div class="text-muted mb-2">
                                 الفصل الدراسي
                             </div>
@@ -90,10 +91,12 @@
                             <div class="fw-bold">
                                 @Model.Semester.Name
                             </div>
+
                         </div>
 
                         <!-- العام الدراسي -->
                         <div class="col-md-6">
+
                             <div class="text-muted mb-2">
                                 العام الدراسي
                             </div>
@@ -101,21 +104,12 @@
                             <div class="fw-bold">
                                 @Model.Semester.AcademicYear
                             </div>
-                        </div>
 
-                        <!-- الموظف المسؤول -->
-                        <div class="col-md-6">
-                            <div class="text-muted mb-2">
-                                الموظف المسؤول
-                            </div>
-
-                            <div class="fw-bold">
-                                @employeeName
-                            </div>
                         </div>
 
                         <!-- السعة الاستيعابية -->
                         <div class="col-md-6">
+
                             <div class="text-muted mb-2">
                                 السعة الاستيعابية
                             </div>
@@ -123,6 +117,7 @@
                             <div class="fw-bold">
                                 @Model.Capacity طالب
                             </div>
+
                         </div>
 
                     </div>
@@ -137,8 +132,7 @@
 
                         @Html.AntiForgeryToken()
 
-                        <input type="hidden"
-                               asp-for="Id" />
+                        <input type="hidden" asp-for="Id" />
 
                         <div class="d-flex justify-content-end gap-2 flex-wrap">
 

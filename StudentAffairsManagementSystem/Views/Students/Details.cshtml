@@ -1,9 +1,10 @@
-﻿
-@model StudentAffairsManagementSystem.Models.Student
+﻿@model StudentAffairsManagementSystem.Models.Student
 
 @{
     ViewData["Title"] = "تفاصيل الطالب";
-    bool canDeleteStudents = ViewBag.CanDeleteStudents is bool allowed && allowed;
+
+    bool canDeleteStudents =
+        ViewBag.CanDeleteStudents is bool allowed && allowed;
 
     var fullName = string.Join(" ", new[]
     {
@@ -17,36 +18,52 @@
     .student-details-page {
         direction: rtl;
         max-width: 1100px;
-        margin: 25px auto;
-        color: #14263f;
+        margin: 20px auto;
+        color: #142d4e;
     }
+
+    /* رأس الصفحة */
 
     .student-details-header {
-        background: #14263f;
-        color: white;
-        border-bottom: 4px solid #c9a66b;
+        background: linear-gradient(135deg, #142d4e, #304661);
+        color: #ffffff;
         padding: 28px 32px;
         border-radius: 16px 16px 0 0;
+        border-bottom: 4px solid #c9a24d;
     }
 
-    .student-details-header h2 {
-        font-size: 25px;
-        font-weight: 700;
-        margin-bottom: 8px;
-    }
+        .student-details-header h2 {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 25px;
+            font-weight: 800;
+            margin: 0 0 10px;
+        }
 
-    .student-details-header p {
-        color: #d6dce6;
-        margin: 0;
-    }
+            .student-details-header h2 i {
+                color: #c9a24d;
+                font-size: 27px;
+            }
+
+        .student-details-header p {
+            color: #d6dfeb;
+            font-size: 14px;
+            line-height: 1.9;
+            margin: 0;
+        }
+
+    /* بطاقة الصفحة */
 
     .student-details-body {
-        background: white;
+        background: #ffffff;
         padding: 30px;
-        border: 1px solid #e5eaf0;
+        border: 1px solid #e5eaf2;
         border-radius: 0 0 16px 16px;
-        box-shadow: 0 5px 25px rgba(0,0,0,0.05);
+        box-shadow: 0 5px 25px rgba(20,45,78,.05);
     }
+
+    /* بطاقة الطالب */
 
     .student-profile {
         display: flex;
@@ -55,47 +72,76 @@
         flex-wrap: wrap;
         padding: 22px;
         background: #f7f9fc;
+        border: 1px solid #e9edf3;
+        border-right: 4px solid #c9a24d;
         border-radius: 12px;
-        margin-bottom: 28px;
+        margin-bottom: 30px;
     }
 
     .student-avatar {
         width: 76px;
         height: 76px;
         border-radius: 50%;
-        background: #e9dfc9;
-        color: #14263f;
+        background: #f4eddd;
+        color: #b9913d;
         display: flex;
         align-items: center;
         justify-content: center;
         font-size: 34px;
+        flex-shrink: 0;
+    }
+
+    .student-profile-info {
+        min-width: 0;
+        flex: 1;
     }
 
     .student-profile-name {
+        color: #142d4e;
         font-size: 23px;
-        font-weight: 700;
-        margin-bottom: 8px;
+        font-weight: 800;
+        margin-bottom: 9px;
+        overflow-wrap: anywhere;
     }
 
     .student-profile-number {
         color: #66758b;
-        direction: ltr;
-        unicode-bidi: isolate;
+        font-size: 14px;
+        line-height: 1.8;
     }
 
+        .student-profile-number strong {
+            color: #142d4e;
+            font-weight: 800;
+            unicode-bidi: isolate;
+        }
+
+    /* أقسام التفاصيل */
+
     .student-details-section {
-        margin-bottom: 28px;
-        padding-bottom: 24px;
+        margin-bottom: 30px;
+        padding-bottom: 26px;
         border-bottom: 1px solid #e9edf3;
     }
 
-    .student-details-section h3 {
-        font-size: 18px;
-        font-weight: 700;
-        border-right: 4px solid #c9a66b;
-        padding-right: 12px;
-        margin-bottom: 20px;
-    }
+        .student-details-section h3 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #142d4e;
+            font-size: 18px;
+            font-weight: 800;
+            border-right: 4px solid #c9a24d;
+            padding-right: 13px;
+            margin-bottom: 23px;
+        }
+
+            .student-details-section h3 i {
+                color: #b9913d;
+                font-size: 20px;
+            }
+
+    /* شبكة المعلومات */
 
     .student-details-grid {
         display: grid;
@@ -106,8 +152,8 @@
     .student-details-item {
         background: #f8f9fc;
         border: 1px solid #edf0f5;
-        border-radius: 10px;
-        padding: 17px;
+        border-radius: 11px;
+        padding: 17px 19px;
         min-width: 0;
     }
 
@@ -115,56 +161,81 @@
         display: block;
         color: #718096;
         font-size: 13px;
-        margin-bottom: 8px;
+        font-weight: 500;
+        margin-bottom: 9px;
     }
 
     .student-details-value {
         display: block;
-        color: #14263f;
-        font-weight: 700;
+        color: #142d4e;
+        font-size: 14px;
+        font-weight: 800;
+        line-height: 1.9;
+        overflow-wrap: anywhere;
+        white-space: pre-wrap;
+    }
+
+    /* معلومات الملفات */
+
+    .student-document-value {
+        color: #526174;
+        font-size: 13px;
         overflow-wrap: anywhere;
     }
+
+    /* أزرار الصفحة */
 
     .student-details-actions {
         display: flex;
-        gap: 12px;
         flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 28px;
     }
 
-    .student-details-back {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        padding: 12px 22px;
-        border-radius: 10px;
-        background: #c9a66b;
-        color: #14263f;
-        text-decoration: none;
-        font-weight: 700;
-    }
-
+    .student-details-back,
     .student-details-delete {
         display: inline-flex;
         align-items: center;
-        gap: 8px;
-        padding: 12px 22px;
-        border-radius: 10px;
-        background: #b83232;
-        color: white;
+        justify-content: center;
+        gap: 9px;
+        min-height: 45px;
+        padding: 11px 22px;
+        border-radius: 11px;
+        font-size: 14px;
+        font-weight: 800;
         text-decoration: none;
-        font-weight: 700;
+        transition: background-color .2s ease;
     }
 
-    .student-details-delete:hover {
-        background: #982626;
-        color: white;
+    .student-details-back {
+        background: #edf1f7;
+        color: #142d4e;
+        border: 1px solid #dfe6ef;
     }
 
-    .student-document-link {
-        color: #18579a;
-        text-decoration: underline;
-        overflow-wrap: anywhere;
+        .student-details-back:hover {
+            background: #e1e8f2;
+            color: #142d4e;
+        }
+
+    .student-details-delete {
+        background: #fff0ee;
+        color: #b42318;
+        border: 1px solid #f1d8d5;
     }
+
+        .student-details-delete:hover {
+            background: #f9dfdc;
+            color: #982626;
+        }
+
+        .student-details-back:focus-visible,
+        .student-details-delete:focus-visible {
+            outline: 3px solid #142d4e;
+            outline-offset: 3px;
+        }
+
+    /* الشاشات الصغيرة */
 
     @@media (max-width: 700px) {
         .student-details-grid {
@@ -178,20 +249,57 @@
         .student-details-header {
             padding: 22px;
         }
+
+            .student-details-header h2 {
+                font-size: 21px;
+            }
+
+        .student-profile {
+            padding: 18px;
+            gap: 15px;
+        }
+
+        .student-profile-name {
+            font-size: 19px;
+        }
+
+        .student-avatar {
+            width: 65px;
+            height: 65px;
+            font-size: 29px;
+        }
+
+        .student-details-actions {
+            flex-direction: column;
+        }
+
+        .student-details-back,
+        .student-details-delete {
+            width: 100%;
+        }
     }
 </style>
 
 <div class="student-details-page">
 
+    <!-- عنوان الصفحة -->
+
     <div class="student-details-header">
+
         <h2>
             <i class="bi bi-person-vcard"></i>
             تفاصيل الطالب
         </h2>
-        <p>الملف الشخصي والأكاديمي للطالب</p>
+
+        <p>
+            الملف الشخصي والأكاديمي للطالب
+        </p>
+
     </div>
 
     <div class="student-details-body">
+
+        <!-- بطاقة الطالب -->
 
         <div class="student-profile">
 
@@ -199,117 +307,167 @@
                 <i class="bi bi-person-fill"></i>
             </div>
 
-            <div>
+            <div class="student-profile-info">
+
                 <div class="student-profile-name">
                     @fullName
                 </div>
 
                 <div class="student-profile-number">
-                    الرقم الجامعي: @Model.UniversityNumber
+                    الرقم الجامعي:
+                    <strong dir="ltr">@Model.UniversityNumber</strong>
                 </div>
+
             </div>
 
         </div>
 
+        <!-- المعلومات الشخصية -->
+
         <div class="student-details-section">
 
             <h3>
-                <i class="bi bi-person"></i>
+                <i class="bi bi-person-vcard"></i>
                 المعلومات الشخصية
             </h3>
 
             <div class="student-details-grid">
 
                 <div class="student-details-item">
-                    <span class="student-details-label">الاسم الأول</span>
-                    <span class="student-details-value">@Model.FirstName</span>
+                    <span class="student-details-label">
+                        الاسم الأول
+                    </span>
+                    <span class="student-details-value">
+                        @Model.FirstName
+                    </span>
                 </div>
 
                 <div class="student-details-item">
-                    <span class="student-details-label">اسم الأب</span>
-                    <span class="student-details-value">@Model.FatherName</span>
+                    <span class="student-details-label">
+                        اسم الأب
+                    </span>
+                    <span class="student-details-value">
+                        @Model.FatherName
+                    </span>
                 </div>
 
                 <div class="student-details-item">
-                    <span class="student-details-label">اسم الأم</span>
-                    <span class="student-details-value">@Model.MotherName</span>
+                    <span class="student-details-label">
+                        اسم الأم
+                    </span>
+                    <span class="student-details-value">
+                        @Model.MotherName
+                    </span>
                 </div>
 
                 <div class="student-details-item">
-                    <span class="student-details-label">الكنية</span>
-                    <span class="student-details-value">@Model.LastName</span>
+                    <span class="student-details-label">
+                        الكنية
+                    </span>
+                    <span class="student-details-value">
+                        @Model.LastName
+                    </span>
                 </div>
 
                 <div class="student-details-item">
-                    <span class="student-details-label">تاريخ الميلاد</span>
+                    <span class="student-details-label">
+                        تاريخ الميلاد
+                    </span>
                     <span class="student-details-value">
                         @Model.BirthDate.ToString("yyyy/MM/dd")
                     </span>
                 </div>
 
                 <div class="student-details-item">
-                    <span class="student-details-label">الجنس</span>
+                    <span class="student-details-label">
+                        الجنس
+                    </span>
                     <span class="student-details-value">
-                        @(string.IsNullOrWhiteSpace(Model.Gender) ? "غير محدد" : Model.Gender)
+                        @(string.IsNullOrWhiteSpace(Model.Gender)
+                            ? "غير محدد"
+                            : Model.Gender)
                     </span>
                 </div>
 
                 <div class="student-details-item">
-                    <span class="student-details-label">الرقم الوطني</span>
+                    <span class="student-details-label">
+                        الرقم الوطني
+                    </span>
                     <span class="student-details-value">
-                        @(string.IsNullOrWhiteSpace(Model.NationalId) ? "غير محدد" : Model.NationalId)
+                        @(string.IsNullOrWhiteSpace(Model.NationalId)
+                            ? "غير محدد"
+                            : Model.NationalId)
                     </span>
                 </div>
 
                 <div class="student-details-item">
-                    <span class="student-details-label">الجنسية</span>
+                    <span class="student-details-label">
+                        الجنسية
+                    </span>
                     <span class="student-details-value">
-                        @(string.IsNullOrWhiteSpace(Model.Nationality) ? "غير محدد" : Model.Nationality)
+                        @(string.IsNullOrWhiteSpace(Model.Nationality)
+                            ? "غير محدد"
+                            : Model.Nationality)
                     </span>
                 </div>
 
             </div>
+
         </div>
+
+        <!-- المعلومات الأكاديمية -->
 
         <div class="student-details-section">
 
             <h3>
-                <i class="bi bi-mortarboard"></i>
+                <i class="bi bi-mortarboard-fill"></i>
                 المعلومات الأكاديمية
             </h3>
 
             <div class="student-details-grid">
 
                 <div class="student-details-item">
-                    <span class="student-details-label">القسم الأكاديمي</span>
+                    <span class="student-details-label">
+                        القسم الأكاديمي
+                    </span>
                     <span class="student-details-value">
                         @(Model.Department?.Name ?? "غير محدد")
                     </span>
                 </div>
 
                 <div class="student-details-item">
-                    <span class="student-details-label">فصل القبول</span>
+                    <span class="student-details-label">
+                        فصل القبول
+                    </span>
                     <span class="student-details-value">
                         @(Model.AdmissionSemester?.Name ?? "غير محدد")
                     </span>
                 </div>
 
                 <div class="student-details-item">
-                    <span class="student-details-label">فصل التخرج</span>
+                    <span class="student-details-label">
+                        فصل التخرج
+                    </span>
                     <span class="student-details-value">
                         @(Model.GraduationSemester?.Name ?? "لم يتخرج بعد")
                     </span>
                 </div>
 
                 <div class="student-details-item">
-                    <span class="student-details-label">الحالة الدراسية</span>
+                    <span class="student-details-label">
+                        الحالة الدراسية
+                    </span>
                     <span class="student-details-value">
-                        @(string.IsNullOrWhiteSpace(Model.Status) ? "غير محددة" : Model.Status)
+                        @(string.IsNullOrWhiteSpace(Model.Status)
+                            ? "غير محددة"
+                            : Model.Status)
                     </span>
                 </div>
 
                 <div class="student-details-item">
-                    <span class="student-details-label">معدل التخرج</span>
+                    <span class="student-details-label">
+                        معدل التخرج
+                    </span>
                     <span class="student-details-value">
                         @(Model.GraduationAverage.HasValue
                             ? Model.GraduationAverage.Value.ToString("0.00")
@@ -318,40 +476,58 @@
                 </div>
 
             </div>
+
         </div>
+
+        <!-- معلومات التواصل -->
 
         <div class="student-details-section">
 
             <h3>
-                <i class="bi bi-telephone"></i>
+                <i class="bi bi-telephone-fill"></i>
                 معلومات التواصل
             </h3>
 
             <div class="student-details-grid">
 
                 <div class="student-details-item">
-                    <span class="student-details-label">رقم الهاتف</span>
+                    <span class="student-details-label">
+                        رقم الهاتف
+                    </span>
                     <span class="student-details-value">
-                        @(string.IsNullOrWhiteSpace(Model.Phone) ? "غير محدد" : Model.Phone)
+                        @(string.IsNullOrWhiteSpace(Model.Phone)
+                            ? "غير محدد"
+                            : Model.Phone)
                     </span>
                 </div>
 
                 <div class="student-details-item">
-                    <span class="student-details-label">المحافظة</span>
+                    <span class="student-details-label">
+                        المحافظة
+                    </span>
                     <span class="student-details-value">
-                        @(string.IsNullOrWhiteSpace(Model.Governorate) ? "غير محددة" : Model.Governorate)
+                        @(string.IsNullOrWhiteSpace(Model.Governorate)
+                            ? "غير محددة"
+                            : Model.Governorate)
                     </span>
                 </div>
 
                 <div class="student-details-item">
-                    <span class="student-details-label">العنوان</span>
+                    <span class="student-details-label">
+                        العنوان
+                    </span>
                     <span class="student-details-value">
-                        @(string.IsNullOrWhiteSpace(Model.Address) ? "غير محدد" : Model.Address)
+                        @(string.IsNullOrWhiteSpace(Model.Address)
+                            ? "غير محدد"
+                            : Model.Address)
                     </span>
                 </div>
 
             </div>
+
         </div>
+
+        <!-- الصور والوثائق -->
 
         <div class="student-details-section">
 
@@ -363,60 +539,83 @@
             <div class="student-details-grid">
 
                 <div class="student-details-item">
-                    <span class="student-details-label">الصورة الشخصية</span>
+
+                    <span class="student-details-label">
+                        الصورة الشخصية
+                    </span>
 
                     @if (!string.IsNullOrWhiteSpace(Model.PersonalImage))
                     {
-                        <span class="student-details-value">
+                        <span class="student-details-value student-document-value">
                             مسار الملف: @Model.PersonalImage
                         </span>
                     }
                     else
                     {
-                        <span class="student-details-value">غير مرفقة</span>
+                        <span class="student-details-value">
+                            غير مرفقة
+                        </span>
                     }
+
                 </div>
 
                 <div class="student-details-item">
-                    <span class="student-details-label">صورة الهوية</span>
+
+                    <span class="student-details-label">
+                        صورة الهوية
+                    </span>
 
                     @if (!string.IsNullOrWhiteSpace(Model.NationalIdImage))
                     {
-                        <span class="student-details-value">
+                        <span class="student-details-value student-document-value">
                             مسار الملف: @Model.NationalIdImage
                         </span>
                     }
                     else
                     {
-                        <span class="student-details-value">غير مرفقة</span>
+                        <span class="student-details-value">
+                            غير مرفقة
+                        </span>
                     }
+
                 </div>
 
                 <div class="student-details-item">
-                    <span class="student-details-label">صورة الشهادة</span>
+
+                    <span class="student-details-label">
+                        صورة الشهادة
+                    </span>
 
                     @if (!string.IsNullOrWhiteSpace(Model.CertificateImage))
                     {
-                        <span class="student-details-value">
+                        <span class="student-details-value student-document-value">
                             مسار الملف: @Model.CertificateImage
                         </span>
                     }
                     else
                     {
-                        <span class="student-details-value">غير مرفقة</span>
+                        <span class="student-details-value">
+                            غير مرفقة
+                        </span>
                     }
+
                 </div>
 
             </div>
+
         </div>
+
+        <!-- أزرار الصفحة -->
 
         <div class="student-details-actions">
 
             <a asp-controller="Students"
                asp-action="Index"
                class="student-details-back">
+
                 <i class="bi bi-arrow-right"></i>
                 العودة إلى قائمة الطلاب
+
             </a>
 
             @if (canDeleteStudents)
@@ -425,12 +624,15 @@
                    asp-action="Delete"
                    asp-route-id="@Model.Id"
                    class="student-details-delete">
+
                     <i class="bi bi-trash3"></i>
                     حذف الطالب
+
                 </a>
             }
 
         </div>
 
     </div>
+
 </div>

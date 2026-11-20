@@ -44,13 +44,16 @@
         color: #142d4e;
     }
 
+    /* عنوان الصفحة */
+
     .student-courses-header {
         background: #142d4e;
-        color: white;
-        border-radius: 16px;
+        color: #ffffff;
+        border-radius: 15px;
         padding: 28px;
         border-bottom: 4px solid #c9a24d;
         margin-bottom: 24px;
+        box-shadow: 0 4px 14px rgba(20,45,78,.08);
     }
 
         .student-courses-header h2 {
@@ -59,29 +62,40 @@
             margin-bottom: 10px;
         }
 
+            .student-courses-header h2 i {
+                color: #c9a24d;
+                margin-left: 8px;
+            }
+
         .student-courses-header p {
             color: #d8e0ea;
             margin-bottom: 0;
+            line-height: 1.9;
         }
 
     .student-semester {
-        display: inline-block;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
         margin-top: 16px;
         padding: 9px 15px;
-        border-radius: 9px;
+        border-radius: 11px;
         background: rgba(201,162,77,.15);
         border: 1px solid rgba(201,162,77,.45);
         color: #f0d7a0;
         font-weight: 700;
     }
 
+    /* حالة التسجيل */
+
     .registration-status {
-        background: white;
+        background: #ffffff;
         border: 1px solid #e2e8f0;
         border-right: 5px solid #c9a24d;
-        border-radius: 13px;
+        border-radius: 15px;
         padding: 20px;
         margin-bottom: 24px;
+        box-shadow: 0 3px 12px rgba(20,45,78,.04);
     }
 
         .registration-status.closed {
@@ -96,6 +110,7 @@
         .registration-status p {
             margin-bottom: 0;
             color: #65758a;
+            line-height: 1.8;
         }
 
     .registration-dates {
@@ -107,10 +122,18 @@
 
     .registration-date {
         background: #f6f8fb;
-        padding: 10px 14px;
-        border-radius: 9px;
+        border: 1px solid #edf0f5;
+        padding: 11px 14px;
+        border-radius: 11px;
         font-size: 13px;
     }
+
+        .registration-date i {
+            color: #c9a24d;
+            margin-left: 5px;
+        }
+
+    /* بطاقات الإحصائيات */
 
     .courses-summary {
         display: grid;
@@ -120,10 +143,24 @@
     }
 
     .summary-card {
-        background: white;
+        background: #ffffff;
         border: 1px solid #e5eaf2;
-        border-radius: 13px;
-        padding: 20px;
+        border-radius: 15px;
+        padding: 22px;
+        box-shadow: 0 3px 12px rgba(20,45,78,.04);
+    }
+
+    .summary-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 44px;
+        height: 44px;
+        border-radius: 11px;
+        background: #f8f5ec;
+        color: #c9a24d;
+        font-size: 21px;
+        margin-bottom: 13px;
     }
 
     .summary-label {
@@ -138,11 +175,14 @@
         color: #142d4e;
     }
 
+    /* جدول المقررات */
+
     .courses-table-wrapper {
-        background: white;
+        background: #ffffff;
         border: 1px solid #e5eaf2;
-        border-radius: 14px;
+        border-radius: 15px;
         overflow-x: auto;
+        box-shadow: 0 3px 12px rgba(20,45,78,.04);
     }
 
     .courses-table {
@@ -154,8 +194,10 @@
 
         .courses-table th {
             background: #142d4e;
-            color: white;
+            color: #ffffff;
             padding: 16px;
+            font-weight: 800;
+            font-size: 14px;
             white-space: nowrap;
         }
 
@@ -165,8 +207,16 @@
             vertical-align: middle;
         }
 
+        .courses-table tbody tr:nth-child(even) {
+            background: #f8f9fb;
+        }
+
         .courses-table tbody tr:hover {
-            background: #fafbfd;
+            background: #f1f4f8;
+        }
+
+        .courses-table tbody tr:last-child td {
+            border-bottom: none;
         }
 
     .course-name {
@@ -180,12 +230,17 @@
         margin-top: 4px;
     }
 
+    /* حالات المقررات */
+
     .course-status {
-        display: inline-block;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
         border-radius: 8px;
         padding: 7px 12px;
         font-size: 12px;
         font-weight: 700;
+        white-space: nowrap;
     }
 
         .course-status.registered {
@@ -208,37 +263,80 @@
             color: #687386;
         }
 
+    /* الأزرار الموحدة */
+
+    .course-action-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-height: 43px;
+        min-width: 135px;
+        padding: 9px 16px;
+        border: 1px solid transparent;
+        border-radius: 11px;
+        font-size: 14px;
+        font-weight: 700;
+        white-space: nowrap;
+        cursor: pointer;
+        transition: background-color .2s ease, transform .2s ease;
+    }
+
+        .course-action-button i {
+            font-size: 16px;
+        }
+
+        .course-action-button:focus-visible {
+            outline: 3px solid #142d4e;
+            outline-offset: 3px;
+        }
+
+    /* زر تسجيل مقرر */
+
     .register-button {
-        border: none;
         background: #c9a24d;
         color: #142d4e;
-        padding: 10px 18px;
-        border-radius: 9px;
         font-weight: 800;
-        cursor: pointer;
     }
 
         .register-button:hover {
             background: #b9913d;
+            transform: translateY(-1px);
         }
 
+    /* زر غير متاح */
+
     .disabled-button {
-        border: none;
-        background: #e9edf2;
+        background: #eef2f8;
         color: #718096;
-        padding: 10px 18px;
-        border-radius: 9px;
-        font-weight: 700;
         cursor: not-allowed;
     }
+
+        .disabled-button.registered {
+            background: #e8f5ee;
+            color: #176a42;
+        }
+
+        .disabled-button.full {
+            background: #fff0ee;
+            color: #b34035;
+        }
+
+        .disabled-button.closed {
+            background: #f0f1f4;
+            color: #687386;
+        }
+
+    /* الحالة الفارغة */
 
     .courses-empty {
         padding: 40px 20px;
         text-align: center;
         color: #718096;
-        background: white;
+        background: #ffffff;
         border: 1px solid #e5eaf2;
-        border-radius: 13px;
+        border-radius: 15px;
+        box-shadow: 0 3px 12px rgba(20,45,78,.04);
     }
 
         .courses-empty i {
@@ -248,15 +346,30 @@
             margin-bottom: 12px;
         }
 
+        .courses-empty h4 {
+            color: #142d4e;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+
+    /* ملاحظة التسجيل */
+
     .courses-note {
         background: #fff9ec;
         border: 1px solid #efdfbb;
         color: #755a2d;
-        border-radius: 10px;
+        border-radius: 11px;
         padding: 17px;
         margin-top: 22px;
         line-height: 1.8;
     }
+
+        .courses-note i {
+            color: #b9913d;
+            margin-left: 6px;
+        }
+
+    /* الشاشات الصغيرة */
 
     @@media (max-width: 750px) {
         .courses-summary {
@@ -266,10 +379,20 @@
         .student-courses-header {
             padding: 20px;
         }
+
+            .student-courses-header h2 {
+                font-size: 23px;
+            }
+
+        .summary-card {
+            padding: 18px;
+        }
     }
 </style>
 
 <div class="student-courses">
+
+    <!-- عنوان الصفحة -->
 
     <div class="student-courses-header">
 
@@ -286,45 +409,60 @@
         @if (activeSemester != null)
         {
             <div class="student-semester">
+
                 <i class="bi bi-calendar3"></i>
+
                 الفصل: @activeSemester.Name
                 - @activeSemester.AcademicYear
+
             </div>
         }
 
     </div>
 
+    <!-- رسائل النظام -->
     @if (TempData["SuccessMessage"] != null)
     {
         <div class="alert alert-success">
+
             <i class="bi bi-check-circle-fill"></i>
+
             @TempData["SuccessMessage"]
+
         </div>
     }
 
     @if (TempData["ErrorMessage"] != null)
     {
         <div class="alert alert-danger">
+
             <i class="bi bi-exclamation-triangle-fill"></i>
+
             @TempData["ErrorMessage"]
+
         </div>
     }
 
     <!-- حالة فترة التسجيل -->
+
     <div class="registration-status @(isRegistrationOpen ? "" : "closed")">
 
         @if (isRegistrationOpen)
         {
             <h5 style="color:#167348;">
+
                 <i class="bi bi-unlock"></i>
                 تسجيل المقررات مفتوح حاليًا
+
             </h5>
         }
         else
         {
             <h5 style="color:#b34035;">
+
                 <i class="bi bi-lock"></i>
                 تسجيل المقررات مغلق حاليًا
+
             </h5>
         }
 
@@ -337,15 +475,23 @@
             <div class="registration-dates">
 
                 <div class="registration-date">
+
                     <i class="bi bi-calendar-plus"></i>
+
                     <strong>بداية التسجيل:</strong>
+
                     @activeSemester.RegistrationStartDate.Value.ToString("yyyy/MM/dd HH:mm")
+
                 </div>
 
                 <div class="registration-date">
+
                     <i class="bi bi-calendar-x"></i>
+
                     <strong>نهاية التسجيل:</strong>
+
                     @activeSemester.RegistrationEndDate.Value.ToString("yyyy/MM/dd HH:mm")
+
                 </div>
 
             </div>
@@ -355,58 +501,100 @@
 
     @if (activeSemester == null)
     {
+        <!-- لا يوجد فصل فعال -->
+
         <div class="courses-empty">
+
             <i class="bi bi-calendar-x"></i>
+
             <h4>لا يوجد فصل دراسي فعّال</h4>
+
             <p>لا توجد مقررات متاحة للعرض حاليًا.</p>
+
         </div>
     }
     else
     {
         <!-- ملخص المقررات -->
+
         <div class="courses-summary">
 
+            <!-- المقررات المطروحة -->
+
             <div class="summary-card">
+
+                <div class="summary-icon">
+                    <i class="bi bi-journals"></i>
+                </div>
+
                 <div class="summary-label">
                     المقررات المطروحة
                 </div>
+
                 <div class="summary-value">
                     @Model.Count
                 </div>
+
             </div>
 
+            <!-- المقررات المسجلة -->
+
             <div class="summary-card">
+
+                <div class="summary-icon">
+                    <i class="bi bi-check2-circle"></i>
+                </div>
+
                 <div class="summary-label">
                     المقررات المسجلة
                 </div>
+
                 <div class="summary-value">
                     @registeredCoursesCount
                 </div>
+
             </div>
 
+            <!-- المقررات المتاحة -->
+
             <div class="summary-card">
+
+                <div class="summary-icon">
+                    <i class="bi bi-people"></i>
+                </div>
+
                 <div class="summary-label">
                     المقررات التي تتوفر فيها مقاعد
                 </div>
+
                 <div class="summary-value">
                     @availableCoursesCount
                 </div>
+
             </div>
 
         </div>
 
         @if (!Model.Any())
         {
+            <!-- لا توجد مقررات مطروحة -->
+
             <div class="courses-empty">
+
                 <i class="bi bi-journal-x"></i>
+
                 <h4>لا توجد مقررات مطروحة لقسمك</h4>
+
                 <p>
                     لم تتم إضافة مقررات لقسمك في الفصل الحالي.
                 </p>
+
             </div>
         }
         else
         {
+            <!-- جدول المقررات -->
+
             <div class="courses-table-wrapper">
 
                 <table class="courses-table">
@@ -439,7 +627,11 @@
                             bool isFull = remainingSeats == 0;
 
                             <tr>
+
+                                <!-- اسم المقرر ورمزه -->
+
                                 <td>
+
                                     <div class="course-name">
                                         @offering.Course.Name
                                     </div>
@@ -447,66 +639,105 @@
                                     <div class="course-code">
                                         @offering.Course.Code
                                     </div>
+
                                 </td>
+
+                                <!-- الساعات -->
 
                                 <td>
                                     @offering.Course.CreditHours
                                 </td>
 
+                                <!-- السعة -->
+
                                 <td>
                                     @offering.Capacity
                                 </td>
+
+                                <!-- المقاعد المتبقية -->
 
                                 <td>
                                     @remainingSeats
                                 </td>
 
+                                <!-- حالة المقرر -->
+
                                 <td>
+
                                     @if (isRegistered)
                                     {
                                         <span class="course-status registered">
+
+                                            <i class="bi bi-check-circle"></i>
                                             مسجل مسبقًا
+
                                         </span>
                                     }
                                     else if (!isRegistrationOpen)
                                     {
                                         <span class="course-status closed">
+
+                                            <i class="bi bi-lock"></i>
                                             التسجيل مغلق
+
                                         </span>
                                     }
                                     else if (isFull)
                                     {
                                         <span class="course-status full">
+
+                                            <i class="bi bi-people-fill"></i>
                                             مكتمل العدد
+
                                         </span>
                                     }
                                     else
                                     {
                                         <span class="course-status available">
+
+                                            <i class="bi bi-check-circle"></i>
                                             متاح للتسجيل
+
                                         </span>
                                     }
+
                                 </td>
 
+                                <!-- زر الإجراء -->
+
                                 <td>
+
                                     @if (isRegistered)
                                     {
-                                        <button class="disabled-button" disabled>
+                                        <button type="button"
+                                                class="course-action-button disabled-button registered"
+                                                disabled>
+
                                             <i class="bi bi-check-circle"></i>
                                             تم التسجيل
+
                                         </button>
                                     }
                                     else if (!isRegistrationOpen)
                                     {
-                                        <button class="disabled-button" disabled>
+                                        <button type="button"
+                                                class="course-action-button disabled-button closed"
+                                                disabled>
+
                                             <i class="bi bi-lock"></i>
                                             التسجيل مغلق
+
                                         </button>
                                     }
                                     else if (isFull)
                                     {
-                                        <button class="disabled-button" disabled>
+                                        <button type="button"
+                                                class="course-action-button disabled-button full"
+                                                disabled>
+
+                                            <i class="bi bi-people-fill"></i>
                                             لا توجد مقاعد
+
                                         </button>
                                     }
                                     else
@@ -522,30 +753,41 @@
                                                    value="@offering.Id" />
 
                                             <button type="submit"
-                                                    class="register-button">
+                                                    class="course-action-button register-button">
+
                                                 <i class="bi bi-plus-circle"></i>
                                                 تسجيل
+
                                             </button>
 
                                         </form>
                                     }
+
                                 </td>
+
                             </tr>
                         }
 
                     </tbody>
 
                 </table>
+
             </div>
         }
 
+        <!-- ملاحظة التسجيل -->
+
         <div class="courses-note">
+
             <i class="bi bi-info-circle"></i>
+
             <strong>ملاحظة:</strong>
+
             يستطيع الطالب استعراض المقررات في أي وقت،
             لكن تسجيل مقرر جديد مسموح فقط خلال الفترة
             التي تفتحها إدارة الجامعة، وبشرط توفر مقاعد
             وعدم تسجيل المقرر مسبقًا.
+
         </div>
     }
 

@@ -1,5 +1,4 @@
-﻿
-@model StudentAffairsManagementSystem.Models.Employee
+﻿@model StudentAffairsManagementSystem.Models.Employee
 
 @{
     ViewData["Title"] = "تفاصيل الموظف";
@@ -8,229 +7,543 @@
         $"{Model.FirstName} {Model.FatherName} {Model.LastName}";
 }
 
-<div class="container-fluid py-4" dir="rtl">
+<style>
+    .employee-details-page {
+        direction: rtl;
+        max-width: 1100px;
+        margin: 20px auto;
+        color: #142d4e;
+    }
+
+    /* رأس الصفحة */
+
+    .employee-details-header {
+        background: linear-gradient(135deg, #142d4e, #304661);
+        color: #ffffff;
+        padding: 28px 32px;
+        border-radius: 16px 16px 0 0;
+        border-bottom: 4px solid #c9a24d;
+    }
+
+        .employee-details-header h2 {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 25px;
+            font-weight: 800;
+            margin: 0 0 10px;
+        }
+
+            .employee-details-header h2 i {
+                color: #c9a24d;
+                font-size: 27px;
+            }
+
+        .employee-details-header p {
+            color: #d6dfeb;
+            font-size: 14px;
+            line-height: 1.9;
+            margin: 0;
+        }
+
+    /* بطاقة المحتوى */
+
+    .employee-details-body {
+        background: #ffffff;
+        padding: 30px;
+        border: 1px solid #e5eaf2;
+        border-radius: 0 0 16px 16px;
+        box-shadow: 0 5px 25px rgba(20,45,78,.05);
+    }
+
+    /* الملف التعريفي */
+
+    .employee-profile {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        flex-wrap: wrap;
+        padding: 22px;
+        background: #f7f9fc;
+        border: 1px solid #e9edf3;
+        border-right: 4px solid #c9a24d;
+        border-radius: 12px;
+        margin-bottom: 30px;
+    }
+
+    .employee-avatar {
+        width: 76px;
+        height: 76px;
+        border-radius: 50%;
+        background: #f4eddd;
+        color: #b9913d;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 34px;
+        flex-shrink: 0;
+    }
+
+    .employee-profile-info {
+        min-width: 0;
+        flex: 1;
+    }
+
+    .employee-profile-name {
+        color: #142d4e;
+        font-size: 23px;
+        font-weight: 800;
+        margin-bottom: 10px;
+        overflow-wrap: anywhere;
+    }
+
+    .employee-profile-number {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+        background: #f4eddd;
+        color: #80642e;
+        border: 1px solid #eadbb7;
+        padding: 8px 13px;
+        border-radius: 9px;
+        font-size: 13px;
+        font-weight: 800;
+    }
+
+        .employee-profile-number strong {
+            color: #142d4e;
+            overflow-wrap: anywhere;
+        }
+
+    /* أقسام التفاصيل */
+
+    .employee-details-section {
+        margin-bottom: 30px;
+        padding-bottom: 26px;
+        border-bottom: 1px solid #e9edf3;
+    }
+
+        .employee-details-section h3 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #142d4e;
+            font-size: 18px;
+            font-weight: 800;
+            border-right: 4px solid #c9a24d;
+            padding-right: 13px;
+            margin-bottom: 23px;
+        }
+
+            .employee-details-section h3 i {
+                color: #b9913d;
+                font-size: 20px;
+            }
+
+    /* شبكة المعلومات */
+
+    .employee-details-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+    }
+
+    .employee-details-item {
+        background: #f8f9fc;
+        border: 1px solid #edf0f5;
+        border-radius: 11px;
+        padding: 17px 19px;
+        min-width: 0;
+    }
+
+    .employee-details-label {
+        display: block;
+        color: #718096;
+        font-size: 13px;
+        font-weight: 500;
+        margin-bottom: 9px;
+    }
+
+    .employee-details-value {
+        display: block;
+        color: #142d4e;
+        font-size: 14px;
+        font-weight: 800;
+        line-height: 1.9;
+        overflow-wrap: anywhere;
+        white-space: pre-wrap;
+    }
+
+    /* نوع الحساب */
+
+    .employee-account-type {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: #eaf0f7;
+        color: #142d4e;
+        border: 1px solid #dce5f0;
+        padding: 7px 13px;
+        border-radius: 9px;
+        font-size: 13px;
+        font-weight: 800;
+    }
+
+    /* القيم غير المسجلة */
+
+    .employee-not-available {
+        color: #8491a3;
+        font-weight: 500;
+    }
+
+    /* أزرار الصفحة */
+
+    .employee-details-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 28px;
+    }
+
+    .employee-details-edit,
+    .employee-details-delete,
+    .employee-details-back {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+        min-height: 45px;
+        padding: 11px 22px;
+        border-radius: 11px;
+        font-size: 14px;
+        font-weight: 800;
+        text-decoration: none;
+        transition: background-color .2s ease;
+    }
+
+    .employee-details-edit {
+        background: #c9a24d;
+        color: #142d4e;
+        border: 1px solid transparent;
+    }
+
+        .employee-details-edit:hover {
+            background: #b9913d;
+            color: #142d4e;
+        }
+
+    .employee-details-delete {
+        background: #fff0ee;
+        color: #b42318;
+        border: 1px solid #f1d8d5;
+    }
+
+        .employee-details-delete:hover {
+            background: #f9dfdc;
+            color: #982626;
+        }
+
+    .employee-details-back {
+        background: #edf1f7;
+        color: #142d4e;
+        border: 1px solid #dfe6ef;
+    }
+
+        .employee-details-back:hover {
+            background: #e1e8f2;
+            color: #142d4e;
+        }
+
+        .employee-details-edit:focus-visible,
+        .employee-details-delete:focus-visible,
+        .employee-details-back:focus-visible {
+            outline: 3px solid #142d4e;
+            outline-offset: 3px;
+        }
+
+    /* الشاشات الصغيرة */
+
+    @@media (max-width: 700px) {
+        .employee-details-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .employee-details-body {
+            padding: 20px;
+        }
+
+        .employee-details-header {
+            padding: 22px;
+        }
+
+            .employee-details-header h2 {
+                font-size: 21px;
+            }
+
+        .employee-profile {
+            padding: 18px;
+            gap: 15px;
+        }
+
+        .employee-profile-name {
+            font-size: 19px;
+        }
+
+        .employee-avatar {
+            width: 65px;
+            height: 65px;
+            font-size: 29px;
+        }
+
+        .employee-details-actions {
+            flex-direction: column;
+        }
+
+        .employee-details-edit,
+        .employee-details-delete,
+        .employee-details-back {
+            width: 100%;
+        }
+    }
+</style>
+
+<div class="employee-details-page">
 
     <!-- عنوان الصفحة -->
-    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
 
-        <div>
-            <h2 style="color:#142d4e; font-weight:800;">
-                تفاصيل الموظف
-            </h2>
+    <div class="employee-details-header">
 
-            <p class="text-muted mb-0">
-                عرض البيانات الشخصية والوظيفية للموظف
-            </p>
-        </div>
+        <h2>
+            <i class="bi bi-person-vcard"></i>
+            تفاصيل الموظف
+        </h2>
 
-        <a asp-controller="Employees"
-           asp-action="Index"
-           class="btn btn-outline-secondary">
-            العودة إلى قائمة الموظفين
-        </a>
+        <p>
+            عرض البيانات الشخصية والوظيفية
+            ومعلومات التواصل الخاصة بالموظف.
+        </p>
 
     </div>
 
-    <!-- بطاقة معلومات الموظف -->
-    <div class="card border-0 shadow-sm mb-4">
+    <div class="employee-details-body">
 
-        <div class="card-header py-3"
-             style="background:#142d4e; color:white;">
+        <!-- بطاقة الموظف -->
 
-            <h5 class="mb-0">
-                معلومات الموظف
-            </h5>
+        <div class="employee-profile">
 
-        </div>
-
-        <div class="card-body p-4">
-
-            <!-- الاسم والرقم الوظيفي -->
-            <div class="d-flex align-items-center flex-wrap gap-3 mb-4">
-
-                <div style="
-                    width:75px;
-                    height:75px;
-                    background:#142d4e;
-                    color:#c9a24d;
-                    border-radius:16px;
-                    display:flex;
-                    align-items:center;
-                    justify-content:center;
-                    font-size:34px;">
-                    👤
-                </div>
-
-                <div>
-                    <h4 class="mb-2"
-                        style="color:#142d4e; font-weight:800;">
-                        @fullName
-                    </h4>
-
-                    <span class="badge"
-                          style="background:#c9a24d; color:#142d4e;">
-                        الرقم الوظيفي: @Model.EmployeeNumber
-                    </span>
-                </div>
-
+            <div class="employee-avatar">
+                <i class="bi bi-person-fill"></i>
             </div>
 
-            <hr />
+            <div class="employee-profile-info">
 
-            <!-- المعلومات الشخصية -->
-            <h5 class="mb-3"
-                style="color:#142d4e; font-weight:700;">
-                المعلومات الشخصية
-            </h5>
-
-            <div class="row g-4 mb-4">
-
-                <div class="col-md-4">
-                    <div class="text-muted mb-1">
-                        الاسم الأول
-                    </div>
-
-                    <div class="fw-bold">
-                        @Model.FirstName
-                    </div>
+                <div class="employee-profile-name">
+                    @fullName
                 </div>
 
-                <div class="col-md-4">
-                    <div class="text-muted mb-1">
-                        اسم الأب
-                    </div>
+                <div class="employee-profile-number">
 
-                    <div class="fw-bold">
-                        @Model.FatherName
-                    </div>
-                </div>
+                    <i class="bi bi-person-badge"></i>
 
-                <div class="col-md-4">
-                    <div class="text-muted mb-1">
-                        الكنية
-                    </div>
+                    <span>الرقم الوظيفي:</span>
 
-                    <div class="fw-bold">
-                        @Model.LastName
-                    </div>
-                </div>
-
-            </div>
-
-            <hr />
-
-            <!-- المعلومات الوظيفية -->
-            <h5 class="mb-3"
-                style="color:#142d4e; font-weight:700;">
-                المعلومات الوظيفية
-            </h5>
-
-            <div class="row g-4 mb-4">
-
-                <div class="col-md-6">
-                    <div class="text-muted mb-1">
-                        الرقم الوظيفي
-                    </div>
-
-                    <div class="fw-bold" dir="ltr"
-                         style="text-align:right;">
+                    <strong dir="ltr">
                         @Model.EmployeeNumber
-                    </div>
-                </div>
+                    </strong>
 
-                <div class="col-md-6">
-                    <div class="text-muted mb-1">
-                        نوع الحساب
-                    </div>
-
-                    <div>
-                        <span class="badge"
-                              style="background:#142d4e; color:white;">
-                            موظف
-                        </span>
-                    </div>
-                </div>
-
-            </div>
-
-            <hr />
-
-            <!-- معلومات التواصل -->
-            <h5 class="mb-3"
-                style="color:#142d4e; font-weight:700;">
-                معلومات التواصل
-            </h5>
-
-            <div class="row g-4">
-
-                <div class="col-md-6">
-                    <div class="text-muted mb-1">
-                        رقم الهاتف
-                    </div>
-
-                    <div class="fw-bold">
-                        @if (!string.IsNullOrWhiteSpace(Model.Phone))
-                        {
-                            <span dir="ltr">
-                                @Model.Phone
-                            </span>
-                        }
-                        else
-                        {
-                            <span class="text-muted">
-                                غير مسجل
-                            </span>
-                        }
-                    </div>
-                </div>
-
-                <div class="col-md-6">
-                    <div class="text-muted mb-1">
-                        العنوان
-                    </div>
-
-                    <div class="fw-bold">
-                        @if (!string.IsNullOrWhiteSpace(Model.Address))
-                        {
-                            @Model.Address
-                        }
-                        else
-                        {
-                            <span class="text-muted">
-                                غير مسجل
-                            </span>
-                        }
-                    </div>
                 </div>
 
             </div>
 
         </div>
-    </div>
 
-    <!-- أزرار الإجراءات -->
-    <div class="d-flex flex-wrap gap-3">
+        <!-- المعلومات الشخصية -->
 
-        <a asp-controller="Employees"
-           asp-action="Edit"
-           asp-route-id="@Model.Id"
-           class="btn px-4 py-2"
-           style="background:#c9a24d; color:#142d4e; font-weight:800;">
-            تعديل بيانات الموظف
-        </a>
+        <div class="employee-details-section">
 
-        <a asp-controller="Employees"
-           asp-action="Delete"
-           asp-route-id="@Model.Id"
-           class="btn btn-outline-danger px-4 py-2">
-            حذف الموظف
-        </a>
+            <h3>
+                <i class="bi bi-person-vcard"></i>
+                المعلومات الشخصية
+            </h3>
 
-        <a asp-controller="Employees"
-           asp-action="Index"
-           class="btn btn-outline-secondary px-4 py-2">
-            العودة
-        </a>
+            <div class="employee-details-grid">
+
+                <div class="employee-details-item">
+
+                    <span class="employee-details-label">
+                        الاسم الأول
+                    </span>
+
+                    <span class="employee-details-value">
+                        @Model.FirstName
+                    </span>
+
+                </div>
+
+                <div class="employee-details-item">
+
+                    <span class="employee-details-label">
+                        اسم الأب
+                    </span>
+
+                    <span class="employee-details-value">
+                        @Model.FatherName
+                    </span>
+
+                </div>
+
+                <div class="employee-details-item">
+
+                    <span class="employee-details-label">
+                        الكنية
+                    </span>
+
+                    <span class="employee-details-value">
+                        @Model.LastName
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- المعلومات الوظيفية -->
+
+        <div class="employee-details-section">
+
+            <h3>
+                <i class="bi bi-person-badge"></i>
+                المعلومات الوظيفية
+            </h3>
+
+            <div class="employee-details-grid">
+
+                <div class="employee-details-item">
+
+                    <span class="employee-details-label">
+                        الرقم الوظيفي
+                    </span>
+
+                    <span class="employee-details-value"
+                          dir="ltr"
+                          style="text-align:right;">
+                        @Model.EmployeeNumber
+                    </span>
+
+                </div>
+
+                <div class="employee-details-item">
+
+                    <span class="employee-details-label">
+                        نوع الحساب
+                    </span>
+
+                    <span class="employee-account-type">
+                        <i class="bi bi-shield-check"></i>
+                        موظف
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- معلومات التواصل -->
+
+        <div class="employee-details-section">
+
+            <h3>
+                <i class="bi bi-telephone-fill"></i>
+                معلومات التواصل
+            </h3>
+
+            <div class="employee-details-grid">
+
+                <div class="employee-details-item">
+
+                    <span class="employee-details-label">
+                        رقم الهاتف
+                    </span>
+
+                    @if (!string.IsNullOrWhiteSpace(Model.Phone))
+                    {
+                        <span class="employee-details-value"
+                              dir="ltr"
+                              style="text-align:right;">
+                            @Model.Phone
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="employee-details-value employee-not-available">
+                            غير مسجل
+                        </span>
+                    }
+
+                </div>
+
+                <div class="employee-details-item">
+
+                    <span class="employee-details-label">
+                        العنوان
+                    </span>
+
+                    @if (!string.IsNullOrWhiteSpace(Model.Address))
+                    {
+                        <span class="employee-details-value">
+                            @Model.Address
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="employee-details-value employee-not-available">
+                            غير مسجل
+                        </span>
+                    }
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- أزرار الإجراءات -->
+
+        <div class="employee-details-actions">
+
+            <a asp-controller="Employees"
+               asp-action="Edit"
+               asp-route-id="@Model.Id"
+               class="employee-details-edit">
+
+                <i class="bi bi-pencil-square"></i>
+                تعديل بيانات الموظف
+
+            </a>
+
+            <a asp-controller="Employees"
+               asp-action="Delete"
+               asp-route-id="@Model.Id"
+               class="employee-details-delete">
+
+                <i class="bi bi-trash3"></i>
+                حذف الموظف
+
+            </a>
+
+            <a asp-controller="Employees"
+               asp-action="Index"
+               class="employee-details-back">
+
+                <i class="bi bi-arrow-right"></i>
+                العودة إلى قائمة الموظفين
+
+            </a>
+
+        </div>
 
     </div>
 

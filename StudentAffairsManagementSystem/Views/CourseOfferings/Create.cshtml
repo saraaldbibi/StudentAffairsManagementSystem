@@ -1,5 +1,4 @@
-﻿
-@model StudentAffairsManagementSystem.Models.CourseOffering
+﻿@model StudentAffairsManagementSystem.Models.CourseOffering
 
 @{
     ViewData["Title"] = "طرح مقرر جديد";
@@ -11,8 +10,9 @@
         <h2 style="color:#142d4e; font-weight:800;">
             طرح مقرر دراسي جديد
         </h2>
+
         <p class="text-muted mb-0">
-            تحديد المقرر والفصل الدراسي والموظف المسؤول والسعة الاستيعابية
+            تحديد المقرر الدراسي والفصل الدراسي والسعة الاستيعابية
         </p>
     </div>
 
@@ -43,6 +43,7 @@
 
                             <!-- المقرر الدراسي -->
                             <div class="col-md-6">
+
                                 <label asp-for="CourseId"
                                        class="form-label fw-bold">
                                     المقرر الدراسي
@@ -52,17 +53,21 @@
                                 <select asp-for="CourseId"
                                         asp-items="ViewBag.CourseId"
                                         class="form-select">
+
                                     <option value="">
-                                        -- اختاروا المقرر الدراسي --
+                                        -- اختر المقرر الدراسي --
                                     </option>
+
                                 </select>
 
                                 <span asp-validation-for="CourseId"
                                       class="text-danger small"></span>
+
                             </div>
 
                             <!-- الفصل الدراسي -->
                             <div class="col-md-6">
+
                                 <label asp-for="SemesterId"
                                        class="form-label fw-bold">
                                     الفصل الدراسي
@@ -72,41 +77,21 @@
                                 <select asp-for="SemesterId"
                                         asp-items="ViewBag.SemesterId"
                                         class="form-select">
+
                                     <option value="">
-                                        -- اختاروا الفصل الدراسي --
+                                        -- اختر الفصل الدراسي --
                                     </option>
+
                                 </select>
 
                                 <span asp-validation-for="SemesterId"
                                       class="text-danger small"></span>
-                            </div>
 
-                            <!-- الموظف المسؤول -->
-                            <div class="col-md-6">
-                                <label asp-for="EmployeeId"
-                                       class="form-label fw-bold">
-                                    الموظف المسؤول
-                                    <span class="text-danger">*</span>
-                                </label>
-
-                                <select asp-for="EmployeeId"
-                                        asp-items="ViewBag.EmployeeId"
-                                        class="form-select">
-                                    <option value="">
-                                        -- اختاروا الموظف المسؤول --
-                                    </option>
-                                </select>
-
-                                <span asp-validation-for="EmployeeId"
-                                      class="text-danger small"></span>
-
-                                <div class="form-text">
-                                    تظهر فقط أسماء الموظفين غير المحذوفين من النظام.
-                                </div>
                             </div>
 
                             <!-- السعة الاستيعابية -->
                             <div class="col-md-6">
+
                                 <label asp-for="Capacity"
                                        class="form-label fw-bold">
                                     السعة الاستيعابية
@@ -114,39 +99,52 @@
                                 </label>
 
                                 <div class="input-group">
+
                                     <input asp-for="Capacity"
                                            type="number"
                                            min="1"
                                            step="1"
                                            class="form-control"
-                                           placeholder="أدخلوا عدد الطلاب" />
+                                           placeholder="أدخل عدد الطلاب" />
 
                                     <span class="input-group-text">
                                         طالب
                                     </span>
+
                                 </div>
 
                                 <span asp-validation-for="Capacity"
                                       class="text-danger small"></span>
 
                                 <div class="form-text">
-                                    يجب أن تكون السعة أكبر من صفر.
+                                    يجب أن تكون السعة الاستيعابية أكبر من صفر.
                                 </div>
+
                             </div>
 
                         </div>
 
-                        <!-- ملاحظات -->
+                        <!-- ملاحظات مهمة -->
                         <div class="alert alert-light border mt-4 mb-0">
+
                             <strong>ملاحظات مهمة:</strong>
+
                             <p class="mb-1 mt-2">
-                                لا يمكن طرح نفس المقرر أكثر من مرة
-                                ضمن الفصل الدراسي نفسه حسب قواعد النظام الحالية.
+                                لا يمكن طرح المقرر الدراسي نفسه أكثر من مرة
+                                ضمن الفصل الدراسي ذاته وفق قواعد النظام الحالية.
                             </p>
-                            <p class="mb-0">
-                                يجب أن تكون المقررات والفصول والموظفون
+
+                            <p class="mb-1">
+                                يجب أن يكون المقرر الدراسي والفصل الدراسي
                                 مسجلين مسبقًا في النظام.
                             </p>
+
+                            <p class="mb-0">
+                                لا يتطلب طرح المقرر تعيين موظف مسؤول؛
+                                يمكن للموظفين المخوّلين إدارة تسجيلات الطلاب
+                                وفق الصلاحيات المعتمدة في النظام.
+                            </p>
+
                         </div>
 
                         <!-- الأزرار -->
@@ -161,8 +159,8 @@
                             <button type="submit"
                                     class="btn px-4"
                                     style="background:#c9a24d;
-                                           color:#142d4e;
-                                           font-weight:800;">
+                                color:#142d4e;
+                                font-weight:800;">
                                 حفظ المقرر المطروح
                             </button>
 

@@ -1,0 +1,505 @@
+﻿@model StudentAffairsManagementSystem.Models.Course
+
+@{
+    ViewData["Title"] = "تعديل المقرر الدراسي";
+}
+
+<style>
+    .course-edit-page {
+        direction: rtl;
+        max-width: 900px;
+        margin: 20px auto;
+        color: #142d4e;
+    }
+
+    /* رأس الصفحة */
+
+    .course-edit-header {
+        background: linear-gradient(135deg, #142d4e, #304661);
+        color: #ffffff;
+        padding: 28px 32px;
+        border-radius: 16px 16px 0 0;
+        border-bottom: 4px solid #c9a24d;
+    }
+
+        .course-edit-header h2 {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 25px;
+            font-weight: 800;
+            margin: 0 0 10px;
+        }
+
+            .course-edit-header h2 i {
+                color: #c9a24d;
+                font-size: 27px;
+            }
+
+        .course-edit-header p {
+            color: #d6dfeb;
+            font-size: 14px;
+            line-height: 1.9;
+            margin: 0;
+        }
+
+    /* بطاقة النموذج */
+
+    .course-edit-body {
+        background: #ffffff;
+        padding: 30px;
+        border: 1px solid #e5eaf2;
+        border-top: none;
+        border-radius: 0 0 16px 16px;
+        box-shadow: 0 5px 25px rgba(20,45,78,.05);
+    }
+
+    /* عنوان البيانات */
+
+    .course-edit-section-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #142d4e;
+        font-size: 18px;
+        font-weight: 800;
+        border-right: 4px solid #c9a24d;
+        padding-right: 13px;
+        margin-bottom: 25px;
+    }
+
+        .course-edit-section-title i {
+            color: #b9913d;
+            font-size: 20px;
+        }
+
+    /* توزيع الحقول */
+
+    .course-edit-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 22px;
+        margin-bottom: 25px;
+    }
+
+    .course-edit-field {
+        min-width: 0;
+    }
+
+    .course-edit-label {
+        display: block;
+        color: #142d4e;
+        font-size: 14px;
+        font-weight: 700;
+        margin-bottom: 9px;
+    }
+
+    .course-edit-required {
+        color: #b42318;
+    }
+
+    .course-edit-input {
+        display: block;
+        width: 100%;
+        min-height: 46px;
+        padding: 11px 14px;
+        border: 1px solid #dce3ed;
+        border-radius: 11px;
+        background: #ffffff;
+        color: #142d4e;
+        font-size: 14px;
+        font-family: inherit;
+        transition: border-color .2s ease, box-shadow .2s ease;
+    }
+
+        .course-edit-input:focus {
+            outline: none;
+            border-color: #c9a24d;
+            box-shadow: 0 0 0 3px rgba(201,162,77,.14);
+        }
+
+        .course-edit-input::placeholder {
+            color: #98a4b5;
+        }
+
+        .course-edit-input.input-validation-error {
+            border-color: #dc756e;
+        }
+
+    /* النصوص الإرشادية */
+
+    .course-edit-hint {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        color: #718096;
+        font-size: 13px;
+        line-height: 1.9;
+        margin-top: 9px;
+    }
+
+        .course-edit-hint i {
+            color: #b9913d;
+            margin-top: 2px;
+            flex-shrink: 0;
+        }
+
+    /* رسائل التحقق */
+
+    .course-edit-error {
+        display: block;
+        color: #b42318;
+        font-size: 13px;
+        line-height: 1.7;
+        margin-top: 7px;
+    }
+
+    .course-edit-validation-summary {
+        background: #fff0ee;
+        border: 1px solid #f1d8d5;
+        border-radius: 11px;
+        padding: 15px 18px;
+        margin-bottom: 22px;
+        color: #b42318;
+        font-size: 14px;
+    }
+
+        .course-edit-validation-summary.validation-summary-valid {
+            display: none;
+        }
+
+        .course-edit-validation-summary ul {
+            margin: 0;
+            padding-right: 20px;
+        }
+
+    /* الملاحظة */
+
+    .course-edit-note {
+        display: flex;
+        align-items: flex-start;
+        gap: 11px;
+        background: #f7f9fc;
+        border: 1px solid #e9edf3;
+        border-right: 4px solid #c9a24d;
+        border-radius: 11px;
+        padding: 17px 19px;
+        margin-bottom: 28px;
+        color: #42536c;
+        font-size: 14px;
+        line-height: 1.9;
+    }
+
+        .course-edit-note i {
+            color: #b9913d;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+    /* أزرار النموذج */
+
+    .course-edit-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        padding-top: 25px;
+        border-top: 1px solid #e9edf3;
+    }
+
+    .course-edit-save,
+    .course-edit-cancel {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+        min-height: 45px;
+        padding: 11px 22px;
+        border-radius: 11px;
+        font-size: 14px;
+        font-weight: 800;
+        font-family: inherit;
+        text-decoration: none;
+        transition: background-color .2s ease;
+    }
+
+    /* زر الحفظ */
+
+    .course-edit-save {
+        background: #c9a24d;
+        color: #142d4e;
+        border: 1px solid transparent;
+        cursor: pointer;
+    }
+
+        .course-edit-save:hover {
+            background: #b9913d;
+            color: #142d4e;
+        }
+
+    /* زر العودة */
+
+    .course-edit-cancel {
+        background: #edf1f7;
+        color: #142d4e;
+        border: 1px solid #dfe6ef;
+    }
+
+        .course-edit-cancel:hover {
+            background: #e1e8f2;
+            color: #142d4e;
+        }
+
+        .course-edit-save:focus-visible,
+        .course-edit-cancel:focus-visible {
+            outline: 3px solid #142d4e;
+            outline-offset: 3px;
+        }
+
+    /* الشاشات الصغيرة */
+
+    @@media (max-width: 650px) {
+        .course-edit-page {
+            margin: 15px auto;
+        }
+
+        .course-edit-header,
+        .course-edit-body {
+            padding: 22px;
+        }
+
+            .course-edit-header h2 {
+                font-size: 21px;
+            }
+
+        .course-edit-grid {
+            grid-template-columns: 1fr;
+            gap: 24px;
+        }
+
+        .course-edit-actions {
+            flex-direction: column;
+        }
+
+        .course-edit-save,
+        .course-edit-cancel {
+            width: 100%;
+        }
+    }
+</style>
+
+<div class="course-edit-page">
+
+    <!-- رأس الصفحة -->
+
+    <div class="course-edit-header">
+
+        <h2>
+            <i class="bi bi-pencil-square"></i>
+            تعديل المقرر الدراسي
+        </h2>
+
+        <p>
+            تحديث البيانات الأساسية للمقرر الدراسي
+            والقسم الأكاديمي المرتبط به.
+        </p>
+
+    </div>
+
+    <!-- نموذج التعديل -->
+
+    <div class="course-edit-body">
+
+        <form asp-controller="Courses"
+              asp-action="Edit"
+              asp-route-id="@Model.Id"
+              method="post">
+
+            @Html.AntiForgeryToken()
+
+            <!-- معرّف المقرر -->
+
+            <input asp-for="Id"
+                   type="hidden" />
+
+            <!-- رسائل التحقق العامة -->
+
+            <div asp-validation-summary="ModelOnly"
+                 class="course-edit-validation-summary"></div>
+
+            <!-- عنوان البيانات -->
+
+            <h3 class="course-edit-section-title">
+                <i class="bi bi-journal-bookmark"></i>
+                بيانات المقرر الدراسي
+            </h3>
+
+            <!-- حقول المقرر -->
+
+            <div class="course-edit-grid">
+
+                <!-- اسم المقرر -->
+
+                <div class="course-edit-field">
+
+                    <label asp-for="Name"
+                           class="course-edit-label">
+
+                        اسم المقرر الدراسي
+                        <span class="course-edit-required">*</span>
+
+                    </label>
+
+                    <input asp-for="Name"
+                           class="course-edit-input"
+                           placeholder="أدخل اسم المقرر الدراسي"
+                           required />
+
+                    <span asp-validation-for="Name"
+                          class="course-edit-error"></span>
+
+                </div>
+
+                <!-- رمز المقرر -->
+
+                <div class="course-edit-field">
+
+                    <label asp-for="Code"
+                           class="course-edit-label">
+
+                        رمز المقرر
+                        <span class="course-edit-required">*</span>
+
+                    </label>
+
+                    <input asp-for="Code"
+                           class="course-edit-input"
+                           placeholder="أدخل رمز المقرر"
+                           required />
+
+                    <span asp-validation-for="Code"
+                          class="course-edit-error"></span>
+
+                </div>
+
+                <!-- الساعات المعتمدة -->
+
+                <div class="course-edit-field">
+
+                    <label asp-for="CreditHours"
+                           class="course-edit-label">
+
+                        عدد الساعات المعتمدة
+                        <span class="course-edit-required">*</span>
+
+                    </label>
+
+                    <input asp-for="CreditHours"
+                           type="number"
+                           min="1"
+                           step="1"
+                           class="course-edit-input"
+                           required />
+
+                    <span asp-validation-for="CreditHours"
+                          class="course-edit-error"></span>
+
+                    <div class="course-edit-hint">
+
+                        <i class="bi bi-info-circle"></i>
+
+                        <span>
+                            أدخل عدد الساعات المعتمدة
+                            كعدد صحيح أكبر من الصفر.
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <!-- القسم الأكاديمي -->
+
+                <div class="course-edit-field">
+
+                    <label asp-for="DepartmentId"
+                           class="course-edit-label">
+
+                        القسم الأكاديمي
+                        <span class="course-edit-required">*</span>
+
+                    </label>
+
+                    <select asp-for="DepartmentId"
+                            asp-items="ViewBag.DepartmentId"
+                            class="course-edit-input"
+                            required>
+
+                        <option value="">
+                            -- اختر القسم الأكاديمي --
+                        </option>
+
+                    </select>
+
+                    <span asp-validation-for="DepartmentId"
+                          class="course-edit-error"></span>
+
+                    <div class="course-edit-hint">
+
+                        <i class="bi bi-info-circle"></i>
+
+                        <span>
+                            تظهر الأقسام الأكاديمية
+                            المتاحة من قاعدة البيانات.
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- ملاحظة -->
+
+            <div class="course-edit-note">
+
+                <i class="bi bi-info-circle"></i>
+
+                <span>
+                    سيتم حفظ التعديلات على بيانات
+                    المقرر الدراسي وربطه بالقسم
+                    الأكاديمي المحدد.
+                </span>
+
+            </div>
+
+            <!-- أزرار الحفظ والعودة -->
+
+            <div class="course-edit-actions">
+
+                <button type="submit"
+                        class="course-edit-save">
+
+                    <i class="bi bi-check-circle"></i>
+                    حفظ التعديلات
+
+                </button>
+
+                <a asp-controller="Courses"
+                   asp-action="Index"
+                   class="course-edit-cancel">
+
+                    <i class="bi bi-arrow-right"></i>
+                    العودة إلى المقررات الدراسية
+
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

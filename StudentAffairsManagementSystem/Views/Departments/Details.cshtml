@@ -1,0 +1,444 @@
+﻿@model StudentAffairsManagementSystem.Models.Department
+
+@{
+    ViewData["Title"] = "تفاصيل القسم الأكاديمي";
+
+    var isAdmin = User.IsInRole("Admin");
+}
+
+<style>
+    .department-details-page {
+        direction: rtl;
+        max-width: 900px;
+        margin: 20px auto;
+        color: #142d4e;
+    }
+
+    .department-details-header {
+        background: linear-gradient(135deg, #142d4e, #304661);
+        color: #ffffff;
+        padding: 28px 32px;
+        border-radius: 16px 16px 0 0;
+        border-bottom: 4px solid #c9a24d;
+    }
+
+        .department-details-header h2 {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 25px;
+            font-weight: 800;
+            margin: 0 0 10px;
+        }
+
+            .department-details-header h2 i {
+                color: #c9a24d;
+                font-size: 27px;
+            }
+
+        .department-details-header p {
+            color: #d6dfeb;
+            font-size: 14px;
+            line-height: 1.9;
+            margin: 0;
+        }
+
+    .department-details-body {
+        background: #ffffff;
+        padding: 30px;
+        border: 1px solid #e5eaf2;
+        border-top: none;
+        border-radius: 0 0 16px 16px;
+        box-shadow: 0 5px 25px rgba(20,45,78,.05);
+    }
+
+    .department-details-summary {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 18px;
+        padding: 22px;
+        background: #f7f9fc;
+        border: 1px solid #e9edf3;
+        border-radius: 13px;
+        margin-bottom: 30px;
+    }
+
+    .department-details-icon {
+        width: 65px;
+        height: 65px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #142d4e;
+        color: #c9a24d;
+        border-radius: 14px;
+        font-size: 30px;
+        flex-shrink: 0;
+    }
+
+    .department-details-summary-info {
+        flex: 1;
+        min-width: 180px;
+    }
+
+        .department-details-summary-info h3 {
+            color: #142d4e;
+            font-size: 20px;
+            font-weight: 800;
+            margin: 0 0 8px;
+        }
+
+        .department-details-summary-info p {
+            color: #718096;
+            font-size: 14px;
+            margin: 0;
+        }
+
+    .department-details-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 8px 13px;
+        border-radius: 9px;
+        font-size: 13px;
+        font-weight: 800;
+    }
+
+    .department-details-status-active {
+        background: #e8f6ee;
+        color: #197647;
+    }
+
+    .department-details-status-inactive {
+        background: #fff0ee;
+        color: #b42318;
+    }
+
+    .department-details-section-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #142d4e;
+        font-size: 18px;
+        font-weight: 800;
+        border-right: 4px solid #c9a24d;
+        padding-right: 13px;
+        margin-bottom: 23px;
+    }
+
+        .department-details-section-title i {
+            color: #b9913d;
+            font-size: 20px;
+        }
+
+    .department-details-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 17px;
+        margin-bottom: 30px;
+    }
+
+    .department-details-field {
+        background: #f9fafc;
+        border: 1px solid #e9edf3;
+        border-radius: 11px;
+        padding: 19px;
+        min-width: 0;
+    }
+
+    .department-details-label {
+        color: #718096;
+        font-size: 13px;
+        margin-bottom: 10px;
+    }
+
+    .department-details-value {
+        color: #142d4e;
+        font-size: 16px;
+        font-weight: 800;
+        overflow-wrap: anywhere;
+    }
+
+    .department-details-code {
+        display: inline-block;
+        padding: 6px 13px;
+        background: #e9eef6;
+        border-radius: 8px;
+        color: #142d4e;
+        font-weight: 800;
+        direction: ltr;
+    }
+
+    .department-details-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        padding-top: 25px;
+        border-top: 1px solid #e9edf3;
+    }
+
+    .department-details-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+        min-height: 45px;
+        padding: 11px 21px;
+        border-radius: 11px;
+        font-size: 14px;
+        font-weight: 800;
+        text-decoration: none;
+        border: 1px solid transparent;
+        transition: background-color .2s ease;
+    }
+
+    .department-details-back {
+        background: #edf1f7;
+        color: #142d4e;
+        border-color: #dfe6ef;
+    }
+
+        .department-details-back:hover {
+            background: #e1e8f2;
+            color: #142d4e;
+        }
+
+    .department-details-edit {
+        background: #c9a24d;
+        color: #142d4e;
+    }
+
+        .department-details-edit:hover {
+            background: #b9913d;
+            color: #142d4e;
+        }
+
+    .department-details-delete {
+        background: #fff0ee;
+        color: #c62828;
+        border-color: #ffc5bf;
+    }
+
+        .department-details-delete:hover {
+            background: #ffe0dc;
+            color: #a91e1e;
+        }
+
+    .department-details-btn:focus-visible {
+        outline: 3px solid #142d4e;
+        outline-offset: 3px;
+    }
+
+    @@media (max-width: 650px) {
+        .department-details-page {
+            margin: 15px auto;
+        }
+
+        .department-details-header,
+        .department-details-body {
+            padding: 22px;
+        }
+
+            .department-details-header h2 {
+                font-size: 21px;
+            }
+
+        .department-details-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .department-details-actions {
+            flex-direction: column;
+        }
+
+        .department-details-btn {
+            width: 100%;
+        }
+    }
+</style>
+
+<div class="department-details-page">
+
+    <!-- رأس الصفحة -->
+
+    <div class="department-details-header">
+
+        <h2>
+            <i class="bi bi-eye"></i>
+            تفاصيل القسم الأكاديمي
+        </h2>
+
+        <p>
+            عرض البيانات الأساسية للقسم الأكاديمي
+            والكلية المرتبط بها وحالة تفعيله.
+        </p>
+
+    </div>
+
+    <div class="department-details-body">
+
+        <!-- ملخص القسم -->
+
+        <div class="department-details-summary">
+
+            <div class="department-details-icon">
+                <i class="bi bi-diagram-3"></i>
+            </div>
+
+            <div class="department-details-summary-info">
+
+                <h3>@Model.Name</h3>
+
+                <p>
+                    @(Model.Faculty?.Name ?? "الكلية غير محددة")
+                </p>
+
+            </div>
+
+            @if (Model.IsActive)
+            {
+                <span class="department-details-status department-details-status-active">
+                    <i class="bi bi-check-circle"></i>
+                    قسم فعّال
+                </span>
+            }
+            else
+            {
+                <span class="department-details-status department-details-status-inactive">
+                    <i class="bi bi-x-circle"></i>
+                    قسم غير فعّال
+                </span>
+            }
+
+        </div>
+
+        <!-- البيانات الأساسية -->
+
+        <h3 class="department-details-section-title">
+            <i class="bi bi-journal-text"></i>
+            البيانات الأساسية
+        </h3>
+
+        <div class="department-details-grid">
+
+            <div class="department-details-field">
+
+                <div class="department-details-label">
+                    اسم القسم الأكاديمي
+                </div>
+
+                <div class="department-details-value">
+                    @Model.Name
+                </div>
+
+            </div>
+
+            <div class="department-details-field">
+
+                <div class="department-details-label">
+                    رمز القسم
+                </div>
+
+                <div class="department-details-value">
+                    <span class="department-details-code">
+                        @Model.Code
+                    </span>
+                </div>
+
+            </div>
+
+            <div class="department-details-field">
+
+                <div class="department-details-label">
+                    الكلية التابعة لها
+                </div>
+
+                <div class="department-details-value">
+                    @(Model.Faculty?.Name ?? "غير محددة")
+                </div>
+
+            </div>
+
+            <div class="department-details-field">
+
+                <div class="department-details-label">
+                    حالة القسم
+                </div>
+
+                <div class="department-details-value">
+
+                    @if (Model.IsActive)
+                    {
+                        <span class="department-details-status department-details-status-active">
+                            <i class="bi bi-check-circle"></i>
+                            فعّال
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="department-details-status department-details-status-inactive">
+                            <i class="bi bi-x-circle"></i>
+                            غير فعّال
+                        </span>
+                    }
+
+                </div>
+
+            </div>
+
+            <div class="department-details-field">
+
+                <div class="department-details-label">
+                    المعرّف الداخلي للقسم
+                </div>
+
+                <div class="department-details-value">
+                    @Model.Id
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- أزرار الإجراءات -->
+
+        <div class="department-details-actions">
+
+            <a asp-controller="Departments"
+               asp-action="Index"
+               class="department-details-btn department-details-back">
+
+                <i class="bi bi-arrow-right"></i>
+                العودة إلى الأقسام
+
+            </a>
+
+            @if (isAdmin)
+            {
+                <a asp-controller="Departments"
+                   asp-action="Edit"
+                   asp-route-id="@Model.Id"
+                   class="department-details-btn department-details-edit">
+
+                    <i class="bi bi-pencil-square"></i>
+                    تعديل القسم
+
+                </a>
+
+                <a asp-controller="Departments"
+                   asp-action="Delete"
+                   asp-route-id="@Model.Id"
+                   class="department-details-btn department-details-delete">
+
+                    <i class="bi bi-trash3"></i>
+                    حذف القسم
+
+                </a>
+            }
+
+        </div>
+
+    </div>
+
+</div>

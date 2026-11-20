@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using StudentAffairsManagementSystem.Models;
@@ -26,7 +27,7 @@ namespace StudentAffairsManagementSystem.Data
         public DbSet<CourseOffering> CourseOfferings { get; set; }
         public DbSet<Registration> Registrations { get; set; }
 
-        // New permission tables
+        // Permission tables
         public DbSet<Permission> Permissions { get; set; }
         public DbSet<AccountPermission> AccountPermissions { get; set; }
 
@@ -34,7 +35,10 @@ namespace StudentAffairsManagementSystem.Data
         {
             base.OnModelCreating(builder);
 
+            // ====================================
             // Table names
+            // ====================================
+
             builder.Entity<Account>().ToTable("ACCOUNTS");
             builder.Entity<Faculty>().ToTable("FACULTIES");
             builder.Entity<Department>().ToTable("DEPARTMENTS");
@@ -46,12 +50,14 @@ namespace StudentAffairsManagementSystem.Data
             builder.Entity<CourseOffering>().ToTable("COURSE_OFFERINGS");
             builder.Entity<Registration>().ToTable("REGISTRATIONS");
 
-            // New table names
             builder.Entity<Permission>().ToTable("PERMISSIONS");
             builder.Entity<AccountPermission>()
                 .ToTable("ACCOUNT_PERMISSIONS");
 
+            // ====================================
             // Unique indexes
+            // ====================================
+
             builder.Entity<Student>()
                 .HasIndex(s => s.UniversityNumber)
                 .IsUnique();
@@ -64,49 +70,70 @@ namespace StudentAffairsManagementSystem.Data
                 .HasIndex(d => d.Code)
                 .IsUnique();
 
+            // ====================================
             // Student -> Department
+            // ====================================
+
             builder.Entity<Student>()
                 .HasOne(s => s.Department)
                 .WithMany()
                 .HasForeignKey(s => s.DepartmentId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            // ====================================
             // Department -> Faculty
+            // ====================================
+
             builder.Entity<Department>()
                 .HasOne(d => d.Faculty)
                 .WithMany()
                 .HasForeignKey(d => d.FacultyId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            // ====================================
             // Course -> Department
+            // ====================================
+
             builder.Entity<Course>()
                 .HasOne(c => c.Department)
                 .WithMany()
                 .HasForeignKey(c => c.DepartmentId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            // ====================================
             // Employee -> Account
+            // ====================================
+
             builder.Entity<Employee>()
                 .HasOne(e => e.Account)
                 .WithOne()
                 .HasForeignKey<Employee>(e => e.AccountId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            // ====================================
             // Student -> Account
+            // ====================================
+
             builder.Entity<Student>()
                 .HasOne(s => s.Account)
                 .WithOne()
                 .HasForeignKey<Student>(s => s.AccountId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            // ====================================
             // Student -> Admission Semester
+            // ====================================
+
             builder.Entity<Student>()
                 .HasOne(s => s.AdmissionSemester)
                 .WithMany()
                 .HasForeignKey(s => s.AdmissionSemesterId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            // ====================================
             // Student -> Graduation Semester
+            // ====================================
+
             builder.Entity<Student>()
                 .HasOne(s => s.GraduationSemester)
                 .WithMany()
@@ -114,56 +141,74 @@ namespace StudentAffairsManagementSystem.Data
                 .OnDelete(DeleteBehavior.Restrict)
                 .IsRequired(false);
 
+            // ====================================
             // HourPrice -> Department
+            // ====================================
+
             builder.Entity<HourPrice>()
                 .HasOne(h => h.Department)
                 .WithMany()
                 .HasForeignKey(h => h.DepartmentId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            // ====================================
             // HourPrice -> Semester
+            // ====================================
+
             builder.Entity<HourPrice>()
                 .HasOne(h => h.Semester)
                 .WithMany()
                 .HasForeignKey(h => h.SemesterId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            // ====================================
             // CourseOffering -> Course
+            // ====================================
+
             builder.Entity<CourseOffering>()
                 .HasOne(co => co.Course)
                 .WithMany()
                 .HasForeignKey(co => co.CourseId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            // ====================================
             // CourseOffering -> Semester
+            // ====================================
+
             builder.Entity<CourseOffering>()
                 .HasOne(co => co.Semester)
                 .WithMany()
                 .HasForeignKey(co => co.SemesterId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // CourseOffering -> Employee
-            builder.Entity<CourseOffering>()
-                .HasOne(co => co.Employee)
-                .WithMany()
-                .HasForeignKey(co => co.EmployeeId)
-                .OnDelete(DeleteBehavior.Restrict);
+            // لا يوجد ارتباط بين المقرر المطروح وموظف محدد.
+            // يمكن للموظفين المخولين إدارة التسجيلات
+            // وفق الصلاحيات المعتمدة في النظام.
 
+            // ====================================
             // Registration -> Student
+            // ====================================
+
             builder.Entity<Registration>()
                 .HasOne(r => r.Student)
                 .WithMany()
                 .HasForeignKey(r => r.StudentId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            // ====================================
             // Registration -> CourseOffering
+            // ====================================
+
             builder.Entity<Registration>()
                 .HasOne(r => r.CourseOffering)
                 .WithMany()
                 .HasForeignKey(r => r.CourseOfferingId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // Existing property configurations
+            // ====================================
+            // Property configurations
+            // ====================================
+
             builder.Entity<HourPrice>()
                 .Property(h => h.PricePerHour)
                 .HasPrecision(18, 2);

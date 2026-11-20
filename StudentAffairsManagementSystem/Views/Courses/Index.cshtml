@@ -5,8 +5,7 @@
 @{
     ViewData["Title"] = "المقررات الدراسية";
 
-    var courses = Model?.ToList()
-        ?? new List<Course>();
+    var courses = Model?.ToList() ?? new List<Course>();
 
     var totalCourses = courses.Count;
 
@@ -30,9 +29,8 @@
 }
 
 <style>
-
     .courses-page {
-        color: #16263f;
+        color: #142d4e;
     }
 
     .courses-header {
@@ -46,7 +44,7 @@
 
         .courses-header h2 {
             font-size: 25px;
-            font-weight: bold;
+            font-weight: 800;
             margin-bottom: 8px;
         }
 
@@ -55,21 +53,25 @@
             margin: 0;
         }
 
+    /* زر إضافة مقرر */
+
     .courses-add-btn {
-        background: #c8a66a;
-        color: #16263f;
-        border-radius: 10px;
+        background: #c9a24d;
+        color: #142d4e;
+        border-radius: 11px;
         padding: 12px 20px;
         text-decoration: none;
-        font-weight: bold;
+        font-weight: 800;
         display: inline-flex;
         align-items: center;
+        justify-content: center;
         gap: 9px;
+        transition: background-color 0.2s ease;
     }
 
         .courses-add-btn:hover {
-            background: #b79557;
-            color: #16263f;
+            background: #b9913d;
+            color: #142d4e;
         }
 
     /* بطاقات الإحصائيات */
@@ -84,7 +86,7 @@
     .courses-stat-card {
         background: white;
         border: 1px solid #e5eaf2;
-        border-top: 4px solid #c8a66a;
+        border-top: 4px solid #c9a24d;
         border-radius: 14px;
         padding: 22px;
     }
@@ -96,12 +98,12 @@
     }
 
     .courses-stat-value {
-        color: #16263f;
+        color: #142d4e;
         font-size: 28px;
-        font-weight: bold;
+        font-weight: 800;
     }
 
-    /* تنسيق قائمة المقررات */
+    /* قائمة المقررات */
 
     .courses-table-card {
         background: white;
@@ -123,7 +125,7 @@
         .courses-table-header h3 {
             margin: 0;
             font-size: 19px;
-            font-weight: bold;
+            font-weight: 800;
         }
 
     /* البحث والفلترة */
@@ -151,15 +153,15 @@
         border: 1px solid #d9e1eb;
         border-radius: 9px;
         background: white;
-        color: #16263f;
+        color: #142d4e;
         outline: none;
         cursor: pointer;
     }
 
         .courses-search:focus,
         .courses-filters select:focus {
-            border-color: #c8a66a;
-            box-shadow: 0 0 0 3px rgba(200, 166, 106, 0.12);
+            border-color: #c9a24d;
+            box-shadow: 0 0 0 3px rgba(201, 162, 77, 0.12);
         }
 
     /* الجدول */
@@ -170,12 +172,12 @@
     }
 
         .courses-table th {
-            background: #16263f;
+            background: #142d4e;
             color: #ffffff;
             padding: 17px;
             text-align: right;
             font-size: 14px;
-            font-weight: bold;
+            font-weight: 800;
             white-space: nowrap;
         }
 
@@ -183,13 +185,13 @@
             padding: 15px 17px;
             border-top: 1px solid #e5eaf2;
             vertical-align: middle;
-            color: #16263f;
+            color: #142d4e;
             font-size: 14px;
         }
 
         .courses-table tbody tr {
             background: #ffffff;
-            transition: background 0.2s ease;
+            transition: background-color 0.2s ease;
         }
 
             .courses-table tbody tr:hover {
@@ -204,11 +206,11 @@
         color: #304661;
         border-radius: 7px;
         padding: 6px 10px;
-        font-weight: bold;
+        font-weight: 700;
         direction: ltr;
     }
 
-    /* الساعات */
+    /* الساعات المعتمدة */
 
     .courses-hours {
         display: inline-block;
@@ -227,7 +229,7 @@
         color: #217348;
         border-radius: 7px;
         padding: 7px 12px;
-        font-weight: bold;
+        font-weight: 700;
         white-space: nowrap;
     }
 
@@ -241,7 +243,7 @@
         white-space: nowrap;
     }
 
-    /* الفصل الدراسي */
+    /* ملاحظة الفصل الدراسي */
 
     .courses-semester-note {
         background: #fff9ed;
@@ -253,57 +255,81 @@
         line-height: 1.8;
     }
 
-    /* أزرار الإجراءات */
+    /* أزرار الإجراءات الموحدة */
 
     .courses-actions {
         display: flex;
-        gap: 8px;
-        flex-wrap: wrap;
         align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 10px;
     }
 
     .courses-action-link {
-        padding: 9px 13px;
-        border-radius: 9px;
-        text-decoration: none;
-        font-size: 13px;
-        font-weight: 600;
-        background: #eef2f8;
-        color: #16263f;
-        border: 1px solid transparent;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        gap: 5px;
+        gap: 8px;
+        min-height: 43px;
+        padding: 9px 15px;
+        border-radius: 11px;
+        border: 1px solid transparent;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 700;
         white-space: nowrap;
-        transition: 0.2s;
+        transition: background-color 0.2s ease, transform 0.2s ease;
     }
 
-        .courses-action-link:hover {
-            background: #dfe7f2;
-            color: #16263f;
+        .courses-action-link i {
+            font-size: 16px;
         }
 
+    /* عرض التفاصيل */
+
+    .courses-action-details {
+        background: #eef2f8;
+        color: #142d4e;
+    }
+
+        .courses-action-details:hover {
+            background: #dfe7f2;
+            color: #142d4e;
+            transform: translateY(-1px);
+        }
+
+    /* تعديل */
+
     .courses-action-edit {
-        background: #c8a66a;
-        color: #16263f;
+        background: #c9a24d;
+        color: #142d4e;
     }
 
         .courses-action-edit:hover {
-            background: #b79557;
-            color: #16263f;
+            background: #b9913d;
+            color: #142d4e;
+            transform: translateY(-1px);
         }
+
+    /* حذف */
 
     .courses-action-delete {
         background: #fff0ee;
-        color: #b42318;
-        border: 1px solid #f5c9c5;
+        color: #c62828;
+        border-color: #ffc5bf;
     }
 
         .courses-action-delete:hover {
-            background: #ffe1dc;
-            color: #912018;
+            background: #ffe0dc;
+            color: #a91e1e;
+            border-color: #f2a8a0;
+            transform: translateY(-1px);
         }
+
+    .courses-action-link:focus-visible {
+        outline: 3px solid #142d4e;
+        outline-offset: 3px;
+    }
 
     /* لا توجد نتائج */
 
@@ -316,25 +342,23 @@
         .courses-empty i {
             display: block;
             font-size: 40px;
-            color: #c8a66a;
+            color: #c9a24d;
             margin-bottom: 12px;
         }
 
     /* الشاشات الصغيرة */
 
     @@media (max-width: 800px) {
-
         .courses-stats {
             grid-template-columns: 1fr;
         }
 
         .courses-table {
-            min-width: 900px;
+            min-width: 1050px;
         }
     }
 
     @@media (max-width: 600px) {
-
         .courses-filters {
             width: 100%;
         }
@@ -344,13 +368,11 @@
                 width: 100%;
             }
     }
-
 </style>
 
 <div class="courses-page" dir="rtl">
 
     <!-- عنوان الصفحة -->
-
     <div class="courses-header">
 
         <div>
@@ -376,11 +398,9 @@
     </div>
 
     <!-- بطاقات الإحصائيات -->
-
     <div class="courses-stats">
 
         <div class="courses-stat-card">
-
             <div class="courses-stat-label">
                 إجمالي المقررات
             </div>
@@ -388,11 +408,9 @@
             <div class="courses-stat-value">
                 @totalCourses
             </div>
-
         </div>
 
         <div class="courses-stat-card">
-
             <div class="courses-stat-label">
                 مجموع الساعات المعتمدة
             </div>
@@ -400,11 +418,9 @@
             <div class="courses-stat-value">
                 @totalHours
             </div>
-
         </div>
 
         <div class="courses-stat-card">
-
             <div class="courses-stat-label">
                 الأقسام المرتبطة بالمقررات
             </div>
@@ -412,13 +428,11 @@
             <div class="courses-stat-value">
                 @totalDepartments
             </div>
-
         </div>
 
     </div>
 
-    <!-- الفصل الدراسي -->
-
+    <!-- معلومات الفصل الدراسي -->
     <div class="courses-semester-note">
 
         @if (activeSemester != null)
@@ -447,8 +461,7 @@
 
     </div>
 
-    <!-- جدول المقررات -->
-
+    <!-- قائمة المقررات -->
     <div class="courses-table-card">
 
         <div class="courses-table-header">
@@ -458,8 +471,8 @@
             <div class="courses-filters">
 
                 <!-- فلترة الأقسام -->
-
-                <select id="departmentFilter">
+                <select id="departmentFilter"
+                        aria-label="تصفية حسب القسم الأكاديمي">
 
                     <option value="">
                         جميع الأقسام
@@ -475,11 +488,11 @@
                 </select>
 
                 <!-- البحث -->
-
                 <input type="search"
                        id="courseSearch"
                        class="courses-search"
-                       placeholder="ابحث عن مقرر أو رمز أو قسم..." />
+                       placeholder="ابحث عن مقرر أو رمز أو قسم..."
+                       aria-label="البحث في المقررات" />
 
             </div>
 
@@ -490,7 +503,6 @@
             <table class="courses-table" id="coursesTable">
 
                 <thead>
-
                     <tr>
                         <th>رمز المقرر</th>
                         <th>اسم المقرر</th>
@@ -499,7 +511,6 @@
                         <th>سعر الساعة</th>
                         <th>الإجراءات</th>
                     </tr>
-
                 </thead>
 
                 <tbody>
@@ -514,7 +525,6 @@
                             data-department-id="@course.DepartmentId">
 
                             <!-- رمز المقرر -->
-
                             <td>
                                 <span class="courses-code">
                                     @course.Code
@@ -522,19 +532,16 @@
                             </td>
 
                             <!-- اسم المقرر -->
-
                             <td>
                                 <strong>@course.Name</strong>
                             </td>
 
-                            <!-- القسم -->
-
+                            <!-- القسم الأكاديمي -->
                             <td>
                                 @(course.Department?.Name ?? "غير محدد")
                             </td>
 
-                            <!-- الساعات -->
-
+                            <!-- الساعات المعتمدة -->
                             <td>
                                 <span class="courses-hours">
                                     @course.CreditHours ساعات
@@ -542,13 +549,11 @@
                             </td>
 
                             <!-- سعر الساعة -->
-
                             <td>
 
                                 @if (hasPrice)
                                 {
-                                    <span class="courses-price"
-                                          dir="ltr">
+                                    <span class="courses-price" dir="ltr">
                                         @pricePerHour.ToString("N2")
                                     </span>
                                 }
@@ -562,15 +567,15 @@
                             </td>
 
                             <!-- الإجراءات -->
-
                             <td>
 
                                 <div class="courses-actions">
 
+                                    <!-- عرض التفاصيل -->
                                     <a asp-controller="Courses"
                                        asp-action="Details"
                                        asp-route-id="@course.Id"
-                                       class="courses-action-link">
+                                       class="courses-action-link courses-action-details">
 
                                         <i class="bi bi-eye"></i>
                                         عرض التفاصيل
@@ -579,6 +584,7 @@
 
                                     @if (isAdmin)
                                     {
+                                        <!-- تعديل -->
                                         <a asp-controller="Courses"
                                            asp-action="Edit"
                                            asp-route-id="@course.Id"
@@ -589,12 +595,13 @@
 
                                         </a>
 
+                                        <!-- حذف -->
                                         <a asp-controller="Courses"
                                            asp-action="Delete"
                                            asp-route-id="@course.Id"
                                            class="courses-action-link courses-action-delete">
 
-                                            <i class="bi bi-trash"></i>
+                                            <i class="bi bi-trash3"></i>
                                             حذف
 
                                         </a>
@@ -637,9 +644,7 @@
 </div>
 
 <!-- البحث والفلترة -->
-
 <script>
-
     document.addEventListener("DOMContentLoaded", function () {
 
         const searchInput =
@@ -653,6 +658,10 @@
 
         const noResults =
             document.getElementById("noSearchResults");
+
+        if (!searchInput || !departmentFilter) {
+            return;
+        }
 
         function filterCourses() {
 
@@ -687,18 +696,14 @@
                 if (showRow) {
                     visibleCount++;
                 }
-
             });
 
             if (noResults) {
-
                 noResults.style.display =
                     rows.length > 0 && visibleCount === 0
                         ? "block"
                         : "none";
-
             }
-
         }
 
         searchInput.addEventListener(
@@ -712,5 +717,4 @@
         );
 
     });
-
 </script>

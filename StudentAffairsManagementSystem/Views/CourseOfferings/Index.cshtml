@@ -1,12 +1,12 @@
-﻿
-@model IEnumerable<StudentAffairsManagementSystem.Models.CourseOffering>
+﻿@model IEnumerable<StudentAffairsManagementSystem.Models.CourseOffering>
 
 @{
     ViewData["Title"] = "إدارة المقررات المطروحة";
 
     bool isAdmin = User.IsInRole("Admin");
 
-    var offerings = Model.ToList();
+    var offerings = Model?.ToList()
+        ?? new List<StudentAffairsManagementSystem.Models.CourseOffering>();
 
     int totalOfferings = offerings.Count;
 
@@ -21,6 +21,128 @@
         .Count();
 }
 
+<style>
+    /* تصميم أزرار الإجراءات */
+    .offering-actions {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .offering-action-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-height: 43px;
+        padding: 9px 15px;
+        border-radius: 11px;
+        border: 1px solid transparent;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 700;
+        white-space: nowrap;
+        transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+    }
+
+        .offering-action-btn i {
+            font-size: 16px;
+        }
+
+    /* عرض التفاصيل */
+    .offering-details-btn {
+        background-color: #eef2f8;
+        color: #142d4e;
+    }
+
+        .offering-details-btn:hover {
+            background-color: #dfe7f2;
+            color: #142d4e;
+            transform: translateY(-1px);
+        }
+
+    /* تعديل */
+    .offering-edit-btn {
+        background-color: #c9a24d;
+        color: #142d4e;
+    }
+
+        .offering-edit-btn:hover {
+            background-color: #b9913d;
+            color: #142d4e;
+            transform: translateY(-1px);
+        }
+
+    /* حذف */
+    .offering-delete-btn {
+        background-color: #fff0ee;
+        color: #c62828;
+        border-color: #ffc5bf;
+    }
+
+        .offering-delete-btn:hover {
+            background-color: #ffe0dc;
+            color: #a91e1e;
+            border-color: #f2a8a0;
+            transform: translateY(-1px);
+        }
+
+    .offering-action-btn:focus-visible {
+        outline: 3px solid #142d4e;
+        outline-offset: 3px;
+    }
+
+    /* زر طرح مقرر جديد */
+    .offering-create-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+        padding: 12px 20px;
+        background-color: #c9a24d;
+        color: #142d4e;
+        border-radius: 11px;
+        text-decoration: none;
+        font-weight: 800;
+        transition: background-color 0.2s ease;
+    }
+
+        .offering-create-btn:hover {
+            background-color: #b9913d;
+            color: #142d4e;
+        }
+
+    /* تنسيق الجدول */
+    .offerings-table th {
+        padding: 17px 12px;
+        background-color: #f5f6f8;
+        color: #142d4e;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+    .offerings-table td {
+        padding: 15px 12px;
+        vertical-align: middle;
+    }
+
+    .offerings-table .actions-cell {
+        min-width: 335px;
+    }
+
+    .offering-capacity {
+        display: inline-block;
+        padding: 9px 15px;
+        background-color: #e8eef6;
+        color: #142d4e;
+        border-radius: 8px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+</style>
+
 <div class="container-fluid py-4" dir="rtl">
 
     <!-- عنوان الصفحة -->
@@ -32,7 +154,7 @@
             </h2>
 
             <p class="text-muted mb-0">
-                عرض المقررات المطروحة حسب الفصل الدراسي والموظف المسؤول
+                عرض المقررات المطروحة حسب الفصل الدراسي والسعة الاستيعابية
             </p>
         </div>
 
@@ -40,15 +162,22 @@
         {
             <a asp-controller="CourseOfferings"
                asp-action="Create"
-               class="btn px-4 py-2"
-               style="background:#c9a24d; color:#142d4e; font-weight:800;">
-                + طرح مقرر جديد
+               class="offering-create-btn">
+                <i class="bi bi-plus-circle"></i>
+                طرح مقرر جديد
             </a>
         }
 
     </div>
 
     <!-- رسائل النظام -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+
     @if (TempData["Success"] != null)
     {
         <div class="alert alert-success">
@@ -60,6 +189,13 @@
     {
         <div class="alert alert-danger">
             @TempData["Error"]
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["ErrorMessage"]
         </div>
     }
 
@@ -135,15 +271,14 @@
 
             <div class="table-responsive">
 
-                <table class="table table-hover align-middle text-center mb-0">
+                <table class="table table-hover align-middle text-center mb-0 offerings-table">
 
-                    <thead style="background:#f5f6f8;">
+                    <thead>
                         <tr>
                             <th>المقرر الدراسي</th>
                             <th>رمز المقرر</th>
                             <th>الفصل الدراسي</th>
                             <th>العام الدراسي</th>
-                            <th>الموظف المسؤول</th>
                             <th>السعة الاستيعابية</th>
                             <th>الإجراءات</th>
                         </tr>
@@ -177,56 +312,56 @@
                                         @offering.Semester.AcademicYear
                                     </td>
 
-                                    <!-- الموظف المسؤول -->
+                                    <!-- السعة الاستيعابية -->
                                     <td>
-                                        @offering.Employee.FirstName
-                                        @offering.Employee.LastName
-
-                                        @if (offering.Employee.IsDeleted)
-                                        {
-                                            <span class="badge bg-secondary">
-                                                محذوف
-                                            </span>
-                                        }
-                                    </td>
-
-                                    <!-- السعة -->
-                                    <td>
-                                        <span class="badge px-3 py-2"
-                                              style="background:#e8eef6; color:#142d4e;">
+                                        <span class="offering-capacity">
                                             @offering.Capacity طالب
                                         </span>
                                     </td>
 
-                                    <!-- الإجراءات -->
-                                    <td>
-                                        <div class="d-flex justify-content-center gap-2 flex-wrap">
+                                    <!-- أزرار الإجراءات -->
+                                    <td class="actions-cell">
 
+                                        <div class="offering-actions">
+
+                                            <!-- عرض التفاصيل -->
                                             <a asp-controller="CourseOfferings"
                                                asp-action="Details"
                                                asp-route-id="@offering.Id"
-                                               class="btn btn-sm btn-outline-primary">
-                                                التفاصيل
+                                               class="offering-action-btn offering-details-btn">
+
+                                                <i class="bi bi-eye"></i>
+                                                عرض التفاصيل
+
                                             </a>
 
                                             @if (isAdmin)
                                             {
+                                                <!-- تعديل -->
                                                 <a asp-controller="CourseOfferings"
                                                    asp-action="Edit"
                                                    asp-route-id="@offering.Id"
-                                                   class="btn btn-sm btn-outline-warning">
+                                                   class="offering-action-btn offering-edit-btn">
+
+                                                    <i class="bi bi-pencil-square"></i>
                                                     تعديل
+
                                                 </a>
 
+                                                <!-- حذف -->
                                                 <a asp-controller="CourseOfferings"
                                                    asp-action="Delete"
                                                    asp-route-id="@offering.Id"
-                                                   class="btn btn-sm btn-outline-danger">
+                                                   class="offering-action-btn offering-delete-btn">
+
+                                                    <i class="bi bi-trash3"></i>
                                                     حذف
+
                                                 </a>
                                             }
 
                                         </div>
+
                                     </td>
 
                                 </tr>
@@ -235,7 +370,7 @@
                         else
                         {
                             <tr>
-                                <td colspan="7"
+                                <td colspan="6"
                                     class="text-center text-muted py-5">
 
                                     <div class="mb-3" style="font-size:36px;">
@@ -269,6 +404,7 @@
         <strong>ملاحظة:</strong>
         السعة الاستيعابية هي العدد الأقصى المسموح به للتسجيل
         في المقرر المطروح، وليست عدد المقاعد المتبقية.
+        ولا يتطلب المقرر المطروح تعيين موظف مسؤول.
     </div>
 
 </div>

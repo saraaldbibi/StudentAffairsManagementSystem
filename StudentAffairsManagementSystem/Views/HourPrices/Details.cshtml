@@ -1,5 +1,4 @@
-﻿
-@model StudentAffairsManagementSystem.Models.HourPrice
+﻿@model StudentAffairsManagementSystem.Models.HourPrice
 
 @{
     ViewData["Title"] = "تفاصيل سعر الساعة الدراسية";
@@ -7,179 +6,548 @@
     bool isAdmin = User.IsInRole("Admin");
 }
 
-<div class="container-fluid py-4" dir="rtl">
+<style>
+    .hourprice-details-page {
+        direction: rtl;
+        max-width: 950px;
+        margin: 20px auto;
+        color: #142d4e;
+    }
 
-    <!-- عنوان الصفحة -->
-    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+    /* رأس الصفحة */
 
-        <div>
-            <h2 style="color:#142d4e; font-weight:800;">
-                تفاصيل سعر الساعة الدراسية
-            </h2>
+    .hourprice-details-header {
+        background: linear-gradient(135deg, #142d4e, #304661);
+        color: #ffffff;
+        padding: 28px 32px;
+        border-radius: 16px 16px 0 0;
+        border-bottom: 4px solid #c9a24d;
+    }
 
-            <p class="text-muted mb-0">
-                عرض معلومات سعر الساعة المسجل في النظام
-            </p>
-        </div>
+        .hourprice-details-header h2 {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 25px;
+            font-weight: 800;
+            margin: 0 0 10px;
+        }
 
-        <a asp-controller="HourPrices"
-           asp-action="Index"
-           class="btn btn-outline-secondary">
-            العودة إلى أسعار الساعات
-        </a>
+            .hourprice-details-header h2 i {
+                color: #c9a24d;
+                font-size: 27px;
+            }
+
+        .hourprice-details-header p {
+            color: #d6dfeb;
+            font-size: 14px;
+            line-height: 1.9;
+            margin: 0;
+        }
+
+    /* جسم الصفحة */
+
+    .hourprice-details-body {
+        background: #ffffff;
+        padding: 30px;
+        border: 1px solid #e5eaf2;
+        border-top: none;
+        border-radius: 0 0 16px 16px;
+        box-shadow: 0 5px 25px rgba(20,45,78,.05);
+    }
+
+    /* بطاقة القسم */
+
+    .hourprice-details-department {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        background: #f8fafc;
+        border: 1px solid #e5eaf2;
+        border-radius: 13px;
+        padding: 23px;
+        margin-bottom: 32px;
+    }
+
+    .hourprice-details-department-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 58px;
+        height: 58px;
+        flex-shrink: 0;
+        background: #f5ebd2;
+        border-radius: 13px;
+        color: #a9822c;
+        font-size: 27px;
+    }
+
+    .hourprice-details-department-label {
+        color: #718096;
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 7px;
+    }
+
+    .hourprice-details-department-name {
+        color: #142d4e;
+        font-size: 21px;
+        font-weight: 800;
+        line-height: 1.6;
+        overflow-wrap: anywhere;
+    }
+
+    /* عناوين الأقسام */
+
+    .hourprice-details-section {
+        margin-bottom: 32px;
+    }
+
+    .hourprice-details-section-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #142d4e;
+        font-size: 18px;
+        font-weight: 800;
+        border-right: 4px solid #c9a24d;
+        padding-right: 13px;
+        margin: 0 0 23px;
+    }
+
+        .hourprice-details-section-title i {
+            color: #b9913d;
+            font-size: 20px;
+        }
+
+    /* شبكة المعلومات */
+
+    .hourprice-details-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+    }
+
+    .hourprice-details-item {
+        background: #f8fafc;
+        border: 1px solid #e7ecf3;
+        border-radius: 12px;
+        padding: 19px 20px;
+        min-width: 0;
+    }
+
+    .hourprice-details-item-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #718096;
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 11px;
+    }
+
+        .hourprice-details-item-label i {
+            color: #b9913d;
+            font-size: 16px;
+        }
+
+    .hourprice-details-item-value {
+        color: #142d4e;
+        font-size: 17px;
+        font-weight: 800;
+        line-height: 1.7;
+        overflow-wrap: anywhere;
+    }
+
+    /* حالة الفصل */
+
+    .hourprice-details-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 8px 14px;
+        border-radius: 30px;
+        font-size: 13px;
+        font-weight: 800;
+    }
+
+    .hourprice-details-badge-active {
+        background: #e7f5eb;
+        color: #247247;
+    }
+
+    .hourprice-details-badge-inactive {
+        background: #edf1f5;
+        color: #64748b;
+    }
+
+    /* بطاقة السعر */
+
+    .hourprice-details-price-box {
+        background: linear-gradient(135deg, #f8fafc, #f4f0e5);
+        border: 1px solid #e7dfc8;
+        border-right: 5px solid #c9a24d;
+        border-radius: 14px;
+        padding: 28px;
+    }
+
+    .hourprice-details-price-label {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        color: #5d6b7d;
+        font-size: 14px;
+        font-weight: 700;
+        margin-bottom: 13px;
+    }
+
+        .hourprice-details-price-label i {
+            color: #b9913d;
+            font-size: 20px;
+        }
+
+    .hourprice-details-price-value {
+        color: #142d4e;
+        font-size: 38px;
+        font-weight: 900;
+        line-height: 1.5;
+        direction: ltr;
+        unicode-bidi: isolate;
+        display: inline-block;
+    }
+
+    .hourprice-details-price-hint {
+        color: #718096;
+        font-size: 13px;
+        line-height: 1.9;
+        margin-top: 9px;
+    }
+
+    /* أزرار الإجراءات */
+
+    .hourprice-details-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        padding-top: 25px;
+        margin-top: 30px;
+        border-top: 1px solid #e9edf3;
+    }
+
+    .hourprice-details-edit,
+    .hourprice-details-delete,
+    .hourprice-details-back {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+        min-height: 45px;
+        padding: 11px 22px;
+        border-radius: 11px;
+        font-size: 14px;
+        font-weight: 800;
+        font-family: inherit;
+        text-decoration: none;
+        transition: background-color .2s ease;
+    }
+
+    .hourprice-details-edit {
+        background: #c9a24d;
+        color: #142d4e;
+        border: 1px solid transparent;
+    }
+
+        .hourprice-details-edit:hover {
+            background: #b9913d;
+            color: #142d4e;
+        }
+
+    .hourprice-details-delete {
+        background: #fff0ee;
+        color: #b42318;
+        border: 1px solid #f0d4d0;
+    }
+
+        .hourprice-details-delete:hover {
+            background: #fce0dc;
+            color: #a31d15;
+        }
+
+    .hourprice-details-back {
+        background: #edf1f7;
+        color: #142d4e;
+        border: 1px solid #dfe6ef;
+    }
+
+        .hourprice-details-back:hover {
+            background: #e1e8f2;
+            color: #142d4e;
+        }
+
+        .hourprice-details-edit:focus-visible,
+        .hourprice-details-delete:focus-visible,
+        .hourprice-details-back:focus-visible {
+            outline: 3px solid #142d4e;
+            outline-offset: 3px;
+        }
+
+    /* الشاشات الصغيرة */
+
+    @@media (max-width: 650px) {
+        .hourprice-details-page {
+            margin: 15px auto;
+        }
+
+        .hourprice-details-header,
+        .hourprice-details-body {
+            padding: 22px;
+        }
+
+            .hourprice-details-header h2 {
+                font-size: 21px;
+            }
+
+        .hourprice-details-department {
+            padding: 18px;
+            gap: 13px;
+        }
+
+        .hourprice-details-department-icon {
+            width: 48px;
+            height: 48px;
+            font-size: 23px;
+        }
+
+        .hourprice-details-department-name {
+            font-size: 18px;
+        }
+
+        .hourprice-details-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .hourprice-details-price-box {
+            padding: 22px;
+        }
+
+        .hourprice-details-price-value {
+            font-size: 32px;
+        }
+
+        .hourprice-details-actions {
+            flex-direction: column;
+        }
+
+        .hourprice-details-edit,
+        .hourprice-details-delete,
+        .hourprice-details-back {
+            width: 100%;
+        }
+    }
+</style>
+
+<div class="hourprice-details-page">
+
+    <!-- رأس الصفحة -->
+
+    <div class="hourprice-details-header">
+
+        <h2>
+            <i class="bi bi-info-circle"></i>
+            تفاصيل سعر الساعة الدراسية
+        </h2>
+
+        <p>
+            عرض معلومات سعر الساعة الدراسية
+            المسجل في النظام للقسم والفصل المحددين.
+        </p>
 
     </div>
 
-    <!-- بطاقة التفاصيل -->
-    <div class="card border-0 shadow-sm">
+    <div class="hourprice-details-body">
 
-        <div class="card-header py-3"
-             style="background:#142d4e; color:white;">
+        <!-- القسم الدراسي -->
 
-            <h5 class="mb-0">
-                معلومات سعر الساعة
-            </h5>
+        <div class="hourprice-details-department">
 
-        </div>
+            <div class="hourprice-details-department-icon">
+                <i class="bi bi-building"></i>
+            </div>
 
-        <div class="card-body p-4">
+            <div>
 
-            <!-- القسم -->
-            <div class="mb-4">
-
-                <div class="text-muted mb-2">
+                <div class="hourprice-details-department-label">
                     القسم الدراسي
                 </div>
 
-                <h4 style="color:#142d4e; font-weight:800;">
-                    @Model.Department.Name
-                </h4>
+                <div class="hourprice-details-department-name">
+                    @Model.Department?.Name
+                </div>
 
             </div>
 
-            <hr />
+        </div>
 
-            <!-- معلومات الفصل -->
-            <h5 class="mb-4"
-                style="color:#142d4e; font-weight:700;">
+        <!-- معلومات الفصل الدراسي -->
+
+        <section class="hourprice-details-section">
+
+            <h3 class="hourprice-details-section-title">
+                <i class="bi bi-calendar3"></i>
                 معلومات الفصل الدراسي
-            </h5>
+            </h3>
 
-            <div class="row g-4 mb-4">
+            <div class="hourprice-details-grid">
 
-                <div class="col-md-6">
+                <!-- اسم الفصل -->
 
-                    <div class="text-muted mb-2">
+                <div class="hourprice-details-item">
+
+                    <div class="hourprice-details-item-label">
+                        <i class="bi bi-calendar-event"></i>
                         اسم الفصل الدراسي
                     </div>
 
-                    <div class="fw-bold fs-5">
-                        @Model.Semester.Name
+                    <div class="hourprice-details-item-value">
+                        @Model.Semester?.Name
                     </div>
 
                 </div>
 
-                <div class="col-md-6">
+                <!-- العام الدراسي -->
 
-                    <div class="text-muted mb-2">
+                <div class="hourprice-details-item">
+
+                    <div class="hourprice-details-item-label">
+                        <i class="bi bi-calendar-range"></i>
                         العام الدراسي
                     </div>
 
-                    <div class="fw-bold fs-5">
-                        @Model.Semester.AcademicYear
+                    <div class="hourprice-details-item-value">
+                        @Model.Semester?.AcademicYear
                     </div>
 
                 </div>
 
-                <div class="col-md-6">
+                <!-- رقم الفصل -->
 
-                    <div class="text-muted mb-2">
+                <div class="hourprice-details-item">
+
+                    <div class="hourprice-details-item-label">
+                        <i class="bi bi-hash"></i>
                         رقم الفصل الدراسي
                     </div>
 
-                    <div class="fw-bold fs-5">
-                        @Model.Semester.SemesterNumber
+                    <div class="hourprice-details-item-value">
+                        @Model.Semester?.SemesterNumber
                     </div>
 
                 </div>
 
-                <div class="col-md-6">
+                <!-- حالة الفصل -->
 
-                    <div class="text-muted mb-2">
+                <div class="hourprice-details-item">
+
+                    <div class="hourprice-details-item-label">
+                        <i class="bi bi-toggle-on"></i>
                         حالة الفصل الدراسي
                     </div>
 
-                    @if (Model.Semester.IsActive)
-                    {
-                        <span class="badge bg-success px-3 py-2">
-                            فعال
-                        </span>
-                    }
-                    else
-                    {
-                        <span class="badge bg-secondary px-3 py-2">
-                            غير فعال
-                        </span>
-                    }
+                    <div class="hourprice-details-item-value">
+
+                        @if (Model.Semester?.IsActive == true)
+                        {
+                            <span class="hourprice-details-badge hourprice-details-badge-active">
+
+                                <i class="bi bi-check-circle"></i>
+                                فعّال
+
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="hourprice-details-badge hourprice-details-badge-inactive">
+
+                                <i class="bi bi-dash-circle"></i>
+                                غير فعّال
+
+                            </span>
+                        }
+
+                    </div>
 
                 </div>
 
             </div>
 
-            <hr />
+        </section>
 
-            <!-- سعر الساعة -->
-            <h5 class="mb-3"
-                style="color:#142d4e; font-weight:700;">
+        <!-- السعر المسجل -->
+
+        <section class="hourprice-details-section">
+
+            <h3 class="hourprice-details-section-title">
+                <i class="bi bi-currency-exchange"></i>
                 السعر المسجل
-            </h5>
+            </h3>
 
-            <div class="mb-4">
+            <div class="hourprice-details-price-box">
 
-                <div class="text-muted mb-2">
+                <div class="hourprice-details-price-label">
+
+                    <i class="bi bi-cash-coin"></i>
                     سعر الساعة الدراسية
+
                 </div>
 
-                <div style="color:#142d4e; font-size:32px; font-weight:800;">
+                <div class="hourprice-details-price-value">
                     @Model.PricePerHour.ToString("N2")
                 </div>
 
-                <small class="text-muted">
-                    السعر المحدد لهذا القسم خلال الفصل الدراسي المذكور.
-                </small>
+                <div class="hourprice-details-price-hint">
+                    السعر المحدد لهذا القسم
+                    خلال الفصل الدراسي المذكور.
+                </div>
 
             </div>
 
-            <hr />
+        </section>
 
-            <!-- الأزرار -->
-            <div class="d-flex flex-wrap gap-3 mt-4">
+        <!-- أزرار الإجراءات -->
 
-                @if (isAdmin)
-                {
-                    <a asp-controller="HourPrices"
-                       asp-action="Edit"
-                       asp-route-id="@Model.Id"
-                       class="btn px-4 py-2"
-                       style="background:#c9a24d; color:#142d4e; font-weight:800;">
-                        تعديل سعر الساعة
-                    </a>
+        <div class="hourprice-details-actions">
 
-                    <a asp-controller="HourPrices"
-                       asp-action="Delete"
-                       asp-route-id="@Model.Id"
-                       class="btn btn-outline-danger px-4 py-2">
-                        حذف سعر الساعة
-                    </a>
-                }
-
+            @if (isAdmin)
+            {
                 <a asp-controller="HourPrices"
-                   asp-action="Index"
-                   class="btn btn-outline-secondary px-4 py-2">
-                    رجوع
+                   asp-action="Edit"
+                   asp-route-id="@Model.Id"
+                   class="hourprice-details-edit">
+
+                    <i class="bi bi-pencil-square"></i>
+                    تعديل سعر الساعة
+
                 </a>
 
-            </div>
+                <a asp-controller="HourPrices"
+                   asp-action="Delete"
+                   asp-route-id="@Model.Id"
+                   class="hourprice-details-delete">
+
+                    <i class="bi bi-trash3"></i>
+                    حذف سعر الساعة
+
+                </a>
+            }
+
+            <a asp-controller="HourPrices"
+               asp-action="Index"
+               class="hourprice-details-back">
+
+                <i class="bi bi-arrow-right"></i>
+                العودة إلى أسعار الساعات
+
+            </a>
 
         </div>
 

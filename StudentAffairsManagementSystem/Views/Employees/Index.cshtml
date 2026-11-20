@@ -1,32 +1,308 @@
-﻿
-@model IEnumerable<StudentAffairsManagementSystem.Models.Employee>
+﻿@model IEnumerable<StudentAffairsManagementSystem.Models.Employee>
 
 @{
     ViewData["Title"] = "إدارة الموظفين";
 
-    var employees = Model.ToList();
+    var employees = Model?.ToList()
+        ?? new List<StudentAffairsManagementSystem.Models.Employee>();
 }
 
-<div class="container-fluid py-4" dir="rtl">
+<style>
+    .employees-page {
+        direction: rtl;
+        color: #142d4e;
+        padding-top: 20px;
+        padding-bottom: 25px;
+    }
 
-    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+    /* رأس الصفحة */
+
+    .employees-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-bottom: 25px;
+    }
+
+        .employees-header h2 {
+            color: #142d4e;
+            font-size: 26px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .employees-header p {
+            color: #718096;
+            margin: 0;
+        }
+
+    /* زر إضافة موظف */
+
+    .employees-add-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+        background: #c9a24d;
+        color: #142d4e;
+        border-radius: 11px;
+        padding: 12px 20px;
+        text-decoration: none;
+        font-weight: 800;
+        transition: background-color 0.2s ease;
+    }
+
+        .employees-add-btn:hover {
+            background: #b9913d;
+            color: #142d4e;
+        }
+
+    /* بطاقة الإحصائيات */
+
+    .employees-stat-card {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        background: white;
+        border: 1px solid #e5eaf0;
+        border-right: 4px solid #c9a24d;
+        border-radius: 14px;
+        padding: 22px;
+        margin-bottom: 25px;
+    }
+
+    .employees-stat-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 65px;
+        height: 65px;
+        background: #142d4e;
+        color: white;
+        border-radius: 12px;
+        font-size: 28px;
+        flex-shrink: 0;
+    }
+
+    .employees-stat-label {
+        color: #718096;
+        font-size: 14px;
+        margin-bottom: 7px;
+    }
+
+    .employees-stat-value {
+        font-size: 30px;
+        font-weight: 800;
+        color: #142d4e;
+        margin: 0;
+    }
+
+    /* بطاقة الجدول */
+
+    .employees-table-card {
+        background: white;
+        border: 1px solid #e5eaf0;
+        border-radius: 15px;
+        overflow: hidden;
+    }
+
+    .employees-table-header {
+        background: #142d4e;
+        color: white;
+        padding: 18px 22px;
+    }
+
+        .employees-table-header h4 {
+            margin: 0;
+            font-size: 19px;
+            font-weight: 800;
+        }
+
+    .employees-table-wrapper {
+        overflow-x: auto;
+    }
+
+    /* جدول الموظفين */
+
+    .employees-table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: center;
+    }
+
+        .employees-table thead {
+            background: #f5f6f8;
+            color: #142d4e;
+        }
+
+        .employees-table th {
+            padding: 16px;
+            font-size: 14px;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .employees-table td {
+            padding: 16px;
+            border-bottom: 1px solid #edf0f5;
+            vertical-align: middle;
+            font-size: 14px;
+        }
+
+        .employees-table tbody tr:hover {
+            background: #fafbfd;
+        }
+
+    .employees-number {
+        color: #142d4e;
+        font-weight: 800;
+        direction: ltr;
+        display: inline-block;
+    }
+
+    /* أزرار الإجراءات الموحدة */
+
+    .employees-actions {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .employees-action-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-height: 43px;
+        padding: 9px 15px;
+        border-radius: 11px;
+        border: 1px solid transparent;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 700;
+        white-space: nowrap;
+        transition: background-color 0.2s ease, transform 0.2s ease;
+    }
+
+        .employees-action-btn i {
+            font-size: 16px;
+        }
+
+    /* زر عرض التفاصيل */
+
+    .employees-details-btn {
+        background: #eef2f8;
+        color: #142d4e;
+    }
+
+        .employees-details-btn:hover {
+            background: #dfe7f2;
+            color: #142d4e;
+            transform: translateY(-1px);
+        }
+
+    /* زر تعديل */
+
+    .employees-edit-btn {
+        background: #c9a24d;
+        color: #142d4e;
+    }
+
+        .employees-edit-btn:hover {
+            background: #b9913d;
+            color: #142d4e;
+            transform: translateY(-1px);
+        }
+
+    /* زر حذف */
+
+    .employees-delete-btn {
+        background: #fff0ee;
+        color: #c62828;
+        border-color: #ffc5bf;
+    }
+
+        .employees-delete-btn:hover {
+            background: #ffe0dc;
+            color: #a91e1e;
+            border-color: #f2a8a0;
+            transform: translateY(-1px);
+        }
+
+    .employees-action-btn:focus-visible {
+        outline: 3px solid #142d4e;
+        outline-offset: 3px;
+    }
+
+    /* حالة عدم وجود موظفين */
+
+    .employees-empty {
+        text-align: center;
+        padding: 45px 20px !important;
+        color: #718096;
+        font-size: 15px;
+    }
+
+        .employees-empty i {
+            display: block;
+            font-size: 38px;
+            color: #c9a24d;
+            margin-bottom: 12px;
+        }
+
+    /* الشاشات الصغيرة */
+
+    @@media (max-width: 700px) {
+        .employees-header h2 {
+            font-size: 22px;
+        }
+
+        .employees-stat-card {
+            padding: 18px;
+        }
+
+        .employees-table th,
+        .employees-table td {
+            padding: 12px;
+        }
+    }
+</style>
+
+<div class="container-fluid employees-page" dir="rtl">
+
+    <!-- رأس الصفحة -->
+
+    <div class="employees-header">
+
         <div>
-            <h2 style="color:#142d4e; font-weight:800;">
+            <h2>
+                <i class="bi bi-people-fill"></i>
                 إدارة الموظفين
             </h2>
-            <p class="text-muted mb-0">
+
+            <p>
                 عرض وإدارة موظفي الجامعة
             </p>
         </div>
 
+        <!-- إضافة موظف جديد -->
+
         <a asp-controller="Employees"
            asp-action="Create"
-           class="btn px-4 py-2"
-           style="background:#c9a24d; color:#142d4e; font-weight:bold;">
-            + إضافة موظف جديد
+           class="employees-add-btn">
+
+            <i class="bi bi-person-plus"></i>
+            إضافة موظف جديد
+
         </a>
+
     </div>
 
+    <!-- رسائل النجاح والخطأ -->
     @if (TempData["Success"] != null)
     {
         <div class="alert alert-success">
@@ -41,99 +317,171 @@
         </div>
     }
 
-    <div class="card border-0 shadow-sm mb-4">
-        <div class="card-body d-flex align-items-center gap-3 p-4">
-            <div style="background:#142d4e; color:#fff; padding:15px 22px; border-radius:12px; font-size:24px;">
-                👥
-            </div>
-            <div>
-                <div class="text-muted">إجمالي الموظفين الحاليين</div>
-                <h3 class="mb-0" style="color:#142d4e; font-weight:800;">
-                    @employees.Count
-                </h3>
-            </div>
+    <!-- إحصائيات الموظفين -->
+
+    <div class="employees-stat-card">
+
+        <div class="employees-stat-icon">
+            <i class="bi bi-people-fill"></i>
         </div>
+
+        <div>
+
+            <div class="employees-stat-label">
+                إجمالي الموظفين الحاليين
+            </div>
+
+            <h3 class="employees-stat-value">
+                @employees.Count
+            </h3>
+
+        </div>
+
     </div>
 
-    <div class="card border-0 shadow-sm">
-        <div class="card-header py-3"
-             style="background:#142d4e; color:white;">
-            <h5 class="mb-0">قائمة الموظفين</h5>
+    <!-- قائمة الموظفين -->
+
+    <div class="employees-table-card">
+
+        <div class="employees-table-header">
+
+            <h4>
+                <i class="bi bi-list-ul"></i>
+                قائمة الموظفين
+            </h4>
+
         </div>
 
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle text-center mb-0">
-                    <thead style="background:#f5f6f8;">
-                        <tr>
-                            <th>الرقم الوظيفي</th>
-                            <th>الاسم الكامل</th>
-                            <th>رقم الهاتف</th>
-                            <th>العنوان</th>
-                            <th>الإجراءات</th>
-                        </tr>
-                    </thead>
+        <div class="employees-table-wrapper">
 
-                    <tbody>
-                        @if (employees.Any())
+            <table class="employees-table">
+
+                <thead>
+                    <tr>
+                        <th>الرقم الوظيفي</th>
+                        <th>الاسم الكامل</th>
+                        <th>رقم الهاتف</th>
+                        <th>العنوان</th>
+                        <th>الإجراءات</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    @if (employees.Any())
+                    {
+                        @foreach (var employee in employees)
                         {
-                            @foreach (var employee in employees)
-                            {
-                                <tr>
-                                    <td>
-                                        <strong>@employee.EmployeeNumber</strong>
-                                    </td>
+                            var fullName = string.Join(" ",
+                                new[]
+                                {
+                                    employee.FirstName,
+                                    employee.FatherName,
+                                    employee.LastName
+                                }.Where(n => !string.IsNullOrWhiteSpace(n)));
 
-                                    <td>
-                                        @employee.FirstName
-                                        @employee.FatherName
-                                        @employee.LastName
-                                    </td>
-
-                                    <td>@employee.Phone</td>
-                                    <td>@employee.Address</td>
-
-                                    <td>
-                                        <div class="d-flex justify-content-center gap-2 flex-wrap">
-
-                                            <a asp-controller="Employees"
-                                               asp-action="Details"
-                                               asp-route-id="@employee.Id"
-                                               class="btn btn-sm btn-outline-primary">
-                                                التفاصيل
-                                            </a>
-
-                                            <a asp-controller="Employees"
-                                               asp-action="Edit"
-                                               asp-route-id="@employee.Id"
-                                               class="btn btn-sm btn-outline-warning">
-                                                تعديل
-                                            </a>
-
-                                            <a asp-controller="Employees"
-                                               asp-action="Delete"
-                                               asp-route-id="@employee.Id"
-                                               class="btn btn-sm btn-outline-danger">
-                                                حذف
-                                            </a>
-
-                                        </div>
-                                    </td>
-                                </tr>
-                            }
-                        }
-                        else
-                        {
                             <tr>
-                                <td colspan="5" class="py-5 text-muted">
-                                    لا يوجد موظفون مسجلون حاليًا.
+
+                                <!-- الرقم الوظيفي -->
+
+                                <td>
+                                    <span class="employees-number">
+                                        @employee.EmployeeNumber
+                                    </span>
                                 </td>
+
+                                <!-- الاسم الكامل -->
+
+                                <td>
+                                    <strong>
+                                        @fullName
+                                    </strong>
+                                </td>
+
+                                <!-- رقم الهاتف -->
+
+                                <td>
+                                    @employee.Phone
+                                </td>
+
+                                <!-- العنوان -->
+
+                                <td>
+                                    @employee.Address
+                                </td>
+
+                                <!-- الإجراءات -->
+
+                                <td>
+
+                                    <div class="employees-actions">
+
+                                        <!-- عرض التفاصيل -->
+
+                                        <a asp-controller="Employees"
+                                           asp-action="Details"
+                                           asp-route-id="@employee.Id"
+                                           class="employees-action-btn employees-details-btn"
+                                           aria-label="عرض تفاصيل الموظف @fullName">
+
+                                            <i class="bi bi-eye"></i>
+                                            عرض التفاصيل
+
+                                        </a>
+
+                                        <!-- تعديل -->
+
+                                        <a asp-controller="Employees"
+                                           asp-action="Edit"
+                                           asp-route-id="@employee.Id"
+                                           class="employees-action-btn employees-edit-btn"
+                                           aria-label="تعديل الموظف @fullName">
+
+                                            <i class="bi bi-pencil-square"></i>
+                                            تعديل
+
+                                        </a>
+
+                                        <!-- حذف -->
+
+                                        <a asp-controller="Employees"
+                                           asp-action="Delete"
+                                           asp-route-id="@employee.Id"
+                                           class="employees-action-btn employees-delete-btn"
+                                           aria-label="حذف الموظف @fullName">
+
+                                            <i class="bi bi-trash3"></i>
+                                            حذف
+
+                                        </a>
+
+                                    </div>
+
+                                </td>
+
                             </tr>
                         }
-                    </tbody>
-                </table>
-            </div>
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="5"
+                                class="employees-empty">
+
+                                <i class="bi bi-person-lines-fill"></i>
+
+                                لا يوجد موظفون مسجلون حاليًا.
+
+                            </td>
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+
         </div>
+
     </div>
 
 </div>

@@ -315,17 +315,12 @@ namespace StudentAffairsManagementSystem.Migrations
                     b.Property<long>("CourseId")
                         .HasColumnType("bigint");
 
-                    b.Property<long>("EmployeeId")
-                        .HasColumnType("bigint");
-
                     b.Property<long>("SemesterId")
                         .HasColumnType("bigint");
 
                     b.HasKey("Id");
 
                     b.HasIndex("CourseId");
-
-                    b.HasIndex("EmployeeId");
 
                     b.HasIndex("SemesterId");
 
@@ -772,12 +767,6 @@ namespace StudentAffairsManagementSystem.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("StudentAffairsManagementSystem.Models.Employee", "Employee")
-                        .WithMany()
-                        .HasForeignKey("EmployeeId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("StudentAffairsManagementSystem.Models.Semester", "Semester")
                         .WithMany()
                         .HasForeignKey("SemesterId")
@@ -785,8 +774,6 @@ namespace StudentAffairsManagementSystem.Migrations
                         .IsRequired();
 
                     b.Navigation("Course");
-
-                    b.Navigation("Employee");
 
                     b.Navigation("Semester");
                 });

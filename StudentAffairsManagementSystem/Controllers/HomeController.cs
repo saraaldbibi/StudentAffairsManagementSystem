@@ -27,16 +27,25 @@ namespace StudentAffairsManagementSystem.Controllers
                 );
             }
 
-            // مؤقتاً: الموظف ينتقل إلى صفحة التسجيلات
+            // الموظف ينتقل مباشرة إلى إدارة الطلاب
             if (User.IsInRole("Employee"))
             {
                 return RedirectToAction(
                     "Index",
-                    "Registrations"
+                    "Students"
                 );
             }
 
-            // أي مستخدم آخر ليس لديه لوحة مخصصة بعد
+            // الطالب ينتقل إلى لوحة الطالب
+            if (User.IsInRole("Student"))
+            {
+                return RedirectToAction(
+                    "Index",
+                    "StudentDashboard"
+                );
+            }
+
+            // أي مستخدم آخر غير مصرح له
             return Forbid();
         }
 

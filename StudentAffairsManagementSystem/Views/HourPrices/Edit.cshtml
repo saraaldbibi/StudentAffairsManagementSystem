@@ -1,166 +1,536 @@
-﻿
-@model StudentAffairsManagementSystem.Models.HourPrice
+﻿@model StudentAffairsManagementSystem.Models.HourPrice
 
 @{
     ViewData["Title"] = "تعديل سعر الساعة الدراسية";
 }
 
-<div class="container-fluid py-4" dir="rtl">
+<style>
+    .hourprice-edit-page {
+        direction: rtl;
+        max-width: 950px;
+        margin: 20px auto;
+        color: #142d4e;
+    }
 
-    <!-- عنوان الصفحة -->
-    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+    /* رأس الصفحة */
 
-        <div>
-            <h2 style="color:#142d4e; font-weight:800;">
-                تعديل سعر الساعة الدراسية
-            </h2>
+    .hourprice-edit-header {
+        background: linear-gradient(135deg, #142d4e, #304661);
+        color: #ffffff;
+        padding: 28px 32px;
+        border-radius: 16px 16px 0 0;
+        border-bottom: 4px solid #c9a24d;
+    }
 
-            <p class="text-muted mb-0">
-                تعديل السعر المسجل لقسم ضمن فصل دراسي
-            </p>
-        </div>
+        .hourprice-edit-header h2 {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 25px;
+            font-weight: 800;
+            margin: 0 0 10px;
+        }
 
-        <a asp-controller="HourPrices"
-           asp-action="Index"
-           class="btn btn-outline-secondary">
-            العودة إلى أسعار الساعات
-        </a>
+            .hourprice-edit-header h2 i {
+                color: #c9a24d;
+                font-size: 27px;
+            }
+
+        .hourprice-edit-header p {
+            color: #d6dfeb;
+            font-size: 14px;
+            line-height: 1.9;
+            margin: 0;
+        }
+
+    /* جسم الصفحة */
+
+    .hourprice-edit-body {
+        background: #ffffff;
+        padding: 30px;
+        border: 1px solid #e5eaf2;
+        border-top: none;
+        border-radius: 0 0 16px 16px;
+        box-shadow: 0 5px 25px rgba(20,45,78,.05);
+    }
+
+    /* الأقسام */
+
+    .hourprice-edit-section {
+        margin-bottom: 32px;
+    }
+
+    .hourprice-edit-section-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #142d4e;
+        font-size: 18px;
+        font-weight: 800;
+        border-right: 4px solid #c9a24d;
+        padding-right: 13px;
+        margin: 0 0 23px;
+    }
+
+        .hourprice-edit-section-title i {
+            color: #b9913d;
+            font-size: 20px;
+        }
+
+    /* شبكة الحقول */
+
+    .hourprice-edit-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 22px;
+    }
+
+    .hourprice-edit-field {
+        min-width: 0;
+    }
+
+    .hourprice-edit-field-full {
+        grid-column: 1 / -1;
+    }
+
+    .hourprice-edit-label {
+        display: block;
+        color: #142d4e;
+        font-size: 14px;
+        font-weight: 700;
+        margin-bottom: 9px;
+    }
+
+    .hourprice-edit-required {
+        color: #b42318;
+    }
+
+    .hourprice-edit-input {
+        display: block;
+        width: 100%;
+        min-height: 46px;
+        padding: 11px 14px;
+        border: 1px solid #dce3ed;
+        border-radius: 11px;
+        background: #ffffff;
+        color: #142d4e;
+        font-size: 14px;
+        font-family: inherit;
+        transition: border-color .2s ease, box-shadow .2s ease;
+    }
+
+        .hourprice-edit-input:focus {
+            outline: none;
+            border-color: #c9a24d;
+            box-shadow: 0 0 0 3px rgba(201,162,77,.14);
+        }
+
+        .hourprice-edit-input.input-validation-error {
+            border-color: #dc756e;
+        }
+
+    /* النصوص الإرشادية */
+
+    .hourprice-edit-hint {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        color: #718096;
+        font-size: 13px;
+        line-height: 1.9;
+        margin-top: 9px;
+    }
+
+        .hourprice-edit-hint i {
+            color: #b9913d;
+            margin-top: 2px;
+            flex-shrink: 0;
+        }
+
+    /* رسائل التحقق */
+
+    .hourprice-edit-error {
+        display: block;
+        color: #b42318;
+        font-size: 13px;
+        line-height: 1.7;
+        margin-top: 7px;
+    }
+
+    .hourprice-edit-validation-summary {
+        background: #fff0ee;
+        border: 1px solid #f1d8d5;
+        border-radius: 11px;
+        padding: 15px 18px;
+        margin-bottom: 25px;
+        color: #b42318;
+        font-size: 14px;
+    }
+
+        .hourprice-edit-validation-summary.validation-summary-valid {
+            display: none;
+        }
+
+        .hourprice-edit-validation-summary ul {
+            margin: 0;
+            padding-right: 20px;
+        }
+
+    /* بطاقة السعر */
+
+    .hourprice-edit-price-box {
+        background: #f8fafc;
+        border: 1px solid #e5eaf2;
+        border-radius: 13px;
+        padding: 23px;
+    }
+
+        .hourprice-edit-price-box .hourprice-edit-field {
+            max-width: 450px;
+        }
+
+    /* ملاحظة */
+
+    .hourprice-edit-note {
+        display: flex;
+        align-items: flex-start;
+        gap: 11px;
+        background: #fff9eb;
+        border: 1px solid #eadbb5;
+        border-right: 4px solid #c9a24d;
+        border-radius: 11px;
+        padding: 17px 19px;
+        margin-bottom: 28px;
+        color: #735b30;
+        font-size: 14px;
+        line-height: 1.9;
+    }
+
+        .hourprice-edit-note i {
+            color: #b9913d;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+    /* أزرار الإجراءات */
+
+    .hourprice-edit-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        padding-top: 25px;
+        border-top: 1px solid #e9edf3;
+    }
+
+    .hourprice-edit-save,
+    .hourprice-edit-cancel {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+        min-height: 45px;
+        padding: 11px 22px;
+        border-radius: 11px;
+        font-size: 14px;
+        font-weight: 800;
+        font-family: inherit;
+        text-decoration: none;
+        transition: background-color .2s ease;
+    }
+
+    .hourprice-edit-save {
+        background: #c9a24d;
+        color: #142d4e;
+        border: 1px solid transparent;
+        cursor: pointer;
+    }
+
+        .hourprice-edit-save:hover {
+            background: #b9913d;
+            color: #142d4e;
+        }
+
+    .hourprice-edit-cancel {
+        background: #edf1f7;
+        color: #142d4e;
+        border: 1px solid #dfe6ef;
+    }
+
+        .hourprice-edit-cancel:hover {
+            background: #e1e8f2;
+            color: #142d4e;
+        }
+
+        .hourprice-edit-save:focus-visible,
+        .hourprice-edit-cancel:focus-visible {
+            outline: 3px solid #142d4e;
+            outline-offset: 3px;
+        }
+
+    /* الشاشات الصغيرة */
+
+    @@media (max-width: 650px) {
+        .hourprice-edit-page {
+            margin: 15px auto;
+        }
+
+        .hourprice-edit-header,
+        .hourprice-edit-body {
+            padding: 22px;
+        }
+
+            .hourprice-edit-header h2 {
+                font-size: 21px;
+            }
+
+        .hourprice-edit-grid {
+            grid-template-columns: 1fr;
+            gap: 24px;
+        }
+
+        .hourprice-edit-field-full {
+            grid-column: auto;
+        }
+
+        .hourprice-edit-price-box {
+            padding: 18px;
+        }
+
+        .hourprice-edit-actions {
+            flex-direction: column;
+        }
+
+        .hourprice-edit-save,
+        .hourprice-edit-cancel {
+            width: 100%;
+        }
+    }
+</style>
+
+<div class="hourprice-edit-page">
+
+    <!-- رأس الصفحة -->
+
+    <div class="hourprice-edit-header">
+
+        <h2>
+            <i class="bi bi-pencil-square"></i>
+            تعديل سعر الساعة الدراسية
+        </h2>
+
+        <p>
+            تحديث بيانات سعر الساعة الدراسية
+            المسجل لقسم أكاديمي ضمن فصل دراسي محدد.
+        </p>
 
     </div>
 
     <!-- نموذج التعديل -->
-    <div class="card border-0 shadow-sm">
 
-        <div class="card-header py-3"
-             style="background:#142d4e; color:white;">
+    <div class="hourprice-edit-body">
 
-            <h5 class="mb-0">
-                بيانات سعر الساعة
-            </h5>
+        <form asp-controller="HourPrices"
+              asp-action="Edit"
+              asp-route-id="@Model.Id"
+              method="post">
 
-        </div>
+            @Html.AntiForgeryToken()
 
-        <div class="card-body p-4">
+            <input type="hidden" asp-for="Id" />
 
-            <form asp-controller="HourPrices"
-                  asp-action="Edit"
-                  asp-route-id="@Model.Id"
-                  method="post">
+            <!-- رسائل التحقق -->
 
-                @Html.AntiForgeryToken()
+            <div asp-validation-summary="All"
+                 class="hourprice-edit-validation-summary"></div>
 
-                <input type="hidden" asp-for="Id" />
+            <!-- القسم الدراسي -->
 
-                <!-- رسائل التحقق -->
-                <div asp-validation-summary="All"
-                     class="text-danger mb-3"></div>
+            <section class="hourprice-edit-section">
 
-                <!-- اختيار القسم -->
-                <div class="mb-4">
+                <h3 class="hourprice-edit-section-title">
+                    <i class="bi bi-building"></i>
+                    القسم الدراسي
+                </h3>
 
-                    <label asp-for="DepartmentId"
-                           class="form-label fw-bold">
-                        القسم الدراسي
-                    </label>
+                <div class="hourprice-edit-grid">
 
-                    <select asp-for="DepartmentId"
-                            asp-items="ViewBag.DepartmentId"
-                            class="form-select">
+                    <div class="hourprice-edit-field hourprice-edit-field-full">
 
-                        <option value="">
-                            -- اختاروا القسم الدراسي --
-                        </option>
+                        <label asp-for="DepartmentId"
+                               class="hourprice-edit-label">
 
-                    </select>
+                            القسم الدراسي
+                            <span class="hourprice-edit-required">*</span>
 
-                    <span asp-validation-for="DepartmentId"
-                          class="text-danger"></span>
+                        </label>
 
-                </div>
+                        <select asp-for="DepartmentId"
+                                asp-items="ViewBag.DepartmentId"
+                                class="hourprice-edit-input"
+                                required>
 
-                <!-- اختيار الفصل -->
-                <div class="mb-4">
+                            <option value="">
+                                -- اختاروا القسم الدراسي --
+                            </option>
 
-                    <label asp-for="SemesterId"
-                           class="form-label fw-bold">
-                        الفصل الدراسي
-                    </label>
+                        </select>
 
-                    <select asp-for="SemesterId"
-                            asp-items="ViewBag.SemesterId"
-                            class="form-select">
+                        <span asp-validation-for="DepartmentId"
+                              class="hourprice-edit-error"></span>
 
-                        <option value="">
-                            -- اختاروا الفصل الدراسي --
-                        </option>
+                        <div class="hourprice-edit-hint">
 
-                    </select>
+                            <i class="bi bi-info-circle"></i>
 
-                    <span asp-validation-for="SemesterId"
-                          class="text-danger"></span>
+                            <span>
+                                اختاروا القسم الذي سيُطبّق عليه
+                                سعر الساعة الدراسية.
+                            </span>
+
+                        </div>
+
+                    </div>
 
                 </div>
 
-                <!-- السعر -->
-                <div class="mb-4">
+            </section>
 
-                    <label asp-for="PricePerHour"
-                           class="form-label fw-bold">
-                        سعر الساعة الدراسية
-                    </label>
+            <!-- الفصل الدراسي -->
 
-                    <input asp-for="PricePerHour"
-                           type="number"
-                           min="0.01"
-                           step="0.01"
-                           class="form-control"
-                           dir="ltr" />
+            <section class="hourprice-edit-section">
 
-                    <span asp-validation-for="PricePerHour"
-                          class="text-danger"></span>
+                <h3 class="hourprice-edit-section-title">
+                    <i class="bi bi-calendar3"></i>
+                    الفصل الدراسي
+                </h3>
 
-                    <small class="text-muted d-block mt-2">
-                        يجب أن يكون سعر الساعة أكبر من صفر.
-                    </small>
+                <div class="hourprice-edit-grid">
+
+                    <div class="hourprice-edit-field hourprice-edit-field-full">
+
+                        <label asp-for="SemesterId"
+                               class="hourprice-edit-label">
+
+                            الفصل الدراسي
+                            <span class="hourprice-edit-required">*</span>
+
+                        </label>
+
+                        <select asp-for="SemesterId"
+                                asp-items="ViewBag.SemesterId"
+                                class="hourprice-edit-input"
+                                required>
+
+                            <option value="">
+                                -- اختاروا الفصل الدراسي --
+                            </option>
+
+                        </select>
+
+                        <span asp-validation-for="SemesterId"
+                              class="hourprice-edit-error"></span>
+
+                    </div>
 
                 </div>
 
-                <!-- تنبيه -->
-                <div class="alert alert-light border mb-4">
+            </section>
 
-                    <strong>ملاحظة:</strong>
+            <!-- سعر الساعة -->
+
+            <section class="hourprice-edit-section">
+
+                <h3 class="hourprice-edit-section-title">
+                    <i class="bi bi-currency-exchange"></i>
+                    قيمة الساعة الدراسية
+                </h3>
+
+                <div class="hourprice-edit-price-box">
+
+                    <div class="hourprice-edit-field">
+
+                        <label asp-for="PricePerHour"
+                               class="hourprice-edit-label">
+
+                            سعر الساعة الدراسية
+                            <span class="hourprice-edit-required">*</span>
+
+                        </label>
+
+                        <input asp-for="PricePerHour"
+                               type="number"
+                               min="0.01"
+                               step="0.01"
+                               class="hourprice-edit-input"
+                               dir="ltr"
+                               required />
+
+                        <span asp-validation-for="PricePerHour"
+                              class="hourprice-edit-error"></span>
+
+                        <div class="hourprice-edit-hint">
+
+                            <i class="bi bi-info-circle"></i>
+
+                            <span>
+                                يجب أن يكون سعر الساعة أكبر من صفر.
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+            <!-- ملاحظة -->
+
+            <div class="hourprice-edit-note">
+
+                <i class="bi bi-exclamation-circle"></i>
+
+                <span>
                     لا يمكن تسجيل أكثر من سعر ساعة واحد
                     لنفس القسم ضمن نفس الفصل الدراسي.
+                    تأكدوا من صحة القسم والفصل والسعر
+                    قبل حفظ التعديلات.
+                </span>
 
-                </div>
+            </div>
 
-                <!-- أزرار الحفظ والإلغاء -->
-                <div class="d-flex flex-wrap gap-3">
+            <!-- أزرار الحفظ والإلغاء -->
 
-                    <button type="submit"
-                            class="btn px-5 py-2"
-                            style="background:#c9a24d; color:#142d4e; font-weight:800;">
-                        حفظ التعديلات
-                    </button>
+            <div class="hourprice-edit-actions">
 
-                    <a asp-controller="HourPrices"
-                       asp-action="Details"
-                       asp-route-id="@Model.Id"
-                       class="btn btn-outline-secondary px-4 py-2">
-                        إلغاء
-                    </a>
+                <button type="submit"
+                        class="hourprice-edit-save">
 
-                </div>
+                    <i class="bi bi-check-circle"></i>
+                    حفظ التعديلات
 
-            </form>
+                </button>
 
-        </div>
+                <a asp-controller="HourPrices"
+                   asp-action="Details"
+                   asp-route-id="@Model.Id"
+                   class="hourprice-edit-cancel">
+
+                    <i class="bi bi-x-circle"></i>
+                    إلغاء والعودة للتفاصيل
+
+                </a>
+
+            </div>
+
+        </form>
 
     </div>
 
 </div>
 
 @section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-}
 
+    <partial name="_ValidationScriptsPartial" />
+
+}

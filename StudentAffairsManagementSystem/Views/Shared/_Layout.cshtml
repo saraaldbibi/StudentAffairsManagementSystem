@@ -62,11 +62,13 @@
 
     <style>
             :root {
-                --navy: #16263f;
-                --navy-hover: #263d5e;
-                --gold: #c8a66a;
+                --navy: #142d4e;
+                --navy-hover: #263f60;
+                --gold: #c9a24d;
+                --gold-hover: #b9913d;
                 --background: #f5f7fb;
                 --border: #e5eaf2;
+                --muted: #718096;
             }
 
             * {
@@ -80,24 +82,30 @@
                 font-family: Tahoma, Arial, sans-serif;
             }
 
+            /* الهيكل العام */
+
             .app-layout {
                 display: flex;
                 min-height: 100vh;
             }
+
+            /* القائمة الجانبية */
 
             .app-sidebar {
                 width: 270px;
                 flex-shrink: 0;
                 min-height: 100vh;
                 background: var(--navy);
-                color: white;
+                color: #ffffff;
                 padding: 22px 14px;
             }
+
+            /* شعار الجامعة */
 
             .brand-area {
                 text-align: center;
                 padding: 12px 8px 25px;
-                border-bottom: 1px solid #354660;
+                border-bottom: 1px solid rgba(255,255,255,.15);
                 margin-bottom: 20px;
             }
 
@@ -105,16 +113,17 @@
                 width: 95px;
                 height: 95px;
                 object-fit: contain;
-                background: white;
+                background: #ffffff;
                 border-radius: 50%;
                 padding: 5px;
                 margin-bottom: 14px;
+                border: 3px solid rgba(201,162,77,.35);
             }
 
             .brand-name {
-                color: white;
+                color: #ffffff;
                 font-size: 17px;
-                font-weight: bold;
+                font-weight: 800;
                 line-height: 1.8;
                 margin-bottom: 8px;
             }
@@ -122,37 +131,45 @@
             .brand-subtitle {
                 color: var(--gold);
                 font-size: 13px;
+                font-weight: 700;
             }
+
+            /* عناوين مجموعات القائمة */
 
             .menu-heading {
                 color: #aab8cb;
                 font-size: 12px;
+                font-weight: 700;
                 margin: 22px 14px 10px;
             }
+
+            /* روابط القائمة */
 
             .menu-link {
                 display: flex;
                 align-items: center;
                 gap: 13px;
-                padding: 13px 15px;
+                min-height: 43px;
+                padding: 11px 15px;
                 margin-bottom: 5px;
-                border-radius: 10px;
+                border-radius: 11px;
+                border-right: 3px solid transparent;
                 color: #e4ebf6;
                 text-decoration: none;
                 font-size: 14px;
-                transition: background .2s, color .2s;
+                transition: background-color .2s ease, color .2s ease, border-color .2s ease;
             }
 
                 .menu-link:hover {
                     background: var(--navy-hover);
-                    color: white;
+                    color: #ffffff;
                 }
 
                 .menu-link.active {
                     background: #304661;
-                    color: white;
-                    border-right: 3px solid var(--gold);
-                    font-weight: bold;
+                    color: #ffffff;
+                    border-right-color: var(--gold);
+                    font-weight: 800;
                 }
 
                 .menu-link i {
@@ -163,6 +180,18 @@
                     flex-shrink: 0;
                 }
 
+                .menu-link span {
+                    flex: 1;
+                    min-width: 0;
+                }
+
+                .menu-link:focus-visible {
+                    outline: 2px solid var(--gold);
+                    outline-offset: 2px;
+                }
+
+            /* المحتوى الرئيسي */
+
             .app-main {
                 flex: 1;
                 min-width: 0;
@@ -170,9 +199,11 @@
                 flex-direction: column;
             }
 
+            /* الشريط العلوي */
+
             .app-topbar {
                 min-height: 85px;
-                background: white;
+                background: #ffffff;
                 border-bottom: 1px solid var(--border);
                 padding: 18px 30px;
                 display: flex;
@@ -183,9 +214,12 @@
 
             .page-title {
                 font-size: 20px;
-                font-weight: bold;
+                font-weight: 800;
+                color: var(--navy);
                 margin: 0;
             }
+
+            /* بيانات المستخدم */
 
             .topbar-user {
                 display: flex;
@@ -202,7 +236,7 @@
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                font-weight: bold;
+                font-weight: 800;
                 font-size: 18px;
                 flex-shrink: 0;
             }
@@ -213,31 +247,56 @@
                 gap: 3px;
             }
 
-                .user-details small {
-                    color: #7b8797;
+                .user-details strong {
+                    color: var(--navy);
+                    font-size: 14px;
+                    font-weight: 800;
+                    overflow-wrap: anywhere;
                 }
 
+                .user-details small {
+                    color: var(--muted);
+                    font-size: 12px;
+                }
+
+            /* زر تسجيل الخروج */
+
             .logout-button {
-                border: 1px solid #e2e7ef;
-                border-radius: 9px;
-                padding: 9px 13px;
-                background: white;
-                color: #42536c;
-                display: flex;
+                min-height: 43px;
+                border: 1px solid #f1d8d5;
+                border-radius: 11px;
+                padding: 9px 15px;
+                background: #fff0ee;
+                color: #b33b30;
+                display: inline-flex;
                 align-items: center;
+                justify-content: center;
                 gap: 8px;
+                font-size: 13px;
+                font-weight: 700;
                 cursor: pointer;
+                transition: background-color .2s ease;
             }
 
                 .logout-button:hover {
-                    background: #fff3f1;
-                    color: #b33b30;
+                    background: #fbe0dc;
+                    color: #9d3027;
                 }
+
+                .logout-button:focus-visible {
+                    outline: 3px solid var(--navy);
+                    outline-offset: 2px;
+                }
+
+            /* مساحة الصفحات */
 
             .app-content {
                 flex: 1;
                 padding: 30px;
+                min-width: 0;
             }
+
+            /* التذييل */
 
             .app-footer {
                 text-align: center;
@@ -246,27 +305,45 @@
                 font-size: 12px;
             }
 
+            /* تنسيقات مشتركة للبطاقات */
+
             .university-card {
-                background: white;
+                background: #ffffff;
                 border: 1px solid var(--border);
                 border-radius: 15px;
                 padding: 24px;
-                box-shadow: 0 3px 12px rgba(20,40,70,.04);
+                box-shadow: 0 3px 12px rgba(20,45,78,.04);
             }
 
+            /* الزر الذهبي العام */
+
             .btn-university {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+                min-height: 43px;
                 background: var(--gold);
                 color: var(--navy);
-                border: none;
-                border-radius: 9px;
-                padding: 10px 20px;
-                font-weight: bold;
+                border: 1px solid transparent;
+                border-radius: 11px;
+                padding: 9px 18px;
+                font-weight: 700;
+                text-decoration: none;
+                transition: background-color .2s ease;
             }
 
                 .btn-university:hover {
-                    background: #b79557;
+                    background: var(--gold-hover);
                     color: var(--navy);
                 }
+
+                .btn-university:focus-visible {
+                    outline: 3px solid var(--navy);
+                    outline-offset: 2px;
+                }
+
+            /* الشاشات المتوسطة والصغيرة */
 
             @@media (max-width: 850px) {
                 .app-layout {
@@ -276,19 +353,79 @@
                 .app-sidebar {
                     width: 100%;
                     min-height: auto;
+                    padding: 16px;
+                }
+
+                .brand-area {
+                    padding: 10px 8px 18px;
+                    margin-bottom: 15px;
+                }
+
+                .brand-logo {
+                    width: 75px;
+                    height: 75px;
+                }
+
+                .brand-name {
+                    font-size: 15px;
+                }
+
+                .app-sidebar nav {
+                    display: grid;
+                    grid-template-columns: repeat( 2, minmax(0, 1fr) );
+                    gap: 6px 10px;
+                }
+
+                .menu-heading {
+                    grid-column: 1 / -1;
+                    margin: 14px 5px 5px;
+                }
+
+                .menu-link {
+                    margin-bottom: 0;
+                    font-size: 13px;
+                    padding: 10px;
                 }
 
                 .app-topbar {
                     flex-wrap: wrap;
-                    padding: 15px;
+                    padding: 18px;
                 }
+
+                .app-content {
+                    padding: 18px;
+                }
+
+                .topbar-user {
+                    flex-wrap: wrap;
+                }
+            }
+
+            @@media (max-width: 500px) {
+                .app-sidebar nav {
+                    grid-template-columns: 1fr;
+                }
+
+                .app-topbar {
+                    align-items: flex-start;
+                    flex-direction: column;
+                    gap: 15px;
+                }
+
+                .topbar-user {
+                    width: 100%;
+                }
+
+                    .topbar-user form {
+                        margin-right: auto;
+                    }
 
                 .app-content {
                     padding: 15px;
                 }
 
-                .topbar-user {
-                    flex-wrap: wrap;
+                .page-title {
+                    font-size: 18px;
                 }
             }
     </style>
@@ -301,9 +438,11 @@
         <div class="app-layout">
 
             <!-- القائمة الجانبية -->
+
             <aside class="app-sidebar">
 
                 <!-- شعار الجامعة -->
+
                 <div class="brand-area">
 
                     <img src="~/images/iusr-logo.jfif"
@@ -346,7 +485,6 @@
                             القائمة الرئيسية
                         </div>
 
-                        <!-- إدارة التسجيلات -->
                         <a asp-controller="Registrations"
                            asp-action="Manage"
                            class="@MenuClass("Registrations", "Manage")">
@@ -365,6 +503,7 @@
                         </div>
 
                         <!-- إدارة الطلاب -->
+
                         <a asp-controller="Students"
                            asp-action="Index"
                            class="@MenuClass("Students")">
@@ -375,6 +514,7 @@
                         </a>
 
                         <!-- المقررات الدراسية -->
+
                         <a asp-controller="Courses"
                            asp-action="Index"
                            class="@MenuClass("Courses")">
@@ -384,7 +524,8 @@
 
                         </a>
 
-                        <!-- تسجيل المقررات الدراسية -->
+                        <!-- تسجيل المقررات -->
+
                         <a asp-controller="Registrations"
                            asp-action="Index"
                            class="@MenuClass("Registrations", "Index")">
@@ -395,6 +536,7 @@
                         </a>
 
                         <!-- الشعب المطروحة -->
+
                         <a asp-controller="CourseOfferings"
                            asp-action="Index"
                            class="@MenuClass("CourseOfferings")">
@@ -412,6 +554,8 @@
                             إدارة الجامعة
                         </div>
 
+                        <!-- الموظفون -->
+
                         <a asp-controller="Employees"
                            asp-action="Index"
                            class="@MenuClass("Employees")">
@@ -420,6 +564,8 @@
                             <span>إدارة الموظفين</span>
 
                         </a>
+
+                        <!-- الصلاحيات -->
 
                         <a asp-controller="EmployeePermissions"
                            asp-action="Index"
@@ -430,6 +576,8 @@
 
                         </a>
 
+                        <!-- الكليات -->
+
                         <a asp-controller="Faculties"
                            asp-action="Index"
                            class="@MenuClass("Faculties")">
@@ -438,6 +586,8 @@
                             <span>الكليات</span>
 
                         </a>
+
+                        <!-- الأقسام -->
 
                         <a asp-controller="Departments"
                            asp-action="Index"
@@ -448,6 +598,8 @@
 
                         </a>
 
+                        <!-- الفصول الدراسية -->
+
                         <a asp-controller="Semesters"
                            asp-action="Index"
                            class="@MenuClass("Semesters")">
@@ -456,6 +608,8 @@
                             <span>الفصول الدراسية</span>
 
                         </a>
+
+                        <!-- أسعار الساعات -->
 
                         <a asp-controller="HourPrices"
                            asp-action="Index"
@@ -474,6 +628,8 @@
                             خدمات الطالب
                         </div>
 
+                        <!-- بوابة الطالب -->
+
                         <a asp-controller="StudentDashboard"
                            asp-action="Index"
                            class="@MenuClass("StudentDashboard", "Index")">
@@ -483,6 +639,8 @@
 
                         </a>
 
+                        <!-- تسجيل المقررات -->
+
                         <a asp-controller="StudentDashboard"
                            asp-action="Courses"
                            class="@MenuClass("StudentDashboard", "Courses")">
@@ -491,6 +649,8 @@
                             <span>تسجيل المقررات</span>
 
                         </a>
+
+                        <!-- الرسوم الجامعية -->
 
                         <a asp-controller="StudentDashboard"
                            asp-action="Fees"
@@ -507,9 +667,11 @@
             </aside>
 
             <!-- المحتوى الرئيسي -->
+
             <div class="app-main">
 
                 <!-- الشريط العلوي -->
+
                 <header class="app-topbar">
 
                     <h1 class="page-title">
@@ -518,11 +680,15 @@
 
                     <div class="topbar-user">
 
+                        <!-- صورة رمزية للمستخدم -->
+
                         <div class="user-avatar">
                             @(displayName.Length > 0
                                 ? displayName.Substring(0, 1).ToUpper()
                                 : "م")
                         </div>
+
+                        <!-- اسم المستخدم ودوره -->
 
                         <div class="user-details">
 
@@ -537,6 +703,7 @@
                         </div>
 
                         <!-- تسجيل الخروج -->
+
                         <form asp-controller="Account"
                               asp-action="Logout"
                               method="post">
@@ -557,9 +724,13 @@
 
                 </header>
 
+                <!-- محتوى الصفحة -->
+
                 <main class="app-content">
                     @RenderBody()
                 </main>
+
+                <!-- تذييل الصفحة -->
 
                 <footer class="app-footer">
                     © @DateTime.Now.Year

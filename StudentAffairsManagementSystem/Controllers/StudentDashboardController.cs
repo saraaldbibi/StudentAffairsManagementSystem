@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -18,6 +19,12 @@ namespace StudentAffairsManagementSystem.Controllers
         private readonly ApplicationDbContext _context;
         private readonly UserManager<Account> _userManager;
 
+        private const string Registered = "Registered";
+        private const string Cancelled = "Cancelled";
+
+        private const string RegisterPermission =
+            "Students.RegisterCourses";
+
         public StudentDashboardController(
             ApplicationDbContext context,
             UserManager<Account> userManager)
@@ -27,14 +34,19 @@ namespace StudentAffairsManagementSystem.Controllers
         }
 
         // ==========================================
-        // جلب الطالب المرتبط بالحساب الحالي
+        // الطالب المرتبط بالحساب الحالي
         // ==========================================
         private async Task<Student?> GetCurrentStudentAsync()
         {
-            string? accountIdText = _userManager.GetUserId(User);
+            string? accountIdText =
+                _userManager.GetUserId(User);
 
-            if (!long.TryParse(accountIdText, out long accountId))
+            if (!long.TryParse(
+                    accountIdText,
+                    out long accountId))
+            {
                 return null;
+            }
 
             return await _context.Students
                 .AsNoTracking()
@@ -44,41 +56,53 @@ namespace StudentAffairsManagementSystem.Controllers
         }
 
         // ==========================================
-        // هل التسجيل مفتوح الآن؟
-        // التواريخ بتوقيت الجامعة المحلي
+        // صلاحية تسجيل المقررات الممنوحة من الأدمن
         // ==========================================
-        private static bool IsRegistrationAvailable(Semester? semester)
+        private async Task<bool> CanRegisterCoursesAsync(
+            Student student)
         {
-            if (semester == null)
-                return false;
-
-            if (!semester.IsActive ||
-                !semester.IsRegistrationOpen ||
-                !semester.RegistrationStartDate.HasValue ||
-                !semester.RegistrationEndDate.HasValue)
-            {
-                return false;
-            }
-
-            DateTime now = DateTime.Now;
-
-            return now >= semester.RegistrationStartDate.Value &&
-                   now <= semester.RegistrationEndDate.Value;
+            return await _context.AccountPermissions
+                .AsNoTracking()
+                .AnyAsync(ap =>
+                    ap.AccountId == student.AccountId &&
+                    ap.Permission.Code == RegisterPermission &&
+                    ap.IsActive &&
+                    ap.RevokedAt == null);
         }
 
         // ==========================================
-        // رسالة توضح سبب إغلاق التسجيل
+        // الفصل الدراسي النشط
         // ==========================================
-        private static string GetRegistrationMessage(Semester? semester)
+        private async Task<Semester?> GetActiveSemesterAsync()
+        {
+            return await _context.Semesters
+                .AsNoTracking()
+                .Where(s => s.IsActive)
+                .OrderByDescending(s => s.StartDate)
+                .ThenByDescending(s => s.Id)
+                .FirstOrDefaultAsync();
+        }
+
+        // ==========================================
+        // سبب عدم إتاحة فترة التسجيل
+        // ==========================================
+        private static string? GetRegistrationClosedReason(
+            Semester? semester)
         {
             if (semester == null)
-                return "لا يوجد فصل دراسي فعّال حاليًا.";
+            {
+                return "لا يوجد فصل دراسي نشط حاليًا.";
+            }
 
             if (!semester.IsActive)
-                return "الفصل الدراسي غير فعّال.";
+            {
+                return "الفصل الدراسي غير نشط.";
+            }
 
             if (!semester.IsRegistrationOpen)
-                return "التسجيل مغلق حاليًا من إدارة الجامعة.";
+            {
+                return "تسجيل المقررات مغلق من قبل إدارة الجامعة.";
+            }
 
             if (!semester.RegistrationStartDate.HasValue ||
                 !semester.RegistrationEndDate.HasValue)
@@ -86,15 +110,37 @@ namespace StudentAffairsManagementSystem.Controllers
                 return "لم تحدد إدارة الجامعة فترة التسجيل بعد.";
             }
 
+            DateTime start =
+                semester.RegistrationStartDate.Value;
+
+            DateTime end =
+                semester.RegistrationEndDate.Value;
+
+            if (end < start)
+            {
+                return "تاريخ نهاية التسجيل يسبق تاريخ بدايته.";
+            }
+
+            // إذا لم يُحدد وقت لنهاية التسجيل،
+            // نعتبر نهاية اليوم آخر موعد للتسجيل.
+            if (end.TimeOfDay == TimeSpan.Zero)
+            {
+                end = end.Date.AddDays(1).AddTicks(-1);
+            }
+
             DateTime now = DateTime.Now;
 
-            if (now < semester.RegistrationStartDate.Value)
+            if (now < start)
+            {
                 return "لم تبدأ فترة تسجيل المقررات بعد.";
+            }
 
-            if (now > semester.RegistrationEndDate.Value)
+            if (now > end)
+            {
                 return "انتهت فترة تسجيل المقررات.";
+            }
 
-            return "التسجيل متاح حاليًا.";
+            return null;
         }
 
         // ==========================================
@@ -104,7 +150,8 @@ namespace StudentAffairsManagementSystem.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var currentStudent = await GetCurrentStudentAsync();
+            var currentStudent =
+                await GetCurrentStudentAsync();
 
             if (currentStudent == null)
                 return NotFound();
@@ -124,7 +171,7 @@ namespace StudentAffairsManagementSystem.Controllers
             var registrations = await _context.Registrations
                 .Where(r =>
                     r.StudentId == student.Id &&
-                    r.Status == "Registered")
+                    r.Status == Registered)
                 .Include(r => r.CourseOffering)
                     .ThenInclude(o => o.Course)
                 .Include(r => r.CourseOffering)
@@ -132,21 +179,21 @@ namespace StudentAffairsManagementSystem.Controllers
                 .AsNoTracking()
                 .ToListAsync();
 
-            var activeSemester = await _context.Semesters
-                .AsNoTracking()
-                .Where(s => s.IsActive)
-                .OrderByDescending(s => s.StartDate)
-                .FirstOrDefaultAsync();
+            var activeSemester =
+                await GetActiveSemesterAsync();
 
-            var currentRegistrations = activeSemester == null
-                ? new List<Registration>()
-                : registrations
-                    .Where(r =>
-                        r.CourseOffering.SemesterId == activeSemester.Id)
-                    .ToList();
+            var currentRegistrations =
+                activeSemester == null
+                    ? new List<Registration>()
+                    : registrations
+                        .Where(r =>
+                            r.CourseOffering.SemesterId ==
+                            activeSemester.Id)
+                        .ToList();
 
-            int currentCreditHours = currentRegistrations
-                .Sum(r => r.CourseOffering.Course.CreditHours);
+            int currentCreditHours =
+                currentRegistrations.Sum(r =>
+                    r.CourseOffering.Course.CreditHours);
 
             decimal? pricePerHour = null;
 
@@ -161,14 +208,19 @@ namespace StudentAffairsManagementSystem.Controllers
                     .FirstOrDefaultAsync();
             }
 
-            decimal? estimatedFees = pricePerHour.HasValue
-                ? currentCreditHours * pricePerHour.Value
-                : null;
+            decimal? estimatedFees =
+                pricePerHour.HasValue
+                    ? currentCreditHours * pricePerHour.Value
+                    : null;
 
             ViewBag.ActiveSemester = activeSemester;
-            ViewBag.CurrentRegistrations = currentRegistrations;
+            ViewBag.CurrentRegistrations =
+                currentRegistrations;
+
             ViewBag.AllRegistrations = registrations;
-            ViewBag.CurrentCreditHours = currentCreditHours;
+            ViewBag.CurrentCreditHours =
+                currentCreditHours;
+
             ViewBag.PricePerHour = pricePerHour;
             ViewBag.EstimatedFees = estimatedFees;
 
@@ -176,88 +228,124 @@ namespace StudentAffairsManagementSystem.Controllers
         }
 
         // ==========================================
-        // عرض المقررات المتاحة للطالب
+        // المقررات المتاحة للطالب
         // GET: /StudentDashboard/Courses
         // ==========================================
         [HttpGet]
         public async Task<IActionResult> Courses()
         {
-            var student = await GetCurrentStudentAsync();
+            var student =
+                await GetCurrentStudentAsync();
 
             if (student == null)
                 return NotFound();
 
-            var activeSemester = await _context.Semesters
-                .AsNoTracking()
-                .Where(s => s.IsActive)
-                .OrderByDescending(s => s.StartDate)
-                .FirstOrDefaultAsync();
+            var activeSemester =
+                await GetActiveSemesterAsync();
+
+            bool hasPermission =
+                await CanRegisterCoursesAsync(student);
+
+            string? closedReason =
+                GetRegistrationClosedReason(activeSemester);
+
+            bool registrationOpen =
+                hasPermission && closedReason == null;
 
             ViewBag.ActiveSemester = activeSemester;
 
-            bool registrationOpen =
-                IsRegistrationAvailable(activeSemester);
+            ViewBag.HasRegistrationPermission =
+                hasPermission;
 
-            ViewBag.IsRegistrationOpen = registrationOpen;
+            ViewBag.CanRegisterCourses =
+                registrationOpen;
+
+            ViewBag.IsRegistrationOpen =
+                registrationOpen;
 
             ViewBag.RegistrationMessage =
-                GetRegistrationMessage(activeSemester);
+                !hasPermission
+                    ? "لم تمنحك إدارة الجامعة صلاحية تسجيل المقررات الدراسية."
+                    : closedReason ??
+                      "تسجيل المقررات متاح حاليًا.";
 
-            ViewBag.RegisteredOfferingIds = new List<long>();
-            ViewBag.RegisteredCourseIds = new List<long>();
-            ViewBag.RegisteredCounts = new Dictionary<long, int>();
+            ViewBag.RegisteredOfferingIds =
+                new List<long>();
+
+            ViewBag.RegisteredCourseIds =
+                new List<long>();
+
+            ViewBag.RegisteredCounts =
+                new Dictionary<long, int>();
 
             if (activeSemester == null)
+            {
                 return View(new List<CourseOffering>());
+            }
 
-            var offerings = await _context.CourseOfferings
-                .AsNoTracking()
-                .Include(o => o.Course)
-                .Include(o => o.Semester)
-                .Where(o =>
-                    o.SemesterId == activeSemester.Id &&
-                    o.Course.DepartmentId == student.DepartmentId)
-                .OrderBy(o => o.Course.Name)
-                .ToListAsync();
+            var offerings =
+                await _context.CourseOfferings
+                    .AsNoTracking()
+                    .Include(o => o.Course)
+                    .Include(o => o.Semester)
+                    .Where(o =>
+                        o.SemesterId == activeSemester.Id &&
+                        o.Course.DepartmentId ==
+                            student.DepartmentId)
+                    .OrderBy(o => o.Course.Name)
+                    .ToListAsync();
 
-            var registeredOfferingIds = await _context.Registrations
-                .AsNoTracking()
-                .Where(r =>
-                    r.StudentId == student.Id &&
-                    r.Status == "Registered" &&
-                    r.CourseOffering.SemesterId == activeSemester.Id)
-                .Select(r => r.CourseOfferingId)
-                .ToListAsync();
+            var registeredOfferingIds =
+                await _context.Registrations
+                    .AsNoTracking()
+                    .Where(r =>
+                        r.StudentId == student.Id &&
+                        r.Status == Registered &&
+                        r.CourseOffering.SemesterId ==
+                            activeSemester.Id)
+                    .Select(r => r.CourseOfferingId)
+                    .ToListAsync();
 
-            var registeredCourseIds = await _context.Registrations
-                .AsNoTracking()
-                .Where(r =>
-                    r.StudentId == student.Id &&
-                    r.Status == "Registered" &&
-                    r.CourseOffering.SemesterId == activeSemester.Id)
-                .Select(r => r.CourseOffering.CourseId)
-                .ToListAsync();
+            var registeredCourseIds =
+                await _context.Registrations
+                    .AsNoTracking()
+                    .Where(r =>
+                        r.StudentId == student.Id &&
+                        r.Status == Registered &&
+                        r.CourseOffering.SemesterId ==
+                            activeSemester.Id)
+                    .Select(r => r.CourseOffering.CourseId)
+                    .ToListAsync();
 
             var offeringIds = offerings
                 .Select(o => o.Id)
                 .ToList();
 
-            var registeredCounts = await _context.Registrations
-                .AsNoTracking()
-                .Where(r =>
-                    offeringIds.Contains(r.CourseOfferingId) &&
-                    r.Status == "Registered")
-                .GroupBy(r => r.CourseOfferingId)
-                .Select(g => new
-                {
-                    OfferingId = g.Key,
-                    Count = g.Count()
-                })
-                .ToDictionaryAsync(x => x.OfferingId, x => x.Count);
+            var registeredCounts =
+                await _context.Registrations
+                    .AsNoTracking()
+                    .Where(r =>
+                        offeringIds.Contains(
+                            r.CourseOfferingId) &&
+                        r.Status == Registered)
+                    .GroupBy(r => r.CourseOfferingId)
+                    .Select(g => new
+                    {
+                        OfferingId = g.Key,
+                        Count = g.Count()
+                    })
+                    .ToDictionaryAsync(
+                        x => x.OfferingId,
+                        x => x.Count);
 
-            ViewBag.RegisteredOfferingIds = registeredOfferingIds;
-            ViewBag.RegisteredCourseIds = registeredCourseIds;
-            ViewBag.RegisteredCounts = registeredCounts;
+            ViewBag.RegisteredOfferingIds =
+                registeredOfferingIds;
+
+            ViewBag.RegisteredCourseIds =
+                registeredCourseIds;
+
+            ViewBag.RegisteredCounts =
+                registeredCounts;
 
             return View(offerings);
         }
@@ -268,206 +356,247 @@ namespace StudentAffairsManagementSystem.Controllers
         // ==========================================
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register(long offeringId)
+        public async Task<IActionResult> Register(
+            long offeringId)
         {
-            var student = await GetCurrentStudentAsync();
+            var student =
+                await GetCurrentStudentAsync();
 
             if (student == null)
                 return NotFound();
 
+            // التحقق من صلاحية الطالب على الخادم
+            if (!await CanRegisterCoursesAsync(student))
+            {
+                TempData["ErrorMessage"] =
+                    "لم تمنحك إدارة الجامعة صلاحية تسجيل المقررات الدراسية.";
+
+                return RedirectToAction(nameof(Courses));
+            }
+
             if (offeringId <= 0)
             {
-                TempData["ErrorMessage"] = "المقرر المطلوب غير صالح.";
-                return RedirectToAction(nameof(Courses));
-            }
-
-            // نستخدم معاملة لحماية فحص المقاعد
-            // عند وجود طلبات تسجيل متزامنة
-            await using var transaction =
-                await _context.Database.BeginTransactionAsync(
-                    IsolationLevel.Serializable);
-
-            var offering = await _context.CourseOfferings
-                .Include(o => o.Course)
-                .Include(o => o.Semester)
-                .FirstOrDefaultAsync(o => o.Id == offeringId);
-
-            if (offering == null)
-            {
-                TempData["ErrorMessage"] = "المقرر المطلوب غير موجود.";
-                return RedirectToAction(nameof(Courses));
-            }
-
-            // ==========================================
-            // التحقق من الفصل المعتمد للتسجيل
-            // ==========================================
-            var activeSemester = await _context.Semesters
-                .AsNoTracking()
-                .Where(s => s.IsActive)
-                .OrderByDescending(s => s.StartDate)
-                .FirstOrDefaultAsync();
-
-            if (activeSemester == null ||
-                offering.SemesterId != activeSemester.Id)
-            {
                 TempData["ErrorMessage"] =
-                    "التسجيل متاح لمقررات الفصل الحالي فقط.";
+                    "المقرر المطلوب غير صالح.";
 
                 return RedirectToAction(nameof(Courses));
             }
 
-            // ==========================================
-            // التحقق من فترة التسجيل التي حددها الأدمن
-            // ==========================================
-            if (!IsRegistrationAvailable(offering.Semester))
+            try
             {
-                TempData["ErrorMessage"] =
-                    GetRegistrationMessage(offering.Semester);
+                await using var transaction =
+                    await _context.Database
+                        .BeginTransactionAsync(
+                            IsolationLevel.Serializable);
 
-                return RedirectToAction(nameof(Courses));
-            }
+                var offering =
+                    await _context.CourseOfferings
+                        .Include(o => o.Course)
+                        .Include(o => o.Semester)
+                        .FirstOrDefaultAsync(o =>
+                            o.Id == offeringId);
 
-            // ==========================================
-            // التأكد من أن المقرر تابع لقسم الطالب
-            // ==========================================
-            if (offering.Course.DepartmentId != student.DepartmentId)
-            {
-                TempData["ErrorMessage"] =
-                    "هذا المقرر غير تابع لقسمك الدراسي.";
-
-                return RedirectToAction(nameof(Courses));
-            }
-
-            // ==========================================
-            // التحقق من سعة الشعبة
-            // ==========================================
-            if (offering.Capacity <= 0)
-            {
-                TempData["ErrorMessage"] =
-                    "لا توجد مقاعد متاحة في هذه الشعبة.";
-
-                return RedirectToAction(nameof(Courses));
-            }
-
-            // ==========================================
-            // منع تكرار تسجيل نفس المقرر
-            // حتى لو كان له أكثر من شعبة
-            // ==========================================
-            bool alreadyRegistered = await _context.Registrations
-                .AnyAsync(r =>
-                    r.StudentId == student.Id &&
-                    r.Status == "Registered" &&
-                    r.CourseOffering.CourseId == offering.CourseId &&
-                    r.CourseOffering.SemesterId == offering.SemesterId);
-
-            if (alreadyRegistered)
-            {
-                TempData["ErrorMessage"] =
-                    "أنت مسجل في هذا المقرر بالفعل.";
-
-                return RedirectToAction(nameof(Courses));
-            }
-
-            int registeredCount = await _context.Registrations
-                .CountAsync(r =>
-                    r.CourseOfferingId == offering.Id &&
-                    r.Status == "Registered");
-
-            if (registeredCount >= offering.Capacity)
-            {
-                TempData["ErrorMessage"] =
-                    "اكتملت المقاعد المتاحة لهذا المقرر.";
-
-                return RedirectToAction(nameof(Courses));
-            }
-
-            // ==========================================
-            // إعادة تفعيل التسجيل الملغى أو إنشاء تسجيل
-            // ==========================================
-            var cancelledRegistration = await _context.Registrations
-                .FirstOrDefaultAsync(r =>
-                    r.StudentId == student.Id &&
-                    r.CourseOfferingId == offering.Id &&
-                    r.Status == "Cancelled");
-
-            if (cancelledRegistration != null)
-            {
-                cancelledRegistration.Status = "Registered";
-                cancelledRegistration.RegisteredAt = DateTime.UtcNow;
-            }
-            else
-            {
-                var registration = new Registration
+                if (offering == null)
                 {
-                    StudentId = student.Id,
-                    CourseOfferingId = offering.Id,
-                    RegisteredAt = DateTime.UtcNow,
-                    Status = "Registered"
-                };
+                    TempData["ErrorMessage"] =
+                        "المقرر المطلوب غير موجود.";
 
-                _context.Registrations.Add(registration);
+                    return RedirectToAction(nameof(Courses));
+                }
+
+                var activeSemester =
+                    await GetActiveSemesterAsync();
+
+                if (activeSemester == null ||
+                    offering.SemesterId != activeSemester.Id)
+                {
+                    TempData["ErrorMessage"] =
+                        "التسجيل متاح لمقررات الفصل الحالي فقط.";
+
+                    return RedirectToAction(nameof(Courses));
+                }
+
+                // لا تكفي الصلاحية وحدها:
+                // يجب أن تكون فترة التسجيل مفتوحة.
+                string? closedReason =
+                    GetRegistrationClosedReason(
+                        activeSemester);
+
+                if (closedReason != null)
+                {
+                    TempData["ErrorMessage"] =
+                        closedReason;
+
+                    return RedirectToAction(nameof(Courses));
+                }
+
+                if (offering.Course.DepartmentId !=
+                    student.DepartmentId)
+                {
+                    TempData["ErrorMessage"] =
+                        "هذا المقرر غير تابع لقسمك الدراسي.";
+
+                    return RedirectToAction(nameof(Courses));
+                }
+
+                if (offering.Capacity <= 0)
+                {
+                    TempData["ErrorMessage"] =
+                        "لا توجد مقاعد متاحة في هذه الشعبة.";
+
+                    return RedirectToAction(nameof(Courses));
+                }
+
+                // منع تسجيل المقرر نفسه مرتين،
+                // حتى لو كان له أكثر من شعبة.
+                bool alreadyRegistered =
+                    await _context.Registrations
+                        .AnyAsync(r =>
+                            r.StudentId == student.Id &&
+                            r.Status == Registered &&
+                            r.CourseOffering.CourseId ==
+                                offering.CourseId &&
+                            r.CourseOffering.SemesterId ==
+                                offering.SemesterId);
+
+                if (alreadyRegistered)
+                {
+                    TempData["ErrorMessage"] =
+                        "أنت مسجل في هذا المقرر بالفعل.";
+
+                    return RedirectToAction(nameof(Courses));
+                }
+
+                int registeredCount =
+                    await _context.Registrations
+                        .CountAsync(r =>
+                            r.CourseOfferingId == offering.Id &&
+                            r.Status == Registered);
+
+                if (registeredCount >= offering.Capacity)
+                {
+                    TempData["ErrorMessage"] =
+                        "اكتملت المقاعد المتاحة لهذا المقرر.";
+
+                    return RedirectToAction(nameof(Courses));
+                }
+
+                // إعادة تفعيل تسجيل ملغى
+                // أو إنشاء تسجيل جديد.
+                var existingRegistration =
+                    await _context.Registrations
+                        .FirstOrDefaultAsync(r =>
+                            r.StudentId == student.Id &&
+                            r.CourseOfferingId == offering.Id);
+
+                if (existingRegistration != null)
+                {
+                    if (existingRegistration.Status != Cancelled)
+                    {
+                        TempData["ErrorMessage"] =
+                            "لا يمكن تسجيل المقرر بسبب حالة تسجيل سابقة.";
+
+                        return RedirectToAction(nameof(Courses));
+                    }
+
+                    existingRegistration.Status =
+                        Registered;
+
+                    existingRegistration.RegisteredAt =
+                        DateTime.UtcNow;
+                }
+                else
+                {
+                    _context.Registrations.Add(
+                        new Registration
+                        {
+                            StudentId = student.Id,
+                            CourseOfferingId = offering.Id,
+                            RegisteredAt = DateTime.UtcNow,
+                            Status = Registered
+                        });
+                }
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                TempData["SuccessMessage"] =
+                    "تم تسجيل المقرر بنجاح.";
             }
-
-            await _context.SaveChangesAsync();
-            await transaction.CommitAsync();
-
-            TempData["SuccessMessage"] =
-                "تم تسجيل المقرر بنجاح.";
+            catch (DbUpdateException)
+            {
+                TempData["ErrorMessage"] =
+                    "تعذر حفظ التسجيل بسبب تعارض في البيانات.";
+            }
+            catch (Exception ex) when (
+                ex is InvalidOperationException ||
+                ex is Microsoft.Data.SqlClient.SqlException)
+            {
+                TempData["ErrorMessage"] =
+                    "تعذر إتمام التسجيل حاليًا. يرجى المحاولة مجددًا.";
+            }
 
             return RedirectToAction(nameof(Courses));
         }
 
         // ==========================================
-        // عرض الرسوم الجامعية للطالب
+        // الرسوم الجامعية
         // GET: /StudentDashboard/Fees
         // ==========================================
         [HttpGet]
         public async Task<IActionResult> Fees()
         {
-            var student = await GetCurrentStudentAsync();
+            var student =
+                await GetCurrentStudentAsync();
 
             if (student == null)
                 return NotFound();
 
-            var activeSemester = await _context.Semesters
-                .AsNoTracking()
-                .Where(s => s.IsActive)
-                .OrderByDescending(s => s.StartDate)
-                .FirstOrDefaultAsync();
+            var activeSemester =
+                await GetActiveSemesterAsync();
 
             ViewBag.ActiveSemester = activeSemester;
 
-            var registrations = new List<Registration>();
+            var registrations =
+                new List<Registration>();
+
             decimal? pricePerHour = null;
             decimal? estimatedFees = null;
 
             if (activeSemester != null)
             {
-                registrations = await _context.Registrations
-                    .AsNoTracking()
-                    .Include(r => r.CourseOffering)
-                        .ThenInclude(o => o.Course)
-                    .Where(r =>
-                        r.StudentId == student.Id &&
-                        r.Status == "Registered" &&
-                        r.CourseOffering.SemesterId == activeSemester.Id)
-                    .ToListAsync();
+                registrations =
+                    await _context.Registrations
+                        .AsNoTracking()
+                        .Include(r => r.CourseOffering)
+                            .ThenInclude(o => o.Course)
+                        .Where(r =>
+                            r.StudentId == student.Id &&
+                            r.Status == Registered &&
+                            r.CourseOffering.SemesterId ==
+                                activeSemester.Id)
+                        .ToListAsync();
 
-                pricePerHour = await _context.HourPrices
-                    .AsNoTracking()
-                    .Where(h =>
-                        h.DepartmentId == student.DepartmentId &&
-                        h.SemesterId == activeSemester.Id)
-                    .Select(h => (decimal?)h.PricePerHour)
-                    .FirstOrDefaultAsync();
+                pricePerHour =
+                    await _context.HourPrices
+                        .AsNoTracking()
+                        .Where(h =>
+                            h.DepartmentId ==
+                                student.DepartmentId &&
+                            h.SemesterId ==
+                                activeSemester.Id)
+                        .Select(h =>
+                            (decimal?)h.PricePerHour)
+                        .FirstOrDefaultAsync();
 
                 if (pricePerHour.HasValue)
                 {
-                    int totalHours = registrations
-                        .Sum(r =>
+                    int totalHours =
+                        registrations.Sum(r =>
                             r.CourseOffering.Course.CreditHours);
 
-                    estimatedFees = totalHours * pricePerHour.Value;
+                    estimatedFees =
+                        totalHours * pricePerHour.Value;
                 }
             }
 

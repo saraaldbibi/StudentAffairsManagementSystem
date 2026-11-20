@@ -1,487 +1,1122 @@
-﻿
-@model IEnumerable<StudentAffairsManagementSystem.Models.Employee>
+﻿@model List<StudentAffairsManagementSystem.Models.Employee>
+
+@using System
+@using System.Collections.Generic
+@using System.Linq
 
 @{
-    ViewData["Title"] = "إدارة صلاحيات الموظفين";
+    ViewData["Title"] = "إدارة الصلاحيات";
 
-    var employees = Model?.ToList()
-        ?? new List<StudentAffairsManagementSystem.Models.Employee>();
+    var employeePermissions =
+        ViewBag.EmployeePermissions as Dictionary<long, List<string>>
+        ?? new Dictionary<long, List<string>>();
 
-    var grantedAccountIds =
-        ViewBag.GrantedAccountIds as List<long>
-        ?? new List<long>();
+    int totalStudents = ViewBag.TotalStudents is int total
+        ? total : 0;
 
-    int grantedCount = employees.Count(e =>
-        grantedAccountIds.Contains(e.AccountId));
+    int studentsWithPermission =
+        ViewBag.StudentsWithRegistrationPermission is int granted
+            ? granted : 0;
 
-    int notGrantedCount = employees.Count - grantedCount;
+    int studentsWithoutPermission =
+        ViewBag.StudentsWithoutRegistrationPermission is int missing
+            ? missing
+            : Math.Max(0, totalStudents - studentsWithPermission);
+
+    var permissionDefinitions = new[]
+    {
+        new
+        {
+            Code = "Students.Delete",
+            Name = "حذف طالب",
+            Description = "السماح بحذف سجل الطالب وفق ضوابط النظام.",
+            Icon = "bi-trash3"
+        },
+        new
+        {
+            Code = "Students.Create",
+            Name = "إنشاء حسابات الطلاب",
+            Description = "السماح بإضافة الطلاب وإنشاء حساباتهم.",
+            Icon = "bi-person-plus"
+        },
+        new
+        {
+            Code = "Registrations.Manage",
+            Name = "تسجيل المقررات الدراسية",
+            Description = "السماح بتسجيل المقررات وإدارة تسجيلات الطلاب.",
+            Icon = "bi-journal-check"
+        }
+    };
 }
 
 <style>
     .permissions-page {
         direction: rtl;
-        max-width: 1250px;
-        margin: 25px auto;
-        color: #14263f;
+        color: #142d4e;
     }
 
-    .permissions-header {
-        background: #14263f;
-        color: white;
-        padding: 28px 32px;
-        border-radius: 16px;
-        border-bottom: 4px solid #c9a66b;
-        margin-bottom: 25px;
-    }
+    /* عنوان الصفحة */
 
-    .permissions-header h2 {
-        font-size: 25px;
-        font-weight: 700;
-        margin-bottom: 10px;
-    }
-
-    .permissions-header p {
-        color: #d6dce6;
-        margin: 0;
-    }
-
-    .permissions-stats {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 16px;
-        margin-bottom: 25px;
-    }
-
-    .permissions-stat-card {
-        background: white;
-        padding: 22px;
-        border: 1px solid #e5eaf0;
-        border-radius: 12px;
-        box-shadow: 0 4px 16px rgba(0,0,0,0.04);
-    }
-
-    .permissions-stat-label {
-        color: #66758b;
-        font-size: 14px;
-        margin-bottom: 10px;
-    }
-
-    .permissions-stat-number {
-        font-size: 29px;
-        font-weight: 700;
-        color: #14263f;
-    }
-
-    .permissions-table-card {
-        background: white;
-        border: 1px solid #e5eaf0;
-        border-radius: 14px;
-        overflow: hidden;
-        box-shadow: 0 5px 20px rgba(0,0,0,0.04);
-    }
-
-    .permissions-table-header {
-        padding: 22px 25px;
+    .permissions-heading {
         display: flex;
-        justify-content: space-between;
         align-items: center;
+        justify-content: space-between;
+        gap: 16px;
         flex-wrap: wrap;
-        gap: 15px;
+        margin-bottom: 25px;
     }
 
-    .permissions-table-header h3 {
-        font-size: 19px;
+        .permissions-heading h2 {
+            font-size: 25px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .permissions-heading p {
+            margin: 0;
+            color: #718198;
+        }
+
+    .heading-icon {
+        width: 56px;
+        height: 56px;
+        background: #142d4e;
+        color: #c9a24d;
+        border-radius: 13px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 27px;
+    }
+
+    /* البطاقات */
+
+    .permissions-panel {
+        background: #fff;
+        border: 1px solid #e4e9f0;
+        border-radius: 15px;
+        overflow: hidden;
+        margin-bottom: 24px;
+        box-shadow: 0 3px 12px rgba(20,45,78,.04);
+    }
+
+    .panel-header {
+        background: #142d4e;
+        color: #fff;
+        padding: 18px 22px;
+        font-size: 17px;
+        font-weight: 800;
+    }
+
+        .panel-header i {
+            color: #c9a24d;
+            margin-left: 8px;
+        }
+
+    .panel-body {
+        padding: 24px;
+    }
+
+    /* البحث عن موظف */
+
+    .search-label {
+        display: block;
         font-weight: 700;
-        margin: 0;
-    }
-
-    .permissions-search {
-        width: 260px;
-        max-width: 100%;
-        border: 1px solid #dce3ed;
-        border-radius: 9px;
-        padding: 10px 13px;
-    }
-
-    .permissions-table {
-        width: 100%;
-        border-collapse: collapse;
-        text-align: right;
-    }
-
-    .permissions-table thead {
-        background: #f3f5f9;
-    }
-
-    .permissions-table th {
-        padding: 16px;
-        color: #41536b;
         font-size: 14px;
+        margin-bottom: 11px;
+    }
+
+    .search-container {
+        position: relative;
+    }
+
+        .search-container > i {
+            position: absolute;
+            right: 16px;
+            top: 23px;
+            color: #718198;
+            z-index: 1;
+        }
+
+    .search-input {
+        width: 100%;
+        padding: 13px 45px 13px 15px;
+        border: 1px solid #dce3ed;
+        border-radius: 11px;
+        outline: none;
+        color: #142d4e;
+        background: #fff;
+    }
+
+        .search-input:focus {
+            border-color: #c9a24d;
+            box-shadow: 0 0 0 3px rgba(201,162,77,.13);
+        }
+
+    .search-results {
+        margin-top: 10px;
+        border: 1px solid #e4e9f0;
+        border-radius: 11px;
+        overflow: hidden;
+        max-height: 300px;
+        overflow-y: auto;
+        background: #fff;
+    }
+
+    .search-result {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        width: 100%;
+        text-align: right;
+        padding: 14px 17px;
+        border: none;
+        border-bottom: 1px solid #edf0f5;
+        background: white;
+        color: #142d4e;
+        cursor: pointer;
+    }
+
+        .search-result:last-child {
+            border-bottom: none;
+        }
+
+        .search-result:hover,
+        .search-result:focus {
+            background: #f5f7fb;
+        }
+
+    .search-result-name {
+        font-size: 14px;
+        font-weight: 700;
+    }
+
+    .search-result-number {
+        font-size: 12px;
+        color: #718198;
+        margin-top: 5px;
+    }
+
+    .search-hint {
+        font-size: 12px;
+        color: #718198;
+        margin-top: 12px;
+    }
+
+    /* الموظف المحدد */
+
+    .selected-employee {
+        display: none;
+    }
+
+    .employee-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        flex-wrap: wrap;
+        padding: 20px 24px;
+        background: #f5f7fa;
+        border-bottom: 1px solid #e4e9f0;
+    }
+
+    .employee-identity {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+
+    .employee-avatar {
+        width: 49px;
+        height: 49px;
+        flex-shrink: 0;
+        border-radius: 12px;
+        background: #142d4e;
+        color: #c9a24d;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 23px;
+    }
+
+    .employee-name {
+        font-size: 17px;
+        font-weight: 700;
+        margin-bottom: 5px;
+    }
+
+    .employee-number {
+        color: #718198;
+        font-size: 12px;
+    }
+
+    .permission-count {
+        background: #eaf0f7;
+        color: #142d4e;
+        border-radius: 25px;
+        padding: 8px 13px;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    /* صفوف الصلاحيات */
+
+    .permission-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 20px 24px;
+        border-bottom: 1px solid #edf0f5;
+    }
+
+        .permission-row:last-child {
+            border-bottom: none;
+        }
+
+    .permission-info {
+        display: flex;
+        align-items: center;
+        gap: 13px;
+    }
+
+    .permission-icon {
+        width: 44px;
+        height: 44px;
+        flex-shrink: 0;
+        border-radius: 10px;
+        background: #f0f3f8;
+        color: #142d4e;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 19px;
+    }
+
+    .permission-name {
+        font-size: 14px;
+        font-weight: 700;
+        margin-bottom: 5px;
+    }
+
+    .permission-description {
+        font-size: 12px;
+        color: #718198;
+    }
+
+    .permission-actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-shrink: 0;
+    }
+
+    .permission-status {
+        font-size: 12px;
         font-weight: 700;
         white-space: nowrap;
     }
 
-    .permissions-table td {
-        padding: 17px 16px;
-        border-top: 1px solid #edf0f5;
-        vertical-align: middle;
-    }
+        .permission-status.active {
+            color: #218653;
+        }
 
-    .permissions-table tbody tr:hover {
-        background: #fafbfd;
-    }
+        .permission-status.inactive {
+            color: #8b96a6;
+        }
 
-    .permission-active {
-        display: inline-block;
-        background: #e8f6ed;
-        color: #207443;
-        border-radius: 20px;
-        padding: 7px 13px;
-        font-size: 13px;
+    /* التصميم الموحد للأزرار */
+
+    .permission-button,
+    .change-employee {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-height: 43px;
+        padding: 9px 15px;
+        border-radius: 11px;
+        border: 1px solid transparent;
+        font-size: 14px;
         font-weight: 700;
-    }
-
-    .permission-inactive {
-        display: inline-block;
-        background: #f1f3f6;
-        color: #66758b;
-        border-radius: 20px;
-        padding: 7px 13px;
-        font-size: 13px;
-        font-weight: 700;
-    }
-
-    .permission-grant-btn {
-        background: #c9a66b;
-        color: #14263f;
-        border: none;
-        border-radius: 9px;
-        padding: 10px 15px;
-        font-weight: 700;
+        white-space: nowrap;
         cursor: pointer;
+        transition: background-color .2s ease, transform .2s ease;
     }
 
-    .permission-grant-btn:hover {
-        background: #b99454;
+    .permission-button {
+        min-width: 145px;
     }
 
-    .permission-revoke-btn {
-        background: #fff1f0;
-        color: #a52d2d;
-        border: 1px solid #edc5c2;
-        border-radius: 9px;
-        padding: 10px 15px;
-        font-weight: 700;
-        cursor: pointer;
+        .permission-button i,
+        .change-employee i {
+            font-size: 16px;
+        }
+
+        .permission-button:hover:not(:disabled),
+        .change-employee:hover {
+            transform: translateY(-1px);
+        }
+
+        .permission-button:focus-visible,
+        .change-employee:focus-visible {
+            outline: 3px solid #142d4e;
+            outline-offset: 3px;
+        }
+
+        /* منح الصلاحية */
+
+        .permission-button.grant {
+            background: #c9a24d;
+            color: #142d4e;
+        }
+
+            .permission-button.grant:hover:not(:disabled) {
+                background: #b9913d;
+            }
+
+        /* سحب الصلاحية */
+
+        .permission-button.revoke {
+            background: #fff0ee;
+            color: #c62828;
+            border-color: #ffc5bf;
+        }
+
+            .permission-button.revoke:hover:not(:disabled) {
+                background: #ffe0dc;
+                color: #a91e1e;
+                border-color: #f2a8a0;
+            }
+
+        .permission-button:disabled {
+            opacity: .5;
+            cursor: not-allowed;
+        }
+
+    /* تغيير الموظف */
+
+    .change-employee {
+        background: #eef2f8;
+        color: #142d4e;
     }
 
-    .permission-revoke-btn:hover {
-        background: #ffe1df;
-    }
+        .change-employee:hover {
+            background: #dfe7f2;
+        }
 
-    .permissions-empty {
-        padding: 45px 20px;
+    .empty-message {
         text-align: center;
-        color: #718096;
+        padding: 20px;
+        color: #718198;
+        font-size: 13px;
     }
 
-    .permissions-alert {
-        padding: 14px 18px;
-        border-radius: 10px;
-        margin-bottom: 20px;
-        font-weight: 600;
+    /* صلاحيات تسجيل الطلاب */
+
+    .student-permissions-description {
+        color: #718198;
+        font-size: 14px;
+        line-height: 1.9;
+        margin-bottom: 22px;
     }
 
-    .permissions-success {
-        background: #e8f6ed;
-        color: #207443;
-        border: 1px solid #bfe4ca;
+    .student-stats {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 15px;
+        margin-bottom: 22px;
     }
 
-    .permissions-error {
-        background: #fff1f0;
-        color: #a52d2d;
-        border: 1px solid #edc5c2;
-    }
-
-    .permissions-note {
+    .student-stat-card {
         background: #f7f9fc;
-        border-right: 4px solid #c9a66b;
-        padding: 17px 20px;
-        margin-top: 22px;
-        border-radius: 9px;
-        color: #52627a;
+        border: 1px solid #e4e9f0;
+        border-radius: 12px;
+        padding: 19px;
     }
 
-    @@media (max-width: 800px) {
-        .permissions-stats {
+        .student-stat-card .stat-label {
+            font-size: 13px;
+            color: #718198;
+            margin-bottom: 12px;
+        }
+
+        .student-stat-card .stat-number {
+            font-size: 27px;
+            font-weight: 800;
+            color: #142d4e;
+        }
+
+        .student-stat-card.granted .stat-number {
+            color: #218653;
+        }
+
+        .student-stat-card.not-granted .stat-number {
+            color: #b54a3a;
+        }
+
+    .student-permission-actions {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 18px;
+    }
+
+        .student-permission-actions form {
+            margin: 0;
+        }
+
+        .student-permission-actions .permission-button {
+            padding: 12px 19px;
+            min-width: 270px;
+        }
+
+    .student-permission-note {
+        background: #f8f5ec;
+        border-right: 4px solid #c9a24d;
+        border-radius: 8px;
+        padding: 14px 17px;
+        color: #69582e;
+        font-size: 13px;
+        line-height: 1.9;
+    }
+
+    /* الشاشات الصغيرة */
+
+    @@media (max-width: 850px) {
+        .permission-row {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .permission-actions {
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+
+        .student-stats {
             grid-template-columns: 1fr;
         }
 
-        .permissions-header {
-            padding: 22px;
+        .student-permission-actions {
+            flex-direction: column;
+            align-items: stretch;
         }
 
-        .permissions-table-header {
+            .student-permission-actions form,
+            .student-permission-actions .permission-button {
+                width: 100%;
+            }
+    }
+
+    @@media (max-width: 600px) {
+        .panel-body {
             padding: 18px;
+        }
+
+        .employee-header {
+            padding: 18px;
+        }
+
+        .permission-row {
+            padding: 18px;
+        }
+
+        .permissions-heading h2 {
+            font-size: 23px;
         }
     }
 </style>
 
-<div class="permissions-page">
+<div class="container-fluid py-4 permissions-page">
 
-    <div class="permissions-header">
-        <h2>
+    <!-- عنوان الصفحة -->
+
+    <div class="permissions-heading">
+
+        <div>
+            <h2>إدارة الصلاحيات</h2>
+            <p>
+                إدارة صلاحيات الموظفين والتحكم في إمكانية
+                تسجيل المقررات الدراسية للطلاب.
+            </p>
+        </div>
+
+        <div class="heading-icon">
             <i class="bi bi-shield-lock"></i>
-            إدارة صلاحيات الموظفين
-        </h2>
+        </div>
 
-        <p>
-            منح وسحب صلاحية حذف الطلاب للموظفين
-        </p>
     </div>
 
+    <!-- رسائل النظام -->
     @if (TempData["SuccessMessage"] != null)
     {
-        <div class="permissions-alert permissions-success">
-            <i class="bi bi-check-circle"></i>
+        <div class="alert alert-success" role="alert">
             @TempData["SuccessMessage"]
         </div>
     }
 
     @if (TempData["ErrorMessage"] != null)
     {
-        <div class="permissions-alert permissions-error">
-            <i class="bi bi-exclamation-triangle"></i>
+        <div class="alert alert-danger" role="alert">
             @TempData["ErrorMessage"]
         </div>
     }
 
-    <div class="permissions-stats">
+    <!-- صلاحيات تسجيل المقررات لجميع الطلاب -->
 
-        <div class="permissions-stat-card">
-            <div class="permissions-stat-label">
-                <i class="bi bi-people"></i>
-                إجمالي الموظفين
-            </div>
+    <div class="permissions-panel" id="studentPermissionsPanel">
 
-            <div class="permissions-stat-number">
-                @employees.Count
-            </div>
+        <div class="panel-header">
+            <i class="bi bi-mortarboard"></i>
+            صلاحيات تسجيل المقررات للطلاب
         </div>
 
-        <div class="permissions-stat-card">
-            <div class="permissions-stat-label">
-                <i class="bi bi-shield-check"></i>
-                لديهم صلاحية الحذف
+        <div class="panel-body">
+
+            <p class="student-permissions-description">
+                يمكن لمدير النظام منح صلاحية تسجيل المقررات
+                الدراسية لجميع الطلاب النشطين أو سحبها منهم
+                دفعة واحدة، دون الحاجة إلى تعديل صلاحية كل طالب
+                بشكل منفصل.
+            </p>
+
+            <!-- إحصائيات الطلاب -->
+
+            <div class="student-stats">
+
+                <div class="student-stat-card">
+
+                    <div class="stat-label">
+                        <i class="bi bi-people"></i>
+                        إجمالي الطلاب النشطين
+                    </div>
+
+                    <div class="stat-number">
+                        @totalStudents
+                    </div>
+
+                </div>
+
+                <div class="student-stat-card granted">
+
+                    <div class="stat-label">
+                        <i class="bi bi-check-circle"></i>
+                        الطلاب الممنوحون صلاحية التسجيل
+                    </div>
+
+                    <div class="stat-number">
+                        @studentsWithPermission
+                    </div>
+
+                </div>
+
+                <div class="student-stat-card not-granted">
+
+                    <div class="stat-label">
+                        <i class="bi bi-x-circle"></i>
+                        الطلاب غير الممنوحين صلاحية التسجيل
+                    </div>
+
+                    <div class="stat-number">
+                        @studentsWithoutPermission
+                    </div>
+
+                </div>
+
             </div>
 
-            <div class="permissions-stat-number">
-                @grantedCount
+            <!-- أزرار منح وسحب صلاحية جميع الطلاب -->
+
+            <div class="student-permission-actions">
+
+                <form asp-controller="EmployeePermissions"
+                      asp-action="GrantAllStudents"
+                      method="post"
+                      onsubmit="return confirm('هل تريد منح صلاحية تسجيل المقررات لجميع الطلاب النشطين؟');">
+
+                    @Html.AntiForgeryToken()
+
+                    <button type="submit"
+                            class="permission-button grant"
+                            disabled="@(studentsWithoutPermission == 0)">
+
+                        <i class="bi bi-person-check"></i>
+                        منح صلاحية التسجيل لجميع الطلاب
+
+                    </button>
+
+                </form>
+
+                <form asp-controller="EmployeePermissions"
+                      asp-action="RevokeAllStudents"
+                      method="post"
+                      onsubmit="return confirm('هل أنت متأكد من سحب صلاحية تسجيل المقررات من جميع الطلاب النشطين؟ لن يتمكن الطلاب من تسجيل مقررات جديدة حتى إعادة منح الصلاحية.');">
+
+                    @Html.AntiForgeryToken()
+
+                    <button type="submit"
+                            class="permission-button revoke"
+                            disabled="@(studentsWithPermission == 0)">
+
+                        <i class="bi bi-person-x"></i>
+                        سحب صلاحية التسجيل من جميع الطلاب
+
+                    </button>
+
+                </form>
+
             </div>
+
+            <!-- ملاحظة مهمة -->
+
+            <div class="student-permission-note">
+
+                <i class="bi bi-info-circle"></i>
+
+                <strong>تنبيه:</strong>
+
+                منح صلاحية التسجيل لا يعني فتح فترة تسجيل المقررات.
+                يجب أن تكون فترة التسجيل مفتوحة ضمن الفصل الدراسي
+                النشط حتى يتمكن الطالب من تسجيل مقرراته.
+                كما أن سحب الصلاحية لا يلغي المقررات المسجلة مسبقًا.
+
+            </div>
+
         </div>
-
-        <div class="permissions-stat-card">
-            <div class="permissions-stat-label">
-                <i class="bi bi-shield-x"></i>
-                بدون صلاحية الحذف
-            </div>
-
-            <div class="permissions-stat-number">
-                @notGrantedCount
-            </div>
-        </div>
-
     </div>
 
-    <div class="permissions-table-card">
+    <!-- البحث عن موظف -->
 
-        <div class="permissions-table-header">
+    <div class="permissions-panel" id="searchPanel">
 
-            <h3>
-                <i class="bi bi-person-gear"></i>
-                قائمة الموظفين
-            </h3>
-
-            <input type="search"
-                   id="employeePermissionSearch"
-                   class="permissions-search"
-                   placeholder="ابحث برقم الموظف أو اسم الحساب..."
-                   aria-label="البحث عن موظف" />
-
+        <div class="panel-header">
+            <i class="bi bi-search"></i>
+            البحث عن موظف
         </div>
 
-        <div class="table-responsive">
+        <div class="panel-body">
 
-            <table class="permissions-table"
-                   id="employeePermissionsTable">
+            <label for="employeeSearch" class="search-label">
+                اسم الموظف أو الرقم الوظيفي
+            </label>
 
-                <thead>
-                    <tr>
-                        <th>الرقم الوظيفي</th>
-                        <th>اسم الحساب</th>
-                        <th>الصلاحية</th>
-                        <th>الإجراء</th>
-                    </tr>
-                </thead>
+            <div class="search-container">
 
-                <tbody>
+                <i class="bi bi-search"></i>
 
-                    @foreach (var employee in employees)
+                <input type="search"
+                       id="employeeSearch"
+                       class="search-input"
+                       placeholder="أدخل اسم الموظف أو الرقم الوظيفي"
+                       autocomplete="off"
+                       aria-controls="searchResults" />
+
+                <!-- نتائج البحث -->
+
+                <div id="searchResults"
+                     class="search-results"
+                     style="display:none;">
+
+                    @foreach (var employee in Model)
                     {
-                        bool hasPermission =
-                            grantedAccountIds.Contains(
-                                employee.AccountId);
+                        var fullName = string.Join(" ", new[]
+                        {
+                            employee.FirstName,
+                            employee.FatherName,
+                            employee.LastName
+                        }.Where(x => !string.IsNullOrWhiteSpace(x)));
 
-                        <tr class="permission-employee-row">
+                        <button type="button"
+                                class="search-result"
+                                data-employee-id="@employee.Id"
+                                data-employee-name="@fullName"
+                                data-employee-number="@employee.EmployeeNumber">
 
-                            <td>
-                                <strong>
+                            <div>
+
+                                <div class="search-result-name">
+                                    @fullName
+                                </div>
+
+                                <div class="search-result-number">
+                                    الرقم الوظيفي:
                                     @employee.EmployeeNumber
-                                </strong>
-                            </td>
+                                </div>
 
-                            <td>
-                                @(employee.Account?.UserName
-                                    ?? "غير متوفر")
-                            </td>
+                            </div>
 
-                            <td>
-                                @if (hasPermission)
-                                {
-                                    <span class="permission-active">
-                                        <i class="bi bi-check-circle"></i>
-                                        مسموح بالحذف
-                                    </span>
-                                }
-                                else
-                                {
-                                    <span class="permission-inactive">
-                                        <i class="bi bi-lock"></i>
-                                        غير مسموح
-                                    </span>
-                                }
-                            </td>
+                            <i class="bi bi-chevron-left"></i>
 
-                            <td>
-                                @if (hasPermission)
-                                {
-                                    <form asp-controller="EmployeePermissions"
-                                          asp-action="RevokeDeleteStudents"
-                                          method="post"
-                                          onsubmit="return confirm('هل أنت متأكد من سحب صلاحية حذف الطلاب من هذا الموظف؟');">
-
-                                        @Html.AntiForgeryToken()
-
-                                        <input type="hidden"
-                                               name="employeeId"
-                                               value="@employee.Id" />
-
-                                        <button type="submit"
-                                                class="permission-revoke-btn">
-                                            <i class="bi bi-shield-x"></i>
-                                            سحب الصلاحية
-                                        </button>
-                                    </form>
-                                }
-                                else
-                                {
-                                    <form asp-controller="EmployeePermissions"
-                                          asp-action="GrantDeleteStudents"
-                                          method="post"
-                                          onsubmit="return confirm('هل تريد منح هذا الموظف صلاحية حذف الطلاب؟');">
-
-                                        @Html.AntiForgeryToken()
-
-                                        <input type="hidden"
-                                               name="employeeId"
-                                               value="@employee.Id" />
-
-                                        <button type="submit"
-                                                class="permission-grant-btn">
-                                            <i class="bi bi-shield-check"></i>
-                                            منح الصلاحية
-                                        </button>
-                                    </form>
-                                }
-                            </td>
-
-                        </tr>
+                        </button>
                     }
 
-                </tbody>
-            </table>
+                    <div id="noResults"
+                         class="empty-message"
+                         style="display:none;">
+
+                        لا يوجد موظفون مطابقون لمعايير البحث.
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="search-hint">
+                تظهر نتائج البحث أثناء الكتابة.
+                يرجى اختيار الموظف المطلوب لعرض صلاحياته.
+            </div>
 
         </div>
+    </div>
 
-        @if (!employees.Any())
+    <!-- بطاقة صلاحيات الموظف المحدد -->
+
+    <div class="permissions-panel selected-employee"
+         id="selectedEmployeePanel">
+
+        <div class="panel-header">
+            <i class="bi bi-person-check"></i>
+            صلاحيات الموظف المحدد
+        </div>
+
+        @foreach (var employee in Model)
         {
-            <div class="permissions-empty">
-                <i class="bi bi-people"
-                   style="font-size:40px;"></i>
+            var fullName = string.Join(" ", new[]
+            {
+                employee.FirstName,
+                employee.FatherName,
+                employee.LastName
+            }.Where(x => !string.IsNullOrWhiteSpace(x)));
 
-                <p class="mt-3">
-                    لا يوجد موظفون مسجلون في قاعدة البيانات.
-                </p>
+            var grantedCodes =
+                employeePermissions.TryGetValue(
+                    employee.AccountId,
+                    out var codes)
+                ? codes
+                : new List<string>();
+
+            var grantedCount = permissionDefinitions.Count(
+                p => grantedCodes.Contains(p.Code));
+
+            <div class="employee-details"
+                 data-employee-id="@employee.Id"
+                 style="display:none;">
+
+                <!-- بيانات الموظف -->
+
+                <div class="employee-header">
+
+                    <div class="employee-identity">
+
+                        <div class="employee-avatar">
+                            <i class="bi bi-person"></i>
+                        </div>
+
+                        <div>
+
+                            <div class="employee-name">
+                                @fullName
+                            </div>
+
+                            <div class="employee-number">
+                                الرقم الوظيفي:
+                                @employee.EmployeeNumber
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+
+                        <span class="permission-count">
+                            @grantedCount من @permissionDefinitions.Length صلاحيات
+                        </span>
+
+                        <!-- زر تغيير الموظف -->
+
+                        <button type="button"
+                                class="change-employee"
+                                id="changeEmployee_@employee.Id">
+
+                            <i class="bi bi-arrow-repeat"></i>
+                            تغيير الموظف
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <!-- قائمة صلاحيات الموظف -->
+                @foreach (var permission in permissionDefinitions)
+                {
+                    bool isGranted =
+                        grantedCodes.Contains(permission.Code);
+
+                    <div class="permission-row">
+
+                        <div class="permission-info">
+
+                            <div class="permission-icon">
+                                <i class="bi @permission.Icon"></i>
+                            </div>
+
+                            <div>
+
+                                <div class="permission-name">
+                                    @permission.Name
+                                </div>
+
+                                <div class="permission-description">
+                                    @permission.Description
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <!-- حالة الصلاحية والإجراء -->
+
+                        <div class="permission-actions">
+
+                            @if (isGranted)
+                            {
+                                <span class="permission-status active">
+                                    مفعّلة
+                                </span>
+
+                                <form asp-controller="EmployeePermissions"
+                                      asp-action="Revoke"
+                                      method="post">
+
+                                    @Html.AntiForgeryToken()
+
+                                    <input type="hidden"
+                                           name="employeeId"
+                                           value="@employee.Id" />
+
+                                    <input type="hidden"
+                                           name="permissionCode"
+                                           value="@permission.Code" />
+
+                                    <button type="submit"
+                                            class="permission-button revoke"
+                                            onclick="return confirm('هل تريد سحب هذه الصلاحية من الموظف؟');">
+
+                                        <i class="bi bi-x-circle"></i>
+                                        سحب الصلاحية
+
+                                    </button>
+
+                                </form>
+                            }
+                            else
+                            {
+                                <span class="permission-status inactive">
+                                    غير مفعّلة
+                                </span>
+
+                                <form asp-controller="EmployeePermissions"
+                                      asp-action="Grant"
+                                      method="post">
+
+                                    @Html.AntiForgeryToken()
+
+                                    <input type="hidden"
+                                           name="employeeId"
+                                           value="@employee.Id" />
+
+                                    <input type="hidden"
+                                           name="permissionCode"
+                                           value="@permission.Code" />
+
+                                    <button type="submit"
+                                            class="permission-button grant">
+
+                                        <i class="bi bi-check-circle"></i>
+                                        منح الصلاحية
+
+                                    </button>
+
+                                </form>
+                            }
+
+                        </div>
+
+                    </div>
+                }
+
             </div>
         }
 
-        <div id="permissionsSearchEmpty"
-             class="permissions-empty"
-             style="display:none;">
-            لا توجد نتائج مطابقة للبحث.
-        </div>
-
-    </div>
-
-    <div class="permissions-note">
-        <i class="bi bi-info-circle"></i>
-        المدير يمتلك صلاحية حذف الطلاب دائمًا.
-        الموظف يستطيع الحذف فقط إذا منحه المدير الصلاحية،
-        ويمكن سحبها منه في أي وقت.
     </div>
 
 </div>
 
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
 
-        const searchInput =
-            document.getElementById("employeePermissionSearch");
+            const searchInput =
+                document.getElementById("employeeSearch");
 
-        const rows = document.querySelectorAll(
-            ".permission-employee-row");
+            const searchResults =
+                document.getElementById("searchResults");
 
-        const emptyMessage =
-            document.getElementById("permissionsSearchEmpty");
+            const noResults =
+                document.getElementById("noResults");
 
-        searchInput.addEventListener("input", function () {
+            const selectedPanel =
+                document.getElementById("selectedEmployeePanel");
 
-            const searchText =
-                this.value.trim().toLowerCase();
+            const employeeButtons =
+                document.querySelectorAll(".search-result");
 
-            let visibleCount = 0;
+            const employeeDetails =
+                document.querySelectorAll(".employee-details");
 
-            rows.forEach(function (row) {
+            const changeButtons =
+                document.querySelectorAll(".change-employee");
 
-                const rowText =
-                    row.innerText.toLowerCase();
+            function filterEmployees() {
 
-                const matches =
-                    rowText.includes(searchText);
+                const query =
+                    searchInput.value.trim().toLowerCase();
 
-                row.style.display =
-                    matches ? "" : "none";
+                let count = 0;
 
-                if (matches) {
-                    visibleCount++;
+                if (query.length === 0) {
+                    searchResults.style.display = "none";
+                    return;
                 }
+
+                employeeButtons.forEach(function (button) {
+
+                    const name =
+                        (button.dataset.employeeName || "")
+                            .toLowerCase();
+
+                    const number =
+                        (button.dataset.employeeNumber || "")
+                            .toLowerCase();
+
+                    const matches =
+                        name.includes(query) ||
+                        number.includes(query);
+
+                    button.style.display =
+                        matches ? "flex" : "none";
+
+                    if (matches) count++;
+                });
+
+                searchResults.style.display = "block";
+
+                noResults.style.display =
+                    count === 0 ? "block" : "none";
+            }
+
+            function selectEmployee(employeeId) {
+
+                employeeDetails.forEach(function (details) {
+
+                    details.style.display =
+                        details.dataset.employeeId === employeeId
+                            ? "block"
+                            : "none";
+                });
+
+                selectedPanel.style.display = "block";
+                searchResults.style.display = "none";
+                searchInput.value = "";
+
+                selectedPanel.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start"
+                });
+            }
+
+            function resetSelection() {
+
+                selectedPanel.style.display = "none";
+
+                employeeDetails.forEach(function (details) {
+                    details.style.display = "none";
+                });
+
+                searchInput.value = "";
+                searchResults.style.display = "none";
+
+                searchInput.focus();
+            }
+
+            searchInput.addEventListener(
+                "input",
+                filterEmployees
+            );
+
+            employeeButtons.forEach(function (button) {
+
+                button.addEventListener("click", function () {
+                    selectEmployee(this.dataset.employeeId);
+                });
             });
 
-            emptyMessage.style.display =
-                rows.length > 0 && visibleCount === 0
-                    ? "block"
-                    : "none";
+            changeButtons.forEach(function (button) {
+
+                button.addEventListener(
+                    "click",
+                    resetSelection
+                );
+            });
+
+            // الاحتفاظ بالموظف المحدد بعد تعديل صلاحياته
+
+            const savedEmployeeId =
+                sessionStorage.getItem(
+                    "permissionsSelectedEmployee"
+                );
+
+            if (savedEmployeeId) {
+
+                const exists =
+                    Array.from(employeeDetails).some(
+                        d => d.dataset.employeeId ===
+                            savedEmployeeId
+                    );
+
+                if (exists) {
+                    selectEmployee(savedEmployeeId);
+                }
+
+                sessionStorage.removeItem(
+                    "permissionsSelectedEmployee"
+                );
+            }
+
+            document.querySelectorAll(
+                ".employee-details form"
+            ).forEach(function (form) {
+
+                form.addEventListener("submit", function () {
+
+                    const employeeId =
+                        this.closest(".employee-details")
+                            .dataset.employeeId;
+
+                    sessionStorage.setItem(
+                        "permissionsSelectedEmployee",
+                        employeeId
+                    );
+                });
+
+            });
+
         });
-    });
-</script>
+    </script>
+}

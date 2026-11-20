@@ -1,132 +1,300 @@
-﻿
-@model StudentAffairsManagementSystem.Models.Course
+﻿@model StudentAffairsManagementSystem.Models.Course
 
 @{
     ViewData["Title"] = "إضافة مقرر دراسي";
 }
 
 <style>
-    .course-form-page {
-        max-width: 850px;
-        margin: 0 auto;
+    .course-create-page {
+        direction: rtl;
+        max-width: 900px;
+        margin: 20px auto;
+        color: #142d4e;
     }
 
-    .course-form-header {
+    /* رأس الصفحة */
+
+    .course-create-header {
+        background: linear-gradient(135deg, #142d4e, #304661);
+        color: #ffffff;
+        padding: 28px 32px;
+        border-radius: 16px 16px 0 0;
+        border-bottom: 4px solid #c9a24d;
+    }
+
+        .course-create-header h2 {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 25px;
+            font-weight: 800;
+            margin: 0 0 10px;
+        }
+
+            .course-create-header h2 i {
+                color: #c9a24d;
+                font-size: 27px;
+            }
+
+        .course-create-header p {
+            color: #d6dfeb;
+            font-size: 14px;
+            line-height: 1.9;
+            margin: 0;
+        }
+
+    /* بطاقة النموذج */
+
+    .course-create-body {
+        background: #ffffff;
+        padding: 30px;
+        border: 1px solid #e5eaf2;
+        border-top: none;
+        border-radius: 0 0 16px 16px;
+        box-shadow: 0 5px 25px rgba(20,45,78,.05);
+    }
+
+    /* عنوان القسم */
+
+    .course-create-section-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #142d4e;
+        font-size: 18px;
+        font-weight: 800;
+        border-right: 4px solid #c9a24d;
+        padding-right: 13px;
         margin-bottom: 25px;
     }
 
-    .course-form-header h2 {
-        color: #16263f;
-        font-size: 25px;
-        font-weight: bold;
-        margin-bottom: 8px;
+        .course-create-section-title i {
+            color: #b9913d;
+            font-size: 20px;
+        }
+
+    /* حقول النموذج */
+
+    .course-create-field {
+        margin-bottom: 25px;
     }
 
-    .course-form-header p {
-        color: #718096;
-        margin: 0;
-    }
-
-    .course-form-card {
-        background: #fff;
-        border: 1px solid #e5eaf2;
-        border-top: 4px solid #c8a66a;
-        border-radius: 16px;
-        padding: 30px;
-        box-shadow: 0 4px 15px rgba(20, 40, 70, .05);
-    }
-
-    .course-form-label {
+    .course-create-label {
         display: block;
-        color: #16263f;
-        font-weight: bold;
+        color: #142d4e;
+        font-size: 14px;
+        font-weight: 700;
         margin-bottom: 9px;
     }
 
-    .course-form-control {
+    .course-create-required {
+        color: #b42318;
+    }
+
+    .course-create-input {
         width: 100%;
-        border: 1px solid #d9e1eb;
-        border-radius: 10px;
-        padding: 12px 14px;
-        background: #fff;
-        color: #16263f;
+        min-height: 46px;
+        padding: 11px 14px;
+        border: 1px solid #dce3ed;
+        border-radius: 11px;
+        background: #ffffff;
+        color: #142d4e;
+        font-size: 14px;
+        font-family: inherit;
+        transition: border-color .2s ease, box-shadow .2s ease;
     }
 
-    .course-form-control:focus {
-        outline: none;
-        border-color: #c8a66a;
-        box-shadow: 0 0 0 3px rgba(200, 166, 106, .15);
+        .course-create-input:focus {
+            outline: none;
+            border-color: #c9a24d;
+            box-shadow: 0 0 0 3px rgba(201,162,77,.14);
+        }
+
+        .course-create-input::placeholder {
+            color: #98a4b5;
+        }
+
+        .course-create-input.input-validation-error {
+            border-color: #dc756e;
+        }
+
+    /* النصوص الإرشادية */
+
+    .course-create-hint {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        color: #718096;
+        font-size: 13px;
+        line-height: 1.9;
+        margin-top: 9px;
     }
 
-    .course-form-field {
-        margin-bottom: 23px;
-    }
+        .course-create-hint i {
+            color: #b9913d;
+            margin-top: 2px;
+            flex-shrink: 0;
+        }
 
-    .course-form-hint {
-        color: #7b8797;
-        font-size: 12px;
-        margin-top: 7px;
-    }
+    /* رسائل التحقق */
 
-    .course-form-error {
+    .course-create-error {
         display: block;
         color: #b42318;
         font-size: 13px;
-        margin-top: 6px;
+        line-height: 1.7;
+        margin-top: 7px;
     }
 
-    .course-form-actions {
+    .course-create-validation-summary {
+        background: #fff0ee;
+        border: 1px solid #f1d8d5;
+        border-radius: 11px;
+        padding: 15px 18px;
+        margin-bottom: 22px;
+        color: #b42318;
+        font-size: 14px;
+    }
+
+        .course-create-validation-summary.validation-summary-valid {
+            display: none;
+        }
+
+        .course-create-validation-summary ul {
+            margin: 0;
+            padding-right: 20px;
+        }
+
+    /* ملاحظة */
+
+    .course-create-note {
         display: flex;
-        gap: 12px;
-        flex-wrap: wrap;
-        padding-top: 12px;
+        align-items: flex-start;
+        gap: 11px;
+        background: #f7f9fc;
+        border: 1px solid #e9edf3;
+        border-right: 4px solid #c9a24d;
+        border-radius: 11px;
+        padding: 17px 19px;
+        margin-bottom: 28px;
+        color: #42536c;
+        font-size: 14px;
+        line-height: 1.9;
     }
 
-    .course-form-save {
-        background: #c8a66a;
-        color: #16263f;
-        border: none;
-        border-radius: 10px;
-        padding: 12px 26px;
-        font-weight: bold;
+        .course-create-note i {
+            color: #b9913d;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+    /* الأزرار */
+
+    .course-create-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        padding-top: 25px;
+        border-top: 1px solid #e9edf3;
+    }
+
+    .course-create-save,
+    .course-create-cancel {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+        min-height: 45px;
+        padding: 11px 22px;
+        border-radius: 11px;
+        font-size: 14px;
+        font-weight: 800;
+        font-family: inherit;
+        text-decoration: none;
+        transition: background-color .2s ease;
+    }
+
+    /* زر الحفظ */
+
+    .course-create-save {
+        background: #c9a24d;
+        color: #142d4e;
+        border: 1px solid transparent;
         cursor: pointer;
     }
 
-    .course-form-save:hover {
-        background: #b79557;
+        .course-create-save:hover {
+            background: #b9913d;
+            color: #142d4e;
+        }
+
+    /* زر الإلغاء */
+
+    .course-create-cancel {
+        background: #edf1f7;
+        color: #142d4e;
+        border: 1px solid #dfe6ef;
     }
 
-    .course-form-back {
-        background: #f3f5f9;
-        color: #42536c;
-        border: 1px solid #e2e7ef;
-        border-radius: 10px;
-        padding: 12px 24px;
-        text-decoration: none;
-    }
+        .course-create-cancel:hover {
+            background: #e1e8f2;
+            color: #142d4e;
+        }
 
-    .course-form-back:hover {
-        background: #e8edf5;
-        color: #16263f;
-    }
+        .course-create-save:focus-visible,
+        .course-create-cancel:focus-visible {
+            outline: 3px solid #142d4e;
+            outline-offset: 3px;
+        }
+
+    /* الشاشات الصغيرة */
 
     @@media (max-width: 650px) {
-        .course-form-card {
-            padding: 20px;
+        .course-create-page {
+            margin: 15px auto;
+        }
+
+        .course-create-header,
+        .course-create-body {
+            padding: 22px;
+        }
+
+            .course-create-header h2 {
+                font-size: 21px;
+            }
+
+        .course-create-actions {
+            flex-direction: column;
+        }
+
+        .course-create-save,
+        .course-create-cancel {
+            width: 100%;
         }
     }
 </style>
 
-<div class="course-form-page">
+<div class="course-create-page">
 
-    <div class="course-form-header">
-        <h2>إضافة مقرر دراسي جديد</h2>
+    <!-- رأس الصفحة -->
+
+    <div class="course-create-header">
+
+        <h2>
+            <i class="bi bi-journal-plus"></i>
+            إضافة مقرر دراسي جديد
+        </h2>
+
         <p>
-            أدخل بيانات المقرر لربطه بالقسم الأكاديمي المناسب.
+            أدخل بيانات المقرر الدراسي
+            واربطه بالقسم الأكاديمي المناسب.
         </p>
+
     </div>
 
-    <div class="course-form-card">
+    <!-- نموذج الإضافة -->
+
+    <div class="course-create-body">
 
         <form asp-controller="Courses"
               asp-action="Create"
@@ -134,88 +302,168 @@
 
             @Html.AntiForgeryToken()
 
-            <div asp-validation-summary="ModelOnly"
-                 class="course-form-error"></div>
+            <!-- رسائل التحقق العامة -->
 
-            <div class="course-form-field">
+            <div asp-validation-summary="ModelOnly"
+                 class="course-create-validation-summary"></div>
+
+            <!-- عنوان البيانات -->
+
+            <h3 class="course-create-section-title">
+                <i class="bi bi-journal-bookmark"></i>
+                بيانات المقرر الدراسي
+            </h3>
+
+            <!-- اسم المقرر -->
+
+            <div class="course-create-field">
+
                 <label asp-for="Name"
-                       class="course-form-label">
+                       class="course-create-label">
+
                     اسم المقرر الدراسي
+                    <span class="course-create-required">*</span>
+
                 </label>
 
                 <input asp-for="Name"
-                       class="course-form-control"
-                       placeholder="أدخل اسم المقرر"
+                       class="course-create-input"
+                       placeholder="أدخل اسم المقرر الدراسي"
                        required />
 
                 <span asp-validation-for="Name"
-                      class="course-form-error"></span>
+                      class="course-create-error"></span>
+
             </div>
 
-            <div class="course-form-field">
+            <!-- رمز المقرر -->
+
+            <div class="course-create-field">
+
                 <label asp-for="Code"
-                       class="course-form-label">
+                       class="course-create-label">
+
                     رمز المقرر
+                    <span class="course-create-required">*</span>
+
                 </label>
 
                 <input asp-for="Code"
-                       class="course-form-control"
+                       class="course-create-input"
                        placeholder="أدخل رمز المقرر"
                        required />
 
                 <span asp-validation-for="Code"
-                      class="course-form-error"></span>
+                      class="course-create-error"></span>
+
             </div>
 
-            <div class="course-form-field">
+            <!-- عدد الساعات -->
+
+            <div class="course-create-field">
+
                 <label asp-for="CreditHours"
-                       class="course-form-label">
+                       class="course-create-label">
+
                     عدد الساعات المعتمدة
+                    <span class="course-create-required">*</span>
+
                 </label>
 
                 <input asp-for="CreditHours"
                        type="number"
                        min="1"
                        step="1"
-                       class="course-form-control"
+                       class="course-create-input"
                        required />
 
                 <span asp-validation-for="CreditHours"
-                      class="course-form-error"></span>
+                      class="course-create-error"></span>
+
+                <div class="course-create-hint">
+
+                    <i class="bi bi-info-circle"></i>
+
+                    <span>
+                        أدخل عدد الساعات المعتمدة للمقرر
+                        كعدد صحيح أكبر من الصفر.
+                    </span>
+
+                </div>
+
             </div>
 
-            <div class="course-form-field">
+            <!-- القسم الأكاديمي -->
+
+            <div class="course-create-field">
+
                 <label asp-for="DepartmentId"
-                       class="course-form-label">
+                       class="course-create-label">
+
                     القسم الأكاديمي
+                    <span class="course-create-required">*</span>
+
                 </label>
 
                 <select asp-for="DepartmentId"
                         asp-items="ViewBag.DepartmentId"
-                        class="course-form-control"
+                        class="course-create-input"
                         required>
-                    <option value="">-- اختر القسم الأكاديمي --</option>
+
+                    <option value="">
+                        -- اختر القسم الأكاديمي --
+                    </option>
+
                 </select>
 
                 <span asp-validation-for="DepartmentId"
-                      class="course-form-error"></span>
+                      class="course-create-error"></span>
 
-                <div class="course-form-hint">
-                    تظهر الأقسام المتاحة من قاعدة البيانات.
+                <div class="course-create-hint">
+
+                    <i class="bi bi-info-circle"></i>
+
+                    <span>
+                        تظهر الأقسام الأكاديمية المتاحة
+                        من قاعدة البيانات.
+                    </span>
+
                 </div>
+
             </div>
 
-            <div class="course-form-actions">
+            <!-- ملاحظة -->
+
+            <div class="course-create-note">
+
+                <i class="bi bi-info-circle"></i>
+
+                <span>
+                    سيتم ربط المقرر الدراسي بالقسم
+                    الأكاديمي الذي تختاره عند حفظ البيانات.
+                </span>
+
+            </div>
+
+            <!-- أزرار الحفظ والإلغاء -->
+
+            <div class="course-create-actions">
 
                 <button type="submit"
-                        class="course-form-save">
+                        class="course-create-save">
+
+                    <i class="bi bi-check-circle"></i>
                     حفظ المقرر
+
                 </button>
 
                 <a asp-controller="Courses"
                    asp-action="Index"
-                   class="course-form-back">
+                   class="course-create-cancel">
+
+                    <i class="bi bi-x-circle"></i>
                     إلغاء والعودة
+
                 </a>
 
             </div>

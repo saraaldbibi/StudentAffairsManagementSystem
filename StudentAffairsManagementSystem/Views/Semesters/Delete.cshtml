@@ -1,188 +1,542 @@
-﻿
-@model StudentAffairsManagementSystem.Models.Semester
+﻿@model StudentAffairsManagementSystem.Models.Semester
 
 @{
     ViewData["Title"] = "حذف فصل دراسي";
 }
 
-<div class="container-fluid py-4" dir="rtl">
+<style>
+    .semester-delete-page {
+        direction: rtl;
+        max-width: 950px;
+        margin: 20px auto;
+        color: #142d4e;
+    }
 
-    <!-- عنوان الصفحة -->
-    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+    /* رأس الصفحة */
 
-        <div>
-            <h2 style="color:#142d4e; font-weight:800;">
-                حذف فصل دراسي
-            </h2>
+    .semester-delete-header {
+        background: linear-gradient(135deg, #142d4e, #304661);
+        color: #ffffff;
+        padding: 28px 32px;
+        border-radius: 16px 16px 0 0;
+        border-bottom: 4px solid #c9a24d;
+    }
 
-            <p class="text-muted mb-0">
-                مراجعة بيانات الفصل قبل تأكيد الحذف
-            </p>
-        </div>
+        .semester-delete-header h2 {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 25px;
+            font-weight: 800;
+            margin: 0 0 10px;
+        }
 
-        <a asp-controller="Semesters"
-           asp-action="Index"
-           class="btn btn-outline-secondary">
-            العودة إلى الفصول الدراسية
-        </a>
+            .semester-delete-header h2 i {
+                color: #c9a24d;
+                font-size: 27px;
+            }
+
+        .semester-delete-header p {
+            color: #d6dfeb;
+            font-size: 14px;
+            line-height: 1.9;
+            margin: 0;
+        }
+
+    /* جسم الصفحة */
+
+    .semester-delete-body {
+        background: #ffffff;
+        padding: 30px;
+        border: 1px solid #e5eaf2;
+        border-top: none;
+        border-radius: 0 0 16px 16px;
+        box-shadow: 0 5px 25px rgba(20,45,78,.05);
+    }
+
+    /* رسالة التحذير */
+
+    .semester-delete-warning {
+        display: flex;
+        align-items: flex-start;
+        gap: 15px;
+        padding: 22px;
+        background: #fff1ef;
+        border: 1px solid #f0d3cf;
+        border-right: 5px solid #c64b42;
+        border-radius: 13px;
+        margin-bottom: 32px;
+    }
+
+    .semester-delete-warning-icon {
+        color: #b93e36;
+        font-size: 28px;
+        flex-shrink: 0;
+        line-height: 1;
+    }
+
+    .semester-delete-warning-content {
+        min-width: 0;
+    }
+
+    .semester-delete-warning-title {
+        color: #a5352f;
+        font-size: 18px;
+        font-weight: 800;
+        margin: 0 0 12px;
+    }
+
+    .semester-delete-warning-content p {
+        color: #82423d;
+        font-size: 14px;
+        line-height: 2;
+        margin: 0 0 10px;
+    }
+
+        .semester-delete-warning-content p:last-child {
+            margin-bottom: 0;
+        }
+
+    /* عناوين الأقسام */
+
+    .semester-delete-section-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #142d4e;
+        font-size: 18px;
+        font-weight: 800;
+        border-right: 4px solid #c9a24d;
+        padding-right: 13px;
+        margin: 0 0 23px;
+    }
+
+        .semester-delete-section-title i {
+            color: #b9913d;
+            font-size: 20px;
+        }
+
+    /* شبكة المعلومات */
+
+    .semester-delete-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+        margin-bottom: 30px;
+    }
+
+    .semester-delete-item {
+        background: #f8fafc;
+        border: 1px solid #e7ecf3;
+        border-radius: 12px;
+        padding: 19px 20px;
+        min-width: 0;
+    }
+
+    .semester-delete-item-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #718096;
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 11px;
+    }
+
+        .semester-delete-item-label i {
+            color: #b9913d;
+            font-size: 16px;
+        }
+
+    .semester-delete-item-value {
+        color: #142d4e;
+        font-size: 17px;
+        font-weight: 800;
+        line-height: 1.7;
+        overflow-wrap: anywhere;
+    }
+
+    .semester-delete-date {
+        direction: ltr;
+        unicode-bidi: isolate;
+        display: inline-block;
+    }
+
+    /* شارات الحالة */
+
+    .semester-delete-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 8px 14px;
+        border-radius: 30px;
+        font-size: 13px;
+        font-weight: 800;
+    }
+
+    .semester-delete-badge-active {
+        background: #e7f5eb;
+        color: #247247;
+    }
+
+    .semester-delete-badge-inactive {
+        background: #edf1f5;
+        color: #64748b;
+    }
+
+    /* الملاحظة */
+
+    .semester-delete-note {
+        display: flex;
+        align-items: flex-start;
+        gap: 11px;
+        background: #fff9eb;
+        border: 1px solid #eadbb5;
+        border-right: 4px solid #c9a24d;
+        border-radius: 11px;
+        padding: 17px 19px;
+        margin-bottom: 28px;
+        color: #735b30;
+        font-size: 14px;
+        line-height: 1.9;
+    }
+
+        .semester-delete-note i {
+            color: #b9913d;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+    /* أزرار الإجراءات */
+
+    .semester-delete-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        padding-top: 25px;
+        border-top: 1px solid #e9edf3;
+    }
+
+    .semester-delete-confirm,
+    .semester-delete-cancel {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+        min-height: 45px;
+        padding: 11px 22px;
+        border-radius: 11px;
+        font-size: 14px;
+        font-weight: 800;
+        font-family: inherit;
+        text-decoration: none;
+        transition: background-color .2s ease;
+    }
+
+    .semester-delete-confirm {
+        background: #b93e36;
+        color: #ffffff;
+        border: 1px solid transparent;
+        cursor: pointer;
+    }
+
+        .semester-delete-confirm:hover {
+            background: #9d302a;
+            color: #ffffff;
+        }
+
+    .semester-delete-cancel {
+        background: #edf1f7;
+        color: #142d4e;
+        border: 1px solid #dfe6ef;
+    }
+
+        .semester-delete-cancel:hover {
+            background: #e1e8f2;
+            color: #142d4e;
+        }
+
+        .semester-delete-confirm:focus-visible,
+        .semester-delete-cancel:focus-visible {
+            outline: 3px solid #142d4e;
+            outline-offset: 3px;
+        }
+
+    /* الشاشات الصغيرة */
+
+    @@media (max-width: 650px) {
+        .semester-delete-page {
+            margin: 15px auto;
+        }
+
+        .semester-delete-header,
+        .semester-delete-body {
+            padding: 22px;
+        }
+
+            .semester-delete-header h2 {
+                font-size: 21px;
+            }
+
+        .semester-delete-warning {
+            padding: 18px;
+        }
+
+        .semester-delete-warning-title {
+            font-size: 16px;
+        }
+
+        .semester-delete-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .semester-delete-actions {
+            flex-direction: column;
+        }
+
+        .semester-delete-confirm,
+        .semester-delete-cancel {
+            width: 100%;
+        }
+    }
+</style>
+
+<div class="semester-delete-page">
+
+    <!-- رأس الصفحة -->
+
+    <div class="semester-delete-header">
+
+        <h2>
+            <i class="bi bi-trash3"></i>
+            حذف فصل دراسي
+        </h2>
+
+        <p>
+            مراجعة بيانات الفصل الدراسي
+            قبل تأكيد عملية الحذف النهائي.
+        </p>
 
     </div>
 
-    <!-- رسالة التحذير -->
-    <div class="alert alert-danger mb-4" role="alert">
+    <div class="semester-delete-body">
 
-        <h5 class="fw-bold mb-2">
-            ⚠️ تأكيد حذف الفصل الدراسي
-        </h5>
+        <!-- رسالة التحذير -->
 
-        <p class="mb-2">
-            هل أنت متأكد من رغبتك في حذف هذا الفصل الدراسي؟
-        </p>
+        <div class="semester-delete-warning"
+             role="alert">
 
-        <p class="mb-0">
-            سيتم حذف الفصل نهائيًا من قاعدة البيانات إذا لم يكن
-            مرتبطًا بطلاب أو مقررات مطروحة أو أسعار ساعات.
-            إذا كان مرتبطًا بهذه البيانات، سيمنع النظام الحذف.
-        </p>
+            <i class="bi bi-exclamation-triangle-fill semester-delete-warning-icon"></i>
 
-    </div>
+            <div class="semester-delete-warning-content">
 
-    <!-- بيانات الفصل -->
-    <div class="card border-0 shadow-sm">
+                <h3 class="semester-delete-warning-title">
+                    تأكيد حذف الفصل الدراسي
+                </h3>
 
-        <div class="card-header py-3"
-             style="background:#142d4e; color:white;">
+                <p>
+                    هل أنت متأكد من رغبتك في حذف
+                    هذا الفصل الدراسي؟
+                </p>
 
-            <h5 class="mb-0">
-                بيانات الفصل المطلوب حذفه
-            </h5>
+                <p>
+                    سيتم حذف الفصل نهائيًا من قاعدة البيانات
+                    إذا لم يكن مرتبطًا بطلاب أو مقررات مطروحة
+                    أو أسعار ساعات.
+                </p>
+
+                <p>
+                    إذا كان الفصل مرتبطًا بهذه البيانات،
+                    فسيمنع النظام الحذف لحماية
+                    البيانات الأكاديمية.
+                </p>
+
+            </div>
 
         </div>
 
-        <div class="card-body p-4">
+        <!-- بيانات الفصل -->
 
-            <div class="row g-4">
+        <h3 class="semester-delete-section-title">
 
-                <!-- رقم الفصل -->
-                <div class="col-md-6">
+            <i class="bi bi-calendar3"></i>
+            بيانات الفصل المطلوب حذفه
 
-                    <div class="text-muted mb-2">
-                        رقم الفصل الدراسي
-                    </div>
+        </h3>
 
-                    <div class="fw-bold fs-5">
-                        @Model.SemesterNumber
-                    </div>
+        <div class="semester-delete-grid">
 
+            <!-- رقم الفصل -->
+
+            <div class="semester-delete-item">
+
+                <div class="semester-delete-item-label">
+                    <i class="bi bi-hash"></i>
+                    رقم الفصل الدراسي
                 </div>
 
-                <!-- اسم الفصل -->
-                <div class="col-md-6">
-
-                    <div class="text-muted mb-2">
-                        اسم الفصل الدراسي
-                    </div>
-
-                    <div class="fw-bold fs-5">
-                        @Model.Name
-                    </div>
-
+                <div class="semester-delete-item-value">
+                    @Model.SemesterNumber
                 </div>
 
-                <!-- العام الدراسي -->
-                <div class="col-md-6">
+            </div>
 
-                    <div class="text-muted mb-2">
-                        العام الدراسي
-                    </div>
+            <!-- اسم الفصل -->
 
-                    <div class="fw-bold fs-5">
-                        @Model.AcademicYear
-                    </div>
+            <div class="semester-delete-item">
 
+                <div class="semester-delete-item-label">
+                    <i class="bi bi-calendar3"></i>
+                    اسم الفصل الدراسي
                 </div>
 
-                <!-- الحالة -->
-                <div class="col-md-6">
+                <div class="semester-delete-item-value">
+                    @Model.Name
+                </div>
 
-                    <div class="text-muted mb-2">
-                        حالة الفصل
-                    </div>
+            </div>
+
+            <!-- العام الدراسي -->
+
+            <div class="semester-delete-item">
+
+                <div class="semester-delete-item-label">
+                    <i class="bi bi-calendar-event"></i>
+                    العام الدراسي
+                </div>
+
+                <div class="semester-delete-item-value">
+                    @Model.AcademicYear
+                </div>
+
+            </div>
+
+            <!-- حالة الفصل -->
+
+            <div class="semester-delete-item">
+
+                <div class="semester-delete-item-label">
+                    <i class="bi bi-toggle-on"></i>
+                    حالة الفصل
+                </div>
+
+                <div class="semester-delete-item-value">
 
                     @if (Model.IsActive)
                     {
-                        <span class="badge bg-success px-3 py-2">
-                            فعال
+                        <span class="semester-delete-badge semester-delete-badge-active">
+
+                            <i class="bi bi-check-circle"></i>
+                            فعّال
+
                         </span>
                     }
                     else
                     {
-                        <span class="badge bg-secondary px-3 py-2">
-                            غير فعال
+                        <span class="semester-delete-badge semester-delete-badge-inactive">
+
+                            <i class="bi bi-dash-circle"></i>
+                            غير فعّال
+
                         </span>
                     }
-
-                </div>
-
-                <!-- تاريخ البداية -->
-                <div class="col-md-6">
-
-                    <div class="text-muted mb-2">
-                        تاريخ بداية الفصل
-                    </div>
-
-                    <div class="fw-bold fs-5">
-                        @Model.StartDate.ToString("yyyy/MM/dd")
-                    </div>
-
-                </div>
-
-                <!-- تاريخ النهاية -->
-                <div class="col-md-6">
-
-                    <div class="text-muted mb-2">
-                        تاريخ نهاية الفصل
-                    </div>
-
-                    <div class="fw-bold fs-5">
-                        @Model.EndDate.ToString("yyyy/MM/dd")
-                    </div>
 
                 </div>
 
             </div>
 
-            <hr class="my-4" />
+            <!-- تاريخ بداية الفصل -->
 
-            <!-- نموذج تأكيد الحذف -->
-            <form asp-controller="Semesters"
-                  asp-action="Delete"
-                  asp-route-id="@Model.Id"
-                  method="post">
+            <div class="semester-delete-item">
 
-                @Html.AntiForgeryToken()
+                <div class="semester-delete-item-label">
+                    <i class="bi bi-calendar-plus"></i>
+                    تاريخ بداية الفصل
+                </div>
 
-                <input type="hidden" asp-for="Id" />
+                <div class="semester-delete-item-value">
 
-                <div class="d-flex flex-wrap gap-3">
-
-                    <button type="submit"
-                            class="btn btn-danger px-4 py-2">
-                        تأكيد حذف الفصل
-                    </button>
-
-                    <a asp-controller="Semesters"
-                       asp-action="Details"
-                       asp-route-id="@Model.Id"
-                       class="btn btn-outline-secondary px-4 py-2">
-                        إلغاء والعودة للتفاصيل
-                    </a>
+                    <span class="semester-delete-date">
+                        @Model.StartDate.ToString("yyyy/MM/dd")
+                    </span>
 
                 </div>
 
-            </form>
+            </div>
+
+            <!-- تاريخ نهاية الفصل -->
+
+            <div class="semester-delete-item">
+
+                <div class="semester-delete-item-label">
+                    <i class="bi bi-calendar-x"></i>
+                    تاريخ نهاية الفصل
+                </div>
+
+                <div class="semester-delete-item-value">
+
+                    <span class="semester-delete-date">
+                        @Model.EndDate.ToString("yyyy/MM/dd")
+                    </span>
+
+                </div>
+
+            </div>
 
         </div>
+
+        <!-- ملاحظة مهمة -->
+
+        <div class="semester-delete-note">
+
+            <i class="bi bi-info-circle"></i>
+
+            <span>
+                الحذف النهائي لا يمكن التراجع عنه.
+                يُفضّل التأكد من عدم ارتباط الفصل
+                بأي بيانات أكاديمية قبل المتابعة.
+                سيبقى التحقق من إمكانية الحذف
+                مسؤولية النظام عند إرسال الطلب.
+            </span>
+
+        </div>
+
+        <!-- نموذج تأكيد الحذف -->
+
+        <form asp-controller="Semesters"
+              asp-action="Delete"
+              asp-route-id="@Model.Id"
+              method="post"
+              onsubmit="return confirm('هل أنت متأكد من حذف هذا الفصل الدراسي نهائيًا؟');">
+
+            @Html.AntiForgeryToken()
+
+            <input asp-for="Id"
+                   type="hidden" />
+
+            <div class="semester-delete-actions">
+
+                <button type="submit"
+                        class="semester-delete-confirm">
+
+                    <i class="bi bi-trash3"></i>
+                    تأكيد حذف الفصل
+
+                </button>
+
+                <a asp-controller="Semesters"
+                   asp-action="Details"
+                   asp-route-id="@Model.Id"
+                   class="semester-delete-cancel">
+
+                    <i class="bi bi-x-circle"></i>
+                    إلغاء والعودة للتفاصيل
+
+                </a>
+
+            </div>
+
+        </form>
 
     </div>
 

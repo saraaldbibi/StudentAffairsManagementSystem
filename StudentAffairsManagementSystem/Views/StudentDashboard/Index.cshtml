@@ -24,46 +24,69 @@
 <style>
     .student-portal {
         direction: rtl;
-        color: #14263f;
+        color: #142d4e;
         padding: 20px 0;
     }
 
+    /* بطاقة الترحيب */
+
     .portal-header {
-        background: #14263f;
-        color: white;
+        background: #142d4e;
+        color: #ffffff;
         padding: 30px;
-        border-radius: 16px;
-        border-bottom: 4px solid #c9a66b;
+        border-radius: 15px;
+        border-bottom: 4px solid #c9a24d;
         margin-bottom: 25px;
+        box-shadow: 0 4px 14px rgba(20,45,78,.08);
     }
 
         .portal-header h2 {
+            font-size: 27px;
             font-weight: 800;
             margin-bottom: 10px;
         }
 
+            .portal-header h2 i {
+                color: #c9a24d;
+                margin-left: 8px;
+            }
+
         .portal-header p {
             color: #d8dfeb;
             margin: 0;
+            line-height: 1.9;
         }
 
     .portal-number {
-        display: inline-block;
-        background: rgba(201,166,107,.18);
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(201,162,77,.16);
         color: #e8c98d;
-        padding: 8px 15px;
-        border-radius: 8px;
+        padding: 9px 15px;
+        border-radius: 11px;
         margin-top: 15px;
         direction: ltr;
+        font-weight: 700;
     }
+
+    /* عناوين الأقسام */
 
     .portal-section-title {
         font-size: 19px;
         font-weight: 800;
-        margin: 25px 0 17px;
-        border-right: 4px solid #c9a66b;
+        margin: 28px 0 17px;
+        border-right: 4px solid #c9a24d;
         padding-right: 12px;
+        color: #142d4e;
     }
+
+        .portal-section-title i {
+            color: #c9a24d;
+            margin-left: 7px;
+        }
+
+    /* بطاقات الإحصائيات */
 
     .portal-grid {
         display: grid;
@@ -72,11 +95,11 @@
     }
 
     .portal-card {
-        background: white;
+        background: #ffffff;
         border: 1px solid #e5eaf0;
-        border-radius: 13px;
-        padding: 20px;
-        box-shadow: 0 3px 12px rgba(0,0,0,.03);
+        border-radius: 15px;
+        padding: 22px;
+        box-shadow: 0 3px 12px rgba(20,45,78,.04);
     }
 
     .portal-card-label {
@@ -86,16 +109,25 @@
     }
 
     .portal-card-value {
-        font-size: 21px;
+        font-size: 23px;
         font-weight: 800;
-        color: #14263f;
+        color: #142d4e;
     }
 
     .portal-card-icon {
-        color: #c9a66b;
-        font-size: 25px;
-        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 46px;
+        height: 46px;
+        background: #f8f5ec;
+        color: #c9a24d;
+        border-radius: 11px;
+        font-size: 23px;
+        margin-bottom: 14px;
     }
+
+    /* المعلومات الشخصية */
 
     .portal-info {
         display: grid;
@@ -105,45 +137,88 @@
 
     .portal-info-item {
         background: #f8f9fc;
-        padding: 15px;
-        border-radius: 9px;
+        border: 1px solid #edf0f5;
+        padding: 16px;
+        border-radius: 11px;
     }
 
         .portal-info-item small {
             color: #718096;
             display: block;
-            margin-bottom: 7px;
+            margin-bottom: 8px;
+            font-size: 13px;
         }
 
         .portal-info-item strong {
-            color: #14263f;
+            color: #142d4e;
+            font-size: 15px;
+            font-weight: 700;
+            overflow-wrap: anywhere;
         }
 
+    /* جدول المقررات */
+
     .portal-table-card {
-        background: white;
+        background: #ffffff;
         border: 1px solid #e5eaf0;
-        border-radius: 13px;
+        border-radius: 15px;
         overflow: hidden;
         margin-top: 15px;
+        box-shadow: 0 3px 12px rgba(20,45,78,.04);
+    }
+
+    .portal-table-wrapper {
+        overflow-x: auto;
     }
 
     .portal-table {
         width: 100%;
+        min-width: 650px;
         border-collapse: collapse;
         text-align: right;
     }
 
         .portal-table th {
-            background: #14263f;
-            color: white;
-            padding: 15px;
+            background: #142d4e;
+            color: #ffffff;
+            padding: 16px;
+            font-size: 14px;
+            font-weight: 800;
             white-space: nowrap;
         }
 
         .portal-table td {
-            padding: 15px;
+            padding: 16px;
             border-bottom: 1px solid #edf0f5;
+            color: #142d4e;
+            vertical-align: middle;
         }
+
+        .portal-table tbody tr:nth-child(even) {
+            background: #f8f9fb;
+        }
+
+        .portal-table tbody tr:hover {
+            background: #f1f4f8;
+        }
+
+        .portal-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+    .portal-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: #e8f5ee;
+        color: #176a42;
+        border-radius: 8px;
+        padding: 7px 12px;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    /* الحالة الفارغة */
 
     .portal-empty {
         text-align: center;
@@ -151,21 +226,42 @@
         color: #718096;
     }
 
+        .portal-empty i {
+            display: block;
+            font-size: 35px;
+            color: #c9a24d;
+            margin-bottom: 12px;
+        }
+
+        .portal-empty p {
+            margin-bottom: 0;
+        }
+
+    /* الرسوم الدراسية */
+
     .portal-fees {
-        border-right: 4px solid #c9a66b;
+        border-right: 4px solid #c9a24d;
     }
 
     .portal-note {
         background: #fff9ed;
         color: #765b2c;
         border: 1px solid #efdfbd;
-        border-radius: 10px;
-        padding: 15px;
-        margin-top: 15px;
+        border-radius: 11px;
+        padding: 16px;
+        margin-top: 18px;
         font-size: 14px;
+        line-height: 1.9;
     }
 
-    @@media(max-width: 750px) {
+        .portal-note i {
+            color: #b9913d;
+            margin-left: 6px;
+        }
+
+    /* الشاشات الصغيرة */
+
+    @@media (max-width: 750px) {
         .portal-grid {
             grid-template-columns: 1fr;
         }
@@ -174,7 +270,19 @@
             grid-template-columns: 1fr;
         }
 
-        .portal-table-card {
+        .portal-header {
+            padding: 22px;
+        }
+
+            .portal-header h2 {
+                font-size: 23px;
+            }
+
+        .portal-card {
+            padding: 18px;
+        }
+
+        .portal-table-wrapper {
             overflow-x: auto;
         }
     }
@@ -182,7 +290,8 @@
 
 <div class="student-portal">
 
-    <!-- الترحيب -->
+    <!-- الترحيب بالطالب -->
+
     <div class="portal-header">
 
         <h2>
@@ -202,14 +311,19 @@
 
     </div>
 
-    <!-- الإحصائيات -->
+    <!-- ملخص الفصل الدراسي -->
+
     <h3 class="portal-section-title">
+        <i class="bi bi-bar-chart"></i>
         ملخص الفصل الدراسي
     </h3>
 
     <div class="portal-grid">
 
+        <!-- المقررات المسجلة -->
+
         <div class="portal-card">
+
             <div class="portal-card-icon">
                 <i class="bi bi-book"></i>
             </div>
@@ -221,9 +335,13 @@
             <div class="portal-card-value">
                 @registrations.Count
             </div>
+
         </div>
 
+        <!-- مجموع الساعات -->
+
         <div class="portal-card">
+
             <div class="portal-card-icon">
                 <i class="bi bi-clock"></i>
             </div>
@@ -235,9 +353,13 @@
             <div class="portal-card-value">
                 @creditHours
             </div>
+
         </div>
 
+        <!-- الفصل الفعال -->
+
         <div class="portal-card">
+
             <div class="portal-card-icon">
                 <i class="bi bi-calendar-check"></i>
             </div>
@@ -250,11 +372,13 @@
                  style="font-size:17px;">
                 @(activeSemester?.Name ?? "لا يوجد فصل فعال")
             </div>
+
         </div>
 
     </div>
 
-    <!-- البيانات الشخصية -->
+    <!-- المعلومات الشخصية -->
+
     <h3 class="portal-section-title">
         <i class="bi bi-person-vcard"></i>
         معلوماتي الشخصية
@@ -276,12 +400,16 @@
 
             <div class="portal-info-item">
                 <small>القسم</small>
-                <strong>@(Model.Department?.Name ?? "غير محدد")</strong>
+                <strong>
+                    @(Model.Department?.Name ?? "غير محدد")
+                </strong>
             </div>
 
             <div class="portal-info-item">
                 <small>فصل القبول</small>
-                <strong>@(Model.AdmissionSemester?.Name ?? "غير محدد")</strong>
+                <strong>
+                    @(Model.AdmissionSemester?.Name ?? "غير محدد")
+                </strong>
             </div>
 
             <div class="portal-info-item">
@@ -308,7 +436,8 @@
 
     </div>
 
-    <!-- المقررات -->
+    <!-- المقررات المسجلة -->
+
     <h3 class="portal-section-title">
         <i class="bi bi-journal-bookmark"></i>
         مقرراتي في الفصل الحالي
@@ -319,64 +448,76 @@
         @if (activeSemester == null)
         {
             <div class="portal-empty">
+                <i class="bi bi-calendar-x"></i>
                 لا يوجد فصل دراسي فعّال حالياً.
             </div>
         }
         else if (!registrations.Any())
         {
             <div class="portal-empty">
-                <i class="bi bi-journal-x"
-                   style="font-size:35px;color:#c9a66b;"></i>
 
-                <p>لم يتم تسجيل أي مقرر في الفصل الحالي.</p>
+                <i class="bi bi-journal-x"></i>
+
+                <p>
+                    لم يتم تسجيل أي مقرر في الفصل الحالي.
+                </p>
+
             </div>
         }
         else
         {
-            <table class="portal-table">
+            <div class="portal-table-wrapper">
 
-                <thead>
-                    <tr>
-                        <th>المقرر</th>
-                        <th>عدد الساعات</th>
-                        <th>الفصل الدراسي</th>
-                        <th>حالة التسجيل</th>
-                    </tr>
-                </thead>
+                <table class="portal-table">
 
-                <tbody>
-
-                    @foreach (var registration in registrations)
-                    {
+                    <thead>
                         <tr>
-                            <td>
-                                @registration.CourseOffering.Course.Name
-                            </td>
-
-                            <td>
-                                @registration.CourseOffering.Course.CreditHours
-                            </td>
-
-                            <td>
-                                @registration.CourseOffering.Semester.Name
-                            </td>
-
-                            <td>
-                                <span style="color:#18845b;font-weight:700;">
-                                    مسجل
-                                </span>
-                            </td>
+                            <th>المقرر</th>
+                            <th>عدد الساعات</th>
+                            <th>الفصل الدراسي</th>
+                            <th>حالة التسجيل</th>
                         </tr>
-                    }
+                    </thead>
 
-                </tbody>
+                    <tbody>
 
-            </table>
+                        @foreach (var registration in registrations)
+                        {
+                            <tr>
+
+                                <td>
+                                    @registration.CourseOffering.Course.Name
+                                </td>
+
+                                <td>
+                                    @registration.CourseOffering.Course.CreditHours
+                                </td>
+
+                                <td>
+                                    @registration.CourseOffering.Semester.Name
+                                </td>
+
+                                <td>
+                                    <span class="portal-status">
+                                        <i class="bi bi-check-circle"></i>
+                                        مسجل
+                                    </span>
+                                </td>
+
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
         }
 
     </div>
 
-    <!-- الرسوم -->
+    <!-- الرسوم الدراسية -->
+
     <h3 class="portal-section-title">
         <i class="bi bi-wallet2"></i>
         الرسوم الدراسية التقديرية
@@ -386,35 +527,51 @@
 
         <div class="portal-info">
 
+            <!-- سعر الساعة -->
+
             <div class="portal-info-item">
-                <small>سعر الساعة المعتمدة</small>
+
+                <small>
+                    سعر الساعة المعتمدة
+                </small>
 
                 <strong>
                     @(pricePerHour.HasValue
                         ? pricePerHour.Value.ToString("N2") + " "
                         : "غير محدد")
                 </strong>
+
             </div>
 
+            <!-- إجمالي الرسوم -->
+
             <div class="portal-info-item">
-                <small>إجمالي الرسوم التقديرية</small>
+
+                <small>
+                    إجمالي الرسوم التقديرية
+                </small>
 
                 <strong>
                     @(estimatedFees.HasValue
                         ? estimatedFees.Value.ToString("N2")
                         : "غير متوفر")
                 </strong>
+
             </div>
 
         </div>
 
+        <!-- ملاحظة الرسوم -->
+
         <div class="portal-note">
+
             <i class="bi bi-info-circle"></i>
 
             المبلغ المعروض تقديري، ويُحسب بناءً على
             عدد الساعات المسجلة وسعر الساعة في القسم
             والفصل الدراسي الفعّال. لا يمثل هذا المبلغ
             رصيداً مدفوعاً أو متبقياً.
+
         </div>
 
     </div>

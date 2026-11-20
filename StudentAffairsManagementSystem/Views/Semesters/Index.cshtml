@@ -1,10 +1,11 @@
-﻿
-@model IEnumerable<StudentAffairsManagementSystem.Models.Semester>
+﻿@model IEnumerable<StudentAffairsManagementSystem.Models.Semester>
 
 @{
     ViewData["Title"] = "إدارة الفصول الدراسية";
 
-    var semesters = Model.ToList();
+    var semesters = Model?.ToList()
+        ?? new List<StudentAffairsManagementSystem.Models.Semester>();
+
     bool isAdmin = User.IsInRole("Admin");
 
     int totalSemesters = semesters.Count;
@@ -12,17 +13,316 @@
     int inactiveSemesters = semesters.Count(s => !s.IsActive);
 }
 
-<div class="container-fluid py-4" dir="rtl">
+<style>
+    .semesters-page {
+        direction: rtl;
+        color: #142d4e;
+        padding-top: 20px;
+        padding-bottom: 25px;
+    }
 
-    <!-- عنوان الصفحة -->
-    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+    /* رأس الصفحة */
+
+    .semesters-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-bottom: 25px;
+    }
+
+        .semesters-header h2 {
+            color: #142d4e;
+            font-size: 26px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .semesters-header p {
+            color: #718096;
+            margin: 0;
+        }
+
+    /* زر إضافة فصل دراسي */
+
+    .semesters-add-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+        background: #c9a24d;
+        color: #142d4e;
+        border-radius: 11px;
+        padding: 12px 20px;
+        text-decoration: none;
+        font-weight: 800;
+        transition: background-color 0.2s ease;
+    }
+
+        .semesters-add-btn:hover {
+            background: #b9913d;
+            color: #142d4e;
+        }
+
+    /* بطاقات الإحصائيات */
+
+    .semesters-stats {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 18px;
+        margin-bottom: 25px;
+    }
+
+    .semesters-stat-card {
+        background: white;
+        border: 1px solid #e5eaf0;
+        border-right: 4px solid #c9a24d;
+        border-radius: 14px;
+        padding: 22px;
+    }
+
+        .semesters-stat-card.active {
+            border-right-color: #198754;
+        }
+
+        .semesters-stat-card.inactive {
+            border-right-color: #8a94a6;
+        }
+
+    .semesters-stat-label {
+        color: #718096;
+        font-size: 14px;
+        margin-bottom: 10px;
+    }
+
+    .semesters-stat-value {
+        color: #142d4e;
+        font-size: 30px;
+        font-weight: 800;
+        margin: 0;
+    }
+
+        .semesters-stat-value.active {
+            color: #198754;
+        }
+
+        .semesters-stat-value.inactive {
+            color: #6c757d;
+        }
+
+    /* بطاقة الجدول */
+
+    .semesters-table-card {
+        background: white;
+        border: 1px solid #e5eaf0;
+        border-radius: 15px;
+        overflow: hidden;
+    }
+
+    .semesters-table-header {
+        background: #142d4e;
+        color: white;
+        padding: 18px 22px;
+    }
+
+        .semesters-table-header h4 {
+            margin: 0;
+            font-size: 19px;
+            font-weight: 800;
+        }
+
+    .semesters-table-wrapper {
+        overflow-x: auto;
+    }
+
+    /* جدول الفصول */
+
+    .semesters-table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: center;
+    }
+
+        .semesters-table thead {
+            background: #f5f6f8;
+            color: #142d4e;
+        }
+
+        .semesters-table th {
+            padding: 16px;
+            font-size: 14px;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .semesters-table td {
+            padding: 16px;
+            border-bottom: 1px solid #edf0f5;
+            vertical-align: middle;
+            font-size: 14px;
+        }
+
+        .semesters-table tbody tr:hover {
+            background: #fafbfd;
+        }
+
+    /* حالة الفصل الدراسي */
+
+    .semester-status {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 7px 13px;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .semester-status-active {
+        background: #e8f6ee;
+        color: #197647;
+    }
+
+    .semester-status-inactive {
+        background: #eef0f3;
+        color: #596579;
+    }
+
+    /* أزرار الإجراءات الموحدة */
+
+    .semesters-actions {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .semesters-action-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-height: 43px;
+        padding: 9px 15px;
+        border-radius: 11px;
+        border: 1px solid transparent;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 700;
+        white-space: nowrap;
+        transition: background-color 0.2s ease, transform 0.2s ease;
+    }
+
+        .semesters-action-btn i {
+            font-size: 16px;
+        }
+
+    /* عرض التفاصيل */
+
+    .semesters-details-btn {
+        background: #eef2f8;
+        color: #142d4e;
+    }
+
+        .semesters-details-btn:hover {
+            background: #dfe7f2;
+            color: #142d4e;
+            transform: translateY(-1px);
+        }
+
+    /* تعديل */
+
+    .semesters-edit-btn {
+        background: #c9a24d;
+        color: #142d4e;
+    }
+
+        .semesters-edit-btn:hover {
+            background: #b9913d;
+            color: #142d4e;
+            transform: translateY(-1px);
+        }
+
+    /* حذف */
+
+    .semesters-delete-btn {
+        background: #fff0ee;
+        color: #c62828;
+        border-color: #ffc5bf;
+    }
+
+        .semesters-delete-btn:hover {
+            background: #ffe0dc;
+            color: #a91e1e;
+            border-color: #f2a8a0;
+            transform: translateY(-1px);
+        }
+
+    .semesters-action-btn:focus-visible {
+        outline: 3px solid #142d4e;
+        outline-offset: 3px;
+    }
+
+    /* حالة عدم وجود فصول */
+
+    .semesters-empty {
+        text-align: center;
+        padding: 45px 20px !important;
+        color: #718096;
+        font-size: 15px;
+    }
+
+        .semesters-empty i {
+            display: block;
+            font-size: 38px;
+            color: #c9a24d;
+            margin-bottom: 12px;
+        }
+
+    /* الشاشات الصغيرة */
+
+    @@media (max-width: 900px) {
+        .semesters-stats {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @@media (max-width: 600px) {
+        .semesters-stats {
+            grid-template-columns: 1fr;
+        }
+
+        .semesters-header h2 {
+            font-size: 22px;
+        }
+
+        .semesters-stat-card {
+            padding: 18px;
+        }
+
+        .semesters-table th,
+        .semesters-table td {
+            padding: 12px;
+        }
+    }
+</style>
+
+<div class="container-fluid semesters-page" dir="rtl">
+
+    <!-- رأس الصفحة -->
+
+    <div class="semesters-header">
 
         <div>
-            <h2 style="color:#142d4e; font-weight:800;">
+            <h2>
+                <i class="bi bi-calendar3"></i>
                 إدارة الفصول الدراسية
             </h2>
 
-            <p class="text-muted mb-0">
+            <p>
                 عرض الفصول الدراسية والأعوام الأكاديمية في الجامعة
             </p>
         </div>
@@ -31,9 +331,11 @@
         {
             <a asp-controller="Semesters"
                asp-action="Create"
-               class="btn px-4 py-2"
-               style="background:#c9a24d; color:#142d4e; font-weight:800;">
-                + إضافة فصل دراسي
+               class="semesters-add-btn">
+
+                <i class="bi bi-plus-circle"></i>
+                إضافة فصل دراسي
+
             </a>
         }
 
@@ -55,186 +357,210 @@
     }
 
     <!-- بطاقات الإحصائيات -->
-    <div class="row g-3 mb-4">
 
-        <div class="col-md-4">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body p-4">
+    <div class="semesters-stats">
 
-                    <div class="text-muted mb-2">
-                        إجمالي الفصول الدراسية
-                    </div>
+        <!-- إجمالي الفصول -->
 
-                    <h2 class="mb-0"
-                        style="color:#142d4e; font-weight:800;">
-                        @totalSemesters
-                    </h2>
+        <div class="semesters-stat-card">
 
-                </div>
+            <div class="semesters-stat-label">
+                إجمالي الفصول الدراسية
             </div>
+
+            <h2 class="semesters-stat-value">
+                @totalSemesters
+            </h2>
+
         </div>
 
-        <div class="col-md-4">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body p-4">
+        <!-- الفصول الفعالة -->
 
-                    <div class="text-muted mb-2">
-                        الفصول الفعالة
-                    </div>
+        <div class="semesters-stat-card active">
 
-                    <h2 class="mb-0 text-success fw-bold">
-                        @activeSemesters
-                    </h2>
-
-                </div>
+            <div class="semesters-stat-label">
+                الفصول الفعّالة
             </div>
+
+            <h2 class="semesters-stat-value active">
+                @activeSemesters
+            </h2>
+
         </div>
 
-        <div class="col-md-4">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body p-4">
+        <!-- الفصول غير الفعالة -->
 
-                    <div class="text-muted mb-2">
-                        الفصول غير الفعالة
-                    </div>
+        <div class="semesters-stat-card inactive">
 
-                    <h2 class="mb-0 text-secondary fw-bold">
-                        @inactiveSemesters
-                    </h2>
-
-                </div>
+            <div class="semesters-stat-label">
+                الفصول غير الفعّالة
             </div>
+
+            <h2 class="semesters-stat-value inactive">
+                @inactiveSemesters
+            </h2>
+
         </div>
 
     </div>
 
-    <!-- جدول الفصول الدراسية -->
-    <div class="card border-0 shadow-sm">
+    <!-- قائمة الفصول الدراسية -->
 
-        <div class="card-header py-3"
-             style="background:#142d4e; color:white;">
+    <div class="semesters-table-card">
 
-            <h5 class="mb-0">
+        <div class="semesters-table-header">
+
+            <h4>
+                <i class="bi bi-list-ul"></i>
                 قائمة الفصول الدراسية
-            </h5>
+            </h4>
 
         </div>
 
-        <div class="card-body p-0">
+        <div class="semesters-table-wrapper">
 
-            <div class="table-responsive">
+            <table class="semesters-table">
 
-                <table class="table table-hover align-middle text-center mb-0">
+                <thead>
+                    <tr>
+                        <th>رقم الفصل</th>
+                        <th>اسم الفصل</th>
+                        <th>العام الدراسي</th>
+                        <th>تاريخ البداية</th>
+                        <th>تاريخ النهاية</th>
+                        <th>الحالة</th>
+                        <th>الإجراءات</th>
+                    </tr>
+                </thead>
 
-                    <thead style="background:#f5f6f8;">
-                        <tr>
-                            <th>رقم الفصل</th>
-                            <th>اسم الفصل</th>
-                            <th>العام الدراسي</th>
-                            <th>تاريخ البداية</th>
-                            <th>تاريخ النهاية</th>
-                            <th>الحالة</th>
-                            <th>الإجراءات</th>
-                        </tr>
-                    </thead>
+                <tbody>
 
-                    <tbody>
-
-                        @if (semesters.Any())
-                        {
-                            @foreach (var semester in semesters)
-                            {
-                                <tr>
-
-                                    <td class="fw-bold">
-                                        @semester.SemesterNumber
-                                    </td>
-
-                                    <td>
-                                        @semester.Name
-                                    </td>
-
-                                    <td>
-                                        @semester.AcademicYear
-                                    </td>
-
-                                    <td dir="ltr">
-                                        @semester.StartDate.ToString("yyyy/MM/dd")
-                                    </td>
-
-                                    <td dir="ltr">
-                                        @semester.EndDate.ToString("yyyy/MM/dd")
-                                    </td>
-
-                                    <td>
-                                        @if (semester.IsActive)
-                                        {
-                                            <span class="badge bg-success px-3 py-2">
-                                                فعال
-                                            </span>
-                                        }
-                                        else
-                                        {
-                                            <span class="badge bg-secondary px-3 py-2">
-                                                غير فعال
-                                            </span>
-                                        }
-                                    </td>
-
-                                    <td>
-                                        <div class="d-flex justify-content-center gap-2 flex-wrap">
-
-                                            <a asp-controller="Semesters"
-                                               asp-action="Details"
-                                               asp-route-id="@semester.Id"
-                                               class="btn btn-sm btn-outline-primary">
-                                                التفاصيل
-                                            </a>
-
-                                            @if (isAdmin)
-                                            {
-                                                <a asp-controller="Semesters"
-                                                   asp-action="Edit"
-                                                   asp-route-id="@semester.Id"
-                                                   class="btn btn-sm btn-outline-warning">
-                                                    تعديل
-                                                </a>
-
-                                                <a asp-controller="Semesters"
-                                                   asp-action="Delete"
-                                                   asp-route-id="@semester.Id"
-                                                   class="btn btn-sm btn-outline-danger">
-                                                    حذف
-                                                </a>
-                                            }
-
-                                        </div>
-                                    </td>
-
-                                </tr>
-                            }
-                        }
-                        else
+                    @if (semesters.Any())
+                    {
+                        @foreach (var semester in semesters)
                         {
                             <tr>
-                                <td colspan="7"
-                                    class="text-center text-muted py-5">
 
-                                    <div style="font-size:36px;" class="mb-2">
-                                        📚
-                                    </div>
+                                <!-- رقم الفصل -->
 
-                                    لا توجد فصول دراسية مسجلة حاليًا.
+                                <td>
+                                    <strong>
+                                        @semester.SemesterNumber
+                                    </strong>
+                                </td>
+
+                                <!-- اسم الفصل -->
+
+                                <td>
+                                    @semester.Name
+                                </td>
+
+                                <!-- العام الدراسي -->
+
+                                <td>
+                                    @semester.AcademicYear
+                                </td>
+
+                                <!-- تاريخ البداية -->
+
+                                <td dir="ltr">
+                                    @semester.StartDate.ToString("yyyy/MM/dd")
+                                </td>
+
+                                <!-- تاريخ النهاية -->
+
+                                <td dir="ltr">
+                                    @semester.EndDate.ToString("yyyy/MM/dd")
+                                </td>
+
+                                <!-- حالة الفصل -->
+
+                                <td>
+
+                                    @if (semester.IsActive)
+                                    {
+                                        <span class="semester-status semester-status-active">
+                                            فعّال
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="semester-status semester-status-inactive">
+                                            غير فعّال
+                                        </span>
+                                    }
 
                                 </td>
+
+                                <!-- الإجراءات -->
+
+                                <td>
+
+                                    <div class="semesters-actions">
+
+                                        <!-- عرض التفاصيل -->
+
+                                        <a asp-controller="Semesters"
+                                           asp-action="Details"
+                                           asp-route-id="@semester.Id"
+                                           class="semesters-action-btn semesters-details-btn">
+
+                                            <i class="bi bi-eye"></i>
+                                            عرض التفاصيل
+
+                                        </a>
+
+                                        @if (isAdmin)
+                                        {
+                                            <!-- تعديل -->
+
+                                            <a asp-controller="Semesters"
+                                               asp-action="Edit"
+                                               asp-route-id="@semester.Id"
+                                               class="semesters-action-btn semesters-edit-btn">
+
+                                                <i class="bi bi-pencil-square"></i>
+                                                تعديل
+
+                                            </a>
+
+                                            <!-- حذف -->
+
+                                            <a asp-controller="Semesters"
+                                               asp-action="Delete"
+                                               asp-route-id="@semester.Id"
+                                               class="semesters-action-btn semesters-delete-btn">
+
+                                                <i class="bi bi-trash3"></i>
+                                                حذف
+
+                                            </a>
+                                        }
+
+                                    </div>
+
+                                </td>
+
                             </tr>
                         }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="7"
+                                class="semesters-empty">
 
-                    </tbody>
+                                <i class="bi bi-calendar-x"></i>
 
-                </table>
+                                لا توجد فصول دراسية مسجلة حاليًا.
 
-            </div>
+                            </td>
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
 
         </div>
 
